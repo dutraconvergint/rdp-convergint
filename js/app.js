@@ -16,7 +16,8 @@ const ABREV = {AV:"AV", BMS:"BMS", SDAI:"SDAI", SECURITY:"SEG"};
 
 let usuarioAtual = null;
 let clientes = [];
-let nProfs = 2, nAtv = 3, nFotos = 2;
+let nProfs = 2, nAtv = 3, nFotos = 1;
+let ultimoSistemaGlobal = "AV";
 const fotosImgs = {};  // idx → dataURL
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
@@ -51,6 +52,7 @@ window.sair = () => signOut(auth).then(() => location.href = "index.html");
 function initForm() {
   for (let i = 0; i < nProfs; i++) addProf(false);
   for (let i = 0; i < nAtv;   i++) addAtv(false);
+  ultimoSistemaGlobal = document.getElementById("sistema")?.value || "AV";
   for (let i = 0; i < nFotos; i++) addFoto(false);
   atualizarPreviewNome();
   ["codigo","data","sistema","profArq"].forEach(id =>
@@ -155,28 +157,36 @@ window.addFoto = function(increment=true) {
   const sis = document.getElementById("sistema")?.value || "AV";
   const div = document.createElement("div");
   div.className = "foto-card border rounded p-2 mb-2";
+  div.dataset.idx = idx;
   div.innerHTML = `
-    <strong class="d-block mb-2 small">Foto ${idx+1}</strong>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <strong class="small"><i class="bi bi-image"></i> Foto ${idx+1}</strong>
+      <span class="badge text-bg-secondary">Nº ${idx+1}</span>
+    </div>
     <div class="row g-2 align-items-start">
       <div class="col-md-2">
-        <select class="form-select form-select-sm foto-sis" data-foto="${idx}">
+        <label class="form-label small mb-1">Sistema</label>
+        <select class="form-select form-select-sm foto-sis" data-foto="${idx}"
+                onchange="this.dataset.manual='true'">
           ${["AV","BMS","SDAI","SECURITY"].map(s =>
             `<option${s===sis?" selected":""}>${s}</option>`).join("")}
         </select>
       </div>
       <div class="col-md-3">
-        <input class="form-control form-control-sm" placeholder="Ambiente"
+        <label class="form-label small mb-1">Ambiente</label>
+        <input class="form-control form-control-sm" placeholder="Ex.: Sala técnica"
                data-foto="${idx}" data-field="amb">
       </div>
       <div class="col-md-3">
+        <label class="form-label small mb-1">Texto explicativo</label>
         <textarea class="form-control form-control-sm" rows="2"
-                  placeholder="Descrição" data-foto="${idx}" data-field="desc"></textarea>
+                  placeholder="Texto explicativo da imagem" data-foto="${idx}" data-field="desc"></textarea>
       </div>
       <div class="col-md-4">
+        <label class="form-label small mb-1">Imagem</label>
         <input type="file" class="form-control form-control-sm" accept="image/*"
                onchange="carregarFoto(this,${idx})">
-        <img id="thumbFoto${idx}" src="" class="mt-1 rounded d-none"
-             style="max-height:70px;max-width:100%">
+        <img id="thumbFoto${idx}" src="" class="mt-1 rounded d-none foto-thumb">
       </div>
     </div>`;
   document.getElementById("listaFotos").appendChild(div);
@@ -204,7 +214,17 @@ window.carregarFoto = function(input, idx) {
 
 window.atualizarSistemaFotos = function() {
   const sis = document.getElementById("sistema")?.value || "AV";
-  document.querySelectorAll(".foto-sis").forEach(sel => sel.value = sis);
+
+  // Preenche automaticamente o sistema das fotos novas/sem ajuste manual.
+  // Se o usuário alterou uma foto pontualmente, ela não é sobrescrita.
+  document.querySelectorAll(".foto-sis").forEach(sel => {
+    const foiManual = sel.dataset.manual === "true";
+    if (!foiManual || sel.value === ultimoSistemaGlobal) {
+      sel.value = sis;
+    }
+  });
+
+  ultimoSistemaGlobal = sis;
   atualizarPreviewNome();
 };
 
