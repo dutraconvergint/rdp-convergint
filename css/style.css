@@ -121,3 +121,11 @@ html[data-bs-theme="dark"] body {
     position: static !important;
   }
 }
+
+.foto-thumb {
+  max-height: 80px !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+  background: #ffffff;
+  padding: 2px;
+}
