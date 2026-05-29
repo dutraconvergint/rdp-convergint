@@ -212,6 +212,35 @@ window.carregarFoto = function(input, idx) {
   reader.readAsDataURL(input.files[0]);
 };
 
+// ── Upload de múltiplas fotos de uma vez ──────────────────────────────────────
+window.uploadEmLote = function() {
+  const input = document.createElement("input");
+  input.type     = "file";
+  input.accept   = "image/*";
+  input.multiple = true;              // permite selecionar várias fotos
+
+  input.addEventListener("change", function() {
+    const files = Array.from(this.files);
+    if (!files.length) return;
+
+    files.forEach(file => {
+      // Cria um novo slot de foto para cada arquivo
+      addFoto();
+      const idx = document.querySelectorAll(".foto-card").length - 1;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        fotosImgs[idx] = e.target.result;
+        const thumb = document.getElementById(`thumbFoto${idx}`);
+        if (thumb) { thumb.src = e.target.result; thumb.classList.remove("d-none"); }
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  input.click();   // abre o seletor de arquivos do SO
+};
+
 window.atualizarSistemaFotos = function() {
   const sis = document.getElementById("sistema")?.value || "AV";
 

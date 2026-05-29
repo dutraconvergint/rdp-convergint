@@ -229,35 +229,111 @@ function fotoBlocoHTML(f) {
 
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DOCX estável via html-docx-js
+// DOCX via docxtemplater + template_rdp.docx (substitui html-docx-js corrompido)
 // ─────────────────────────────────────────────────────────────────────────────
-export async function gerarDOCX(d) {
-  if (!window.htmlDocx || typeof window.htmlDocx.asBlob !== "function") {
-    throw new Error("Biblioteca html-docx-js não carregada. Verifique o script no app.html.");
-  }
 
-  // Usa o mesmo HTML do PDF. Assim PDF e DOCX ficam com o mesmo conteúdo
-  // e evita arquivo .docx corrompido por OpenXML montado manualmente.
-  const html = prepararHtmlParaDocx(gerarHTML(d));
+// Imagem 1×1 transparente para slots de foto vazios
+const IMG_VAZIA = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
-  const blob = window.htmlDocx.asBlob(html, {
-    orientation: "portrait",
-    margins: {
-      top: 567,
-      right: 567,
-      bottom: 567,
-      left: 567
-    }
-  });
-
-  baixarBlob(blob, nomeArquivo(d, "docx"));
+function b64ToBytes(dataUrl) {
+  const base64 = (dataUrl || "").includes(",") ? dataUrl.split(",")[1] : (dataUrl || "");
+  try {
+    const bin = atob(base64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  } catch { return new Uint8Array(0); }
 }
 
-function prepararHtmlParaDocx(html) {
-  // Garante que o DOCX receba HTML válido.
-  // Não fazemos replace com strings quebradas para evitar erro de módulo.
-  return String(html || "")
-    .replace(/<title>.*?<\/title>/, "<title>Relatório Diário de Programação</title>");
+function buildTags(d) {
+  const tags = {
+    codigo:       d.codigo       || "",
+    nome_cliente: d.nomeCliente  || "",
+    data:         d.data         || "",
+    contratante:  d.contratante  || "",
+    obra:         d.obra         || "",
+    endereco:     d.endereco     || "",
+    h_ini_prev:   d.hIniPrev     || "08:30",
+    h_ini_real:   d.hIniReal     || "",
+    h_fim_prev:   d.hFimPrev     || "18:00",
+    h_fim_real:   d.hFimReal     || "",
+    detalhamento: d.detalhamento || "",
+  };
+  // 12 slots de profissionais
+  for (let i = 0; i < 12; i++) {
+    const p = d.profissionais?.[i] || {};
+    tags[`prof_${i}_nome`]    = p.nome    || "";
+    tags[`prof_${i}_empresa`] = p.empresa || "";
+    tags[`prof_${i}_funcao`]  = p.funcao  || "";
+  }
+  // 12 slots de atividades
+  for (let i = 0; i < 12; i++) {
+    const a = d.atividades?.[i] || {};
+    tags[`atv_${i}_num`]    = a.num    ? String(a.num) : "";
+    tags[`atv_${i}_desc`]   = a.desc   || "";
+    tags[`atv_${i}_amb`]    = a.amb    || "";
+    tags[`atv_${i}_crit`]   = a.crit   || "";
+    tags[`atv_${i}_status`] = a.status || "";
+  }
+  // 12 slots de foto (imagem real ou 1×1 invisível)
+  for (let i = 0; i < 12; i++) {
+    const f = d.fotos?.[i] || {};
+    tags[`foto_${i}_sis`]  = f.sis  || "";
+    tags[`foto_${i}_amb`]  = f.amb  || "";
+    tags[`foto_${i}_desc`] = f.desc || "";
+    tags[`foto_${i}_img`]  = f.img  || IMG_VAZIA;
+  }
+  return tags;
+}
+
+export async function gerarDOCX(d) {
+  const PizZip        = window.PizZip;
+  const Docxtemplater = window.docxtemplater;
+  const ImageModule   = window.DocxtemplaterImageModuleFree;
+
+  if (!PizZip || !Docxtemplater) throw new Error(
+    "Bibliotecas DOCX não carregadas.\n" +
+    "Verifique os scripts <script src=...pizzip...> e <script src=...docxtemplater...> no app.html."
+  );
+
+  const resp = await fetch("template_rdp.docx");
+  if (!resp.ok) throw new Error(
+    "template_rdp.docx não encontrado no repositório.\n" +
+    "Rode converter_template.py na pasta local e faça upload do arquivo gerado para o GitHub."
+  );
+
+  const buf = await resp.arrayBuffer();
+  const zip = new PizZip(buf);
+
+  const modules = [];
+  if (ImageModule) {
+    modules.push(new ImageModule({
+      centered: true,
+      getImage(tagValue) {
+        return b64ToBytes(tagValue || IMG_VAZIA);
+      },
+      getSize(img, tagValue) {
+        if (!tagValue || tagValue === IMG_VAZIA) return [1, 1];
+        return [270, 175]; // largura × altura em pontos
+      },
+    }));
+  }
+
+  const tmpl = new Docxtemplater(zip, {
+    modules,
+    paragraphLoop: true,
+    linebreaks:    true,
+    nullGetter()  { return ""; },  // tags não encontradas viram string vazia
+  });
+
+  tmpl.render(buildTags(d));
+
+  const out = tmpl.getZip().generate({
+    type:     "blob",
+    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  });
+
+  baixarBlob(out, nomeArquivo(d, "docx"));
 }
 
 function baixarBlob(blob, filename) {
