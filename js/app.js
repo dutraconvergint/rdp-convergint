@@ -257,6 +257,24 @@ window.atualizarSistemaFotos = function() {
   atualizarPreviewNome();
 };
 
+
+// ── Editor rico do detalhamento ───────────────────────────────────────────────
+window.formatarDetalhamento = function(cmd, value = null) {
+  const editor = document.getElementById("detalhamentoEditor");
+  if (!editor) return;
+  editor.focus();
+  try { document.execCommand(cmd, false, value); }
+  catch (e) { console.warn("Falha ao formatar detalhamento:", e); }
+};
+
+window.limparFormatacaoDetalhamento = function() {
+  const editor = document.getElementById("detalhamentoEditor");
+  if (!editor) return;
+  editor.focus();
+  try { document.execCommand("removeFormat", false, null); }
+  catch (e) { console.warn("Falha ao limpar formatação:", e); }
+};
+
 // ── Coletar dados do formulário ────────────────────────────────────────────────
 function coletarDados() {
   const profissionais = [];
@@ -302,13 +320,14 @@ function coletarDados() {
     contratante:   document.getElementById("contratante")?.value?.trim() || "",
     obra:          document.getElementById("obra")?.value?.trim()        || "",
     endereco:      document.getElementById("endereco")?.value?.trim()    || "",
-    hIniPrev:      document.getElementById("hIniPrev")?.value  || "08:30",
-    hIniReal:      document.getElementById("hIniReal")?.value  || "",
-    hFimPrev:      document.getElementById("hFimPrev")?.value  || "18:00",
-    hFimReal:      document.getElementById("hFimReal")?.value  || "",
+    hIniPrev:      document.getElementById("hIniPrev")?.value  || "08:00",
+    hIniReal:      document.getElementById("hIniReal")?.value  || "08:00",
+    hFimPrev:      document.getElementById("hFimPrev")?.value  || "17:00",
+    hFimReal:      document.getElementById("hFimReal")?.value  || "17:00",
     produtividade: document.getElementById("produtividade")?.value || "Produtivo",
     clima:         document.getElementById("clima")?.value         || "Bom",
-    detalhamento:  document.getElementById("detalhamento")?.value  || "",
+    detalhamento:  (document.getElementById("detalhamentoEditor")?.innerText || "").trim(),
+    detalhamentoHtml: document.getElementById("detalhamentoEditor")?.innerHTML || "",
     profissionais, atividades, fotos,
   };
 }

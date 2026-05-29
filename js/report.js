@@ -417,6 +417,16 @@ function normalizarTemplateZip(zip) {
       '="$1"'
     );
 
+    // Detalhamento será substituído por OOXML rico depois do Docxtemplater.
+    xml = xml.replace(/<w:t([^>]*)>\{detalhamento\}<\/w:t>/g, '<w:t$1>{detalhamento_token}</w:t>');
+
+    // Insere um token de quebra de página antes de cada tabela de fotos.
+    // O token fica vazio normalmente, mas antes da foto 7, 13, 19... vira uma quebra real.
+    if (nome === "word/document.xml" && xml.includes("{#fotoPares}") && !xml.includes("{page_break_token}")) {
+      const pbPar = '<w:p><w:r><w:t>{page_break_token}</w:t></w:r></w:p>';
+      xml = xml.replace(/(<w:p[^>]*>[\s\S]*?<w:t>\{#fotoPares\}<\/w:t>[\s\S]*?<\/w:p>)(<w:tbl>)/, '$1' + pbPar + '$2');
+    }
+
     zip.file(nome, xml);
   });
 }
@@ -450,7 +460,10 @@ function montarParesFotosDocx(fotos, imagens) {
       imagens.push({ token: dirToken, dataUrl: dir.img, maxWpt: 265, maxHpt: 170, name: `Foto ${dir.num || i + 2}` });
     }
 
+    const pageBreakToken = i > 0 && i % 6 === 0 ? `__RDP_PAGE_BREAK_${i}__` : "";
+
     pares.push({
+      page_break_token: pageBreakToken,
       esq_num:  esq.num  ? String(esq.num) : String(i + 1),
       esq_sis:  esq.sis  || "",
       esq_amb:  esq.amb  || "",
@@ -485,11 +498,12 @@ function buildTagsDocx(d) {
     contratante:  d.contratante  || "",
     obra:         d.obra         || "",
     endereco:     d.endereco     || "",
-    h_ini_prev:   d.hIniPrev     || "08:30",
-    h_ini_real:   d.hIniReal     || "",
-    h_fim_prev:   d.hFimPrev     || "18:00",
-    h_fim_real:   d.hFimReal     || "",
+    h_ini_prev:   d.hIniPrev     || "08:00",
+    h_ini_real:   d.hIniReal     || "08:00",
+    h_fim_prev:   d.hFimPrev     || "17:00",
+    h_fim_real:   d.hFimReal     || "17:00",
     detalhamento: d.detalhamento || "",
+    detalhamento_token: "__RDP_DETAIL_HTML__",
 
     prod_muito: produtividade === "Muito Produtivo" ? "X" : "",
     prod_ok:    produtividade === "Produtivo"       ? "X" : "",
@@ -580,6 +594,182 @@ function inserirImagensNoDocx(zip, imagens) {
   zip.file("word/document.xml", documentXml);
 }
 
+
+function paragrafoComTokenRe(tokenPattern) {
+  return new RegExp(`<w:p\\b[^>]*>(?:(?!<\\/w:p>)[\\s\\S])*${tokenPattern}(?:(?!<\\/w:p>)[\\s\\S])*<\\/w:p>`, "g");
+}
+
+function pageBreakParagraphXml() {
+  return `<w:p><w:r><w:br w:type="page"/></w:r></w:p>`;
+}
+
+function substituirQuebrasPagina(zip) {
+  const docFile = zip.file("word/document.xml");
+  if (!docFile) return;
+  let xml = docFile.asText();
+  xml = xml.replace(paragrafoComTokenRe("__RDP_PAGE_BREAK_[0-9]+__"), pageBreakParagraphXml());
+  xml = xml.replace(/__RDP_PAGE_BREAK_[0-9]+__/g, "");
+  zip.file("word/document.xml", xml);
+}
+
+function hexColorFromCss(value) {
+  if (!value) return "";
+  const v = String(value).trim();
+  const hex = v.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (hex) {
+    let h = hex[1];
+    if (h.length === 3) h = h.split("").map(c => c + c).join("");
+    return h.toUpperCase();
+  }
+  const rgb = v.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  if (rgb) {
+    return [rgb[1], rgb[2], rgb[3]].map(n => Math.max(0, Math.min(255, Number(n))).toString(16).padStart(2, "0")).join("").toUpperCase();
+  }
+  return "";
+}
+
+function runXml(text, fmt = {}) {
+  if (text === null || text === undefined || text === "") return "";
+  const parts = String(text).split(/\n/);
+  const rPr = [];
+  rPr.push(`<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>`);
+  rPr.push(`<w:sz w:val="20"/><w:szCs w:val="20"/>`);
+  if (fmt.bold) rPr.push(`<w:b/><w:bCs/>`);
+  if (fmt.italic) rPr.push(`<w:i/><w:iCs/>`);
+  if (fmt.underline) rPr.push(`<w:u w:val="single"/>`);
+  if (fmt.color) rPr.push(`<w:color w:val="${escapeXmlAttr(fmt.color)}"/>`);
+  const pr = `<w:rPr>${rPr.join("")}</w:rPr>`;
+  return parts.map((part, i) => {
+    const textXml = part ? `<w:t xml:space="preserve">${escXml(part)}</w:t>` : "";
+    const br = i > 0 ? `<w:br/>` : "";
+    return `<w:r>${pr}${br}${textXml}</w:r>`;
+  }).join("");
+}
+
+function inlineRuns(node, fmt = {}) {
+  if (!node) return "";
+  if (node.nodeType === 3) return runXml(node.nodeValue, fmt);
+  if (node.nodeType !== 1) return "";
+
+  const tag = node.tagName.toLowerCase();
+  if (tag === "br") return `<w:r><w:br/></w:r>`;
+
+  const nf = { ...fmt };
+  if (tag === "b" || tag === "strong") nf.bold = true;
+  if (tag === "i" || tag === "em") nf.italic = true;
+  if (tag === "u") nf.underline = true;
+
+  const style = node.getAttribute("style") || "";
+  if (/font-weight\s*:\s*(bold|[6-9]00)/i.test(style)) nf.bold = true;
+  if (/font-style\s*:\s*italic/i.test(style)) nf.italic = true;
+  if (/text-decoration[^;]*underline/i.test(style)) nf.underline = true;
+  const color = style.match(/(?:^|;)\s*color\s*:\s*([^;]+)/i);
+  const hex = color ? hexColorFromCss(color[1]) : "";
+  if (hex) nf.color = hex;
+
+  let out = "";
+  node.childNodes.forEach(child => { out += inlineRuns(child, nf); });
+  return out;
+}
+
+function paragraphXml(runs, opts = {}) {
+  const jc = opts.align ? `<w:jc w:val="${escapeXmlAttr(opts.align)}"/>` : "";
+  const indent = opts.indent ? `<w:ind w:left="${opts.indent}"/>` : "";
+  const pPr = `<w:pPr><w:spacing w:after="80" w:line="276" w:lineRule="auto"/>${indent}${jc}</w:pPr>`;
+  return `<w:p>${pPr}${runs || runXml(" ")}</w:p>`;
+}
+
+function elementoEhBloco(el) {
+  if (!el || el.nodeType !== 1) return false;
+  return /^(p|div|section|article|li|ul|ol|h1|h2|h3|h4|h5|h6|blockquote)$/i.test(el.tagName);
+}
+
+function blocosDetalhamento(node, out, level = 0, listType = null) {
+  if (!node) return;
+
+  if (node.nodeType === 3) {
+    const t = node.nodeValue.replace(/\s+/g, " ").trim();
+    if (t) out.push(paragraphXml(runXml(t)));
+    return;
+  }
+  if (node.nodeType !== 1) return;
+
+  const tag = node.tagName.toLowerCase();
+
+  if (tag === "ul" || tag === "ol") {
+    let n = 1;
+    Array.from(node.children).forEach(ch => {
+      if (ch.tagName && ch.tagName.toLowerCase() === "li") {
+        blocosDetalhamento(ch, out, level + 1, tag === "ol" ? n++ : "bullet");
+      }
+    });
+    return;
+  }
+
+  if (tag === "li") {
+    const prefix = listType === "bullet" ? "• " : `${listType || 1}. `;
+    const runs = runXml(prefix, {}) + Array.from(node.childNodes)
+      .filter(ch => !(ch.nodeType === 1 && /^(ul|ol)$/i.test(ch.tagName)))
+      .map(ch => inlineRuns(ch, {})).join("");
+    out.push(paragraphXml(runs, { indent: Math.min(1440, level * 360) }));
+    Array.from(node.children).forEach(ch => {
+      if (/^(ul|ol)$/i.test(ch.tagName)) blocosDetalhamento(ch, out, level + 1, null);
+    });
+    return;
+  }
+
+  if (/^h[1-6]$/.test(tag)) {
+    out.push(paragraphXml(inlineRuns(node, { bold: true })));
+    return;
+  }
+
+  if (tag === "p" || tag === "div" || tag === "blockquote") {
+    const style = node.getAttribute("style") || "";
+    let align = "";
+    const mAlign = style.match(/text-align\s*:\s*(center|right|left|justify)/i);
+    if (mAlign) align = mAlign[1].toLowerCase();
+    out.push(paragraphXml(inlineRuns(node, {}), { align }));
+    return;
+  }
+
+  let hasBlock = false;
+  node.childNodes.forEach(ch => { if (elementoEhBloco(ch)) hasBlock = true; });
+  if (hasBlock) {
+    node.childNodes.forEach(ch => blocosDetalhamento(ch, out, level, listType));
+  } else {
+    const runs = inlineRuns(node, {});
+    if (runs) out.push(paragraphXml(runs));
+  }
+}
+
+function htmlDetalhamentoParaOOXML(html, textoFallback = "") {
+  let out = [];
+  const cleanHtml = String(html || "").trim();
+
+  if (cleanHtml && typeof DOMParser !== "undefined") {
+    const doc = new DOMParser().parseFromString(`<div>${cleanHtml}</div>`, "text/html");
+    const root = doc.body.firstElementChild;
+    root.childNodes.forEach(ch => blocosDetalhamento(ch, out));
+  }
+
+  if (!out.length && textoFallback) {
+    out = String(textoFallback).split(/\n+/).map(l => paragraphXml(runXml(l || " ")));
+  }
+
+  if (!out.length) out.push(paragraphXml(runXml(" ")));
+  return out.join("");
+}
+
+function inserirDetalhamentoRich(zip, html, textoFallback = "") {
+  const docFile = zip.file("word/document.xml");
+  if (!docFile) return;
+  let xml = docFile.asText();
+  const detalheXml = htmlDetalhamentoParaOOXML(html, textoFallback);
+  xml = xml.replace(paragrafoComTokenRe("__RDP_DETAIL_HTML__"), detalheXml);
+  xml = xml.replace(/__RDP_DETAIL_HTML__/g, "");
+  zip.file("word/document.xml", xml);
+}
+
 export async function gerarDOCX(d) {
   const PizZip = window.PizZip;
   const Docxtemplater = window.docxtemplater || window.Docxtemplater;
@@ -615,6 +805,9 @@ export async function gerarDOCX(d) {
   } catch (e) {
     throw new Error("Erro no template_rdp.docx:\n" + erroTemplateDetalhado(e));
   }
+
+  inserirDetalhamentoRich(tmpl.getZip(), d.detalhamentoHtml || "", d.detalhamento || "");
+  substituirQuebrasPagina(tmpl.getZip());
 
   const imagensPreparadas = await prepararImagens(imagens);
   inserirImagensNoDocx(tmpl.getZip(), imagensPreparadas);
