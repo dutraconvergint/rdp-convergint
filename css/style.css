@@ -130,36 +130,74 @@ html[data-bs-theme="dark"] body {
   padding: 2px;
 }
 
-/* Editor rico do detalhamento */
-.rdp-editor-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+
+/* ===== Editor online estilo Word para Detalhamento ===== */
+.rdp-word-toolbar.ql-toolbar.ql-snow,
+.rdp-word-toolbar {
+  border: 1px solid #334155 !important;
+  border-radius: 8px 8px 0 0;
+  background: #e5e7eb !important;
+  color: #111827 !important;
 }
-.rdp-rich-editor {
-  min-height: 170px;
-  height: auto;
-  overflow: auto;
-  white-space: normal;
-  background: #0f172a !important;
-  color: #e5e7eb !important;
-  border-color: #334155 !important;
+
+.rdp-word-toolbar .ql-picker,
+.rdp-word-toolbar .ql-stroke,
+.rdp-word-toolbar .ql-fill,
+.rdp-word-toolbar button,
+.rdp-word-toolbar .ql-picker-label {
+  color: #111827 !important;
 }
-.rdp-rich-editor:empty::before {
-  content: attr(data-placeholder);
-  color: #94a3b8;
-  pointer-events: none;
+
+.rdp-word-toolbar .ql-stroke {
+  stroke: #111827 !important;
 }
-.rdp-rich-editor p,
-.rdp-rich-editor div {
-  margin: 0 0 8px;
+
+.rdp-word-toolbar .ql-fill {
+  fill: #111827 !important;
 }
-.rdp-rich-editor ul,
-.rdp-rich-editor ol {
-  margin: 0 0 8px 24px;
-  padding-left: 18px;
+
+.rdp-word-editor.ql-container.ql-snow {
+  border: 1px solid #334155 !important;
+  border-top: 0 !important;
+  border-radius: 0 0 8px 8px;
+  background: #ffffff !important;
+  color: #111827 !important;
+  min-height: 360px;
+  font-family: Arial, "Segoe UI", sans-serif;
 }
-.rdp-rich-editor:focus {
-  outline: 0;
-  box-shadow: 0 0 0 .2rem rgba(96,165,250,.18);
+
+.rdp-word-editor .ql-editor {
+  min-height: 360px;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 28px 34px;
+  font-size: 12pt;
+  line-height: 1.45;
+  background: #ffffff !important;
+  color: #111827 !important;
+}
+
+.rdp-word-editor .ql-editor.ql-blank::before {
+  color: #64748b !important;
+  font-style: normal;
+  left: 34px;
+}
+
+.rdp-word-editor .ql-editor p,
+.rdp-word-editor .ql-editor ol,
+.rdp-word-editor .ql-editor ul {
+  margin-bottom: 8px;
+}
+
+.rdp-word-editor .ql-editor h1,
+.rdp-word-editor .ql-editor h2,
+.rdp-word-editor .ql-editor h3 {
+  margin: 10px 0 8px;
+}
+
+@media (max-width: 768px) {
+  .rdp-word-editor .ql-editor {
+    min-height: 280px;
+    padding: 18px;
+  }
 }
