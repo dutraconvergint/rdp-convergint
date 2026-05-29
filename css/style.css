@@ -24,3 +24,100 @@
   padding: 2px 6px !important;
   font-size: .75rem !important;
 }
+
+/* ===== Modo dark e correções de layout ===== */
+html[data-bs-theme="dark"],
+html[data-bs-theme="dark"] body {
+  background: #0b1220 !important;
+  color: #e5e7eb !important;
+}
+
+.app-dark .navbar,
+.app-dark nav.navbar {
+  background: #0f2a46 !important;
+  border-bottom: 1px solid #27415f;
+}
+
+.app-dark .card {
+  background: #111827 !important;
+  color: #e5e7eb !important;
+  border-color: #334155 !important;
+}
+
+.app-dark .card-header,
+.app-dark .card-footer,
+.app-dark .sec-hdr {
+  background: #172033 !important;
+  color: #e5e7eb !important;
+  border-color: #334155 !important;
+}
+
+.app-dark .sec-header {
+  background: #14385c !important;
+  color: #ffffff !important;
+  border: 1px solid #275176;
+}
+
+.app-dark .form-control,
+.app-dark .form-select,
+.app-dark textarea {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.app-dark .form-control::placeholder,
+.app-dark textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.app-dark .text-muted,
+.app-dark small.text-muted {
+  color: #aab6c5 !important;
+}
+
+.app-dark .prof-row,
+.app-dark .atv-row,
+.app-dark .foto-card,
+.app-dark .cliente-item {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #e5e7eb !important;
+}
+
+/* evita a tela do cabeçalho estourar/distorcer */
+#appContent .card-body {
+  overflow-x: auto;
+}
+
+#logoPreview {
+  max-width: 180px !important;
+  max-height: 52px !important;
+  object-fit: contain !important;
+  display: block;
+}
+
+.cliente-item img {
+  max-width: 95px !important;
+  max-height: 38px !important;
+  object-fit: contain !important;
+  background: #ffffff;
+  padding: 2px;
+}
+
+#previewNome {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 991px) {
+  #appContent .col-lg-3,
+  #appContent .col-lg-9 {
+    width: 100%;
+  }
+  .sticky-top {
+    position: static !important;
+  }
+}
