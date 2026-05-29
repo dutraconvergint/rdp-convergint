@@ -310,48 +310,71 @@ export async function gerarDOCX(d) {
   const ImageModule   = window.DocxtemplaterImageModuleFree;
 
   if (!PizZip || !Docxtemplater) throw new Error(
-    "Bibliotecas DOCX não carregadas.\n" +
-    "Verifique os scripts <script src=...pizzip...> e <script src=...docxtemplater...> no app.html."
+    "Bibliotecas DOCX não carregadas. Verifique os <script> do pizzip e docxtemplater no app.html."
   );
 
   const resp = await fetch("template_rdp.docx");
   if (!resp.ok) throw new Error(
-    "template_rdp.docx não encontrado no repositório.\n" +
-    "Rode converter_template.py na pasta local e faça upload do arquivo gerado para o GitHub."
+    "template_rdp.docx não encontrado.\nRode converter_template.py e faça upload do arquivo gerado."
   );
 
   const buf = await resp.arrayBuffer();
   const zip = new PizZip(buf);
 
+  // Módulo de imagem
   const modules = [];
+  let temImgModule = false;
   if (ImageModule) {
-    modules.push(new ImageModule({
-      centered: true,
-      getImage(tagValue) {
-        return b64ToBytes(tagValue || IMG_VAZIA);
-      },
-      getSize(img, tagValue, tagName) {
-        if (!tagValue || tagValue === IMG_VAZIA) return [1, 1];
-        if ((tagName || "").includes("logo")) return [110, 40];
-        return [270, 175];
-      },
-    }));
+    try {
+      modules.push(new ImageModule({
+        centered: true,
+        getImage(tagValue) { return b64ToBytes(tagValue || IMG_VAZIA); },
+        getSize(img, tagValue, tagName) {
+          if (!tagValue || tagValue === IMG_VAZIA) return [1, 1];
+          if ((tagName || "").includes("logo")) return [110, 40];
+          return [270, 175];
+        },
+      }));
+      temImgModule = true;
+    } catch(e) { console.warn("ImageModule init falhou:", e); }
+  }
+
+  // Se não há módulo de imagem, remove {%tags} do XML para evitar "Multi error"
+  if (!temImgModule) {
+    try {
+      const f = zip.files["word/document.xml"];
+      if (f) zip.file("word/document.xml", f.asText().replace(/\{%[\w_]+\}/g, ""));
+    } catch(e) { console.warn("Limpeza de tags falhou:", e); }
   }
 
   const tmpl = new Docxtemplater(zip, {
     modules,
     paragraphLoop: true,
     linebreaks:    true,
-    nullGetter()  { return ""; },  // tags não encontradas viram string vazia
+    nullGetter()  { return ""; },
   });
 
-  tmpl.render(buildTags(d));
+  try {
+    tmpl.render(buildTags(d));
+  } catch(e) {
+    if (e.properties && Array.isArray(e.properties.errors)) {
+      const det = e.properties.errors.map(err => {
+        const tag = err.properties?.id || err.properties?.xtag || "?";
+        const msg = err.properties?.explanation || err.message || "erro";
+        return `  • {${tag}}: ${msg}`;
+      }).join("\n");
+      throw new Error(
+        `Erros no template:\n${det}\n\n` +
+        `Solução: rode converter_template.py de novo e faça upload do novo template_rdp.docx.`
+      );
+    }
+    throw e;
+  }
 
   const out = tmpl.getZip().generate({
-    type:     "blob",
+    type: "blob",
     mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   });
-
   baixarBlob(out, nomeArquivo(d, "docx"));
 }
 
