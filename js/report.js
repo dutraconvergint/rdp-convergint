@@ -112,10 +112,10 @@ export function gerarHTML(d) {
   .num { width: 25pt; }
   .section-title { background: #173b5f; color: #fff; font-weight: 700; padding: 3pt 5pt; margin: 6pt 0 3pt; border: 0.5pt solid #173b5f; }
   .big-title { font-size: 14pt; letter-spacing: 1pt; }
-  .logo-cliente { max-height: 45pt; max-width: 130pt; object-fit: contain; }
-  .conv { color: #c74717; font-size: 18pt; font-weight: 700; font-style: italic; }
+  .logo-cliente { max-height: 44pt; max-width: 110pt; object-fit: contain; display:block; }
+  .conv { color: #c74717; font-size: 15pt; font-weight: 700; font-style: italic; white-space: nowrap; }
   .x { font-weight: 700; color: #1a3a5c; font-size: 10pt; }
-  .top td { height: 24pt; }
+  .top td { vertical-align: middle; overflow: hidden; }
   .atividade td { min-height: 18pt; }
   .detalhe { min-height: 90pt; white-space: pre-wrap; vertical-align: top; }
   .assinaturas { margin-top: 36pt; }
@@ -135,12 +135,29 @@ export function gerarHTML(d) {
 </head>
 <body>
 
-<table class="top">
-  <tr>
-    <td style="width:15%">${d.logo ? `<img class="logo-cliente" src="${d.logo}">` : "Logo do Cliente"}</td>
-    <td style="width:43%" class="center bold">RELATÓRIO DIÁRIO DE<br>PROGRAMAÇÃO</td>
-    <td style="width:25%" class="center bold">${esc(d.nomeCliente)}</td>
-    <td style="width:17%" class="right conv">convergint</td>
+<!-- Cabeçalho: tabela com 4 colunas em larguras fixas para evitar distorção -->
+<table style="width:100%;border-collapse:collapse;table-layout:fixed">
+  <colgroup>
+    <col style="width:115pt">   <!-- logo cliente -->
+    <col>                       <!-- título (flexível) -->
+    <col style="width:150pt">   <!-- nome do cliente -->
+    <col style="width:90pt">    <!-- convergint -->
+  </colgroup>
+  <tr style="height:52pt">
+    <td style="border:0.5pt solid #333;padding:4pt;text-align:center;vertical-align:middle">
+      ${d.logo
+        ? `<img class="logo-cliente" src="${d.logo}">`
+        : `<span style="color:#aaa;font-size:7pt">Logo do<br>Cliente</span>`}
+    </td>
+    <td style="border:0.5pt solid #333;padding:4pt;text-align:center;vertical-align:middle;font-weight:700;font-size:11pt">
+      RELATÓRIO DIÁRIO DE<br>PROGRAMAÇÃO
+    </td>
+    <td style="border:0.5pt solid #333;padding:4pt;text-align:center;vertical-align:middle;font-weight:700;word-break:break-word">
+      ${esc(d.nomeCliente)}
+    </td>
+    <td style="border:0.5pt solid #333;padding:4pt;text-align:right;vertical-align:middle">
+      <span class="conv">convergint</span>
+    </td>
   </tr>
 </table>
 
@@ -247,6 +264,7 @@ function b64ToBytes(dataUrl) {
 
 function buildTags(d) {
   const tags = {
+    logo_img:     d.logo         || IMG_VAZIA,   // ← logo do cliente no DOCX
     codigo:       d.codigo       || "",
     nome_cliente: d.nomeCliente  || "",
     data:         d.data         || "",
@@ -312,9 +330,10 @@ export async function gerarDOCX(d) {
       getImage(tagValue) {
         return b64ToBytes(tagValue || IMG_VAZIA);
       },
-      getSize(img, tagValue) {
+      getSize(img, tagValue, tagName) {
         if (!tagValue || tagValue === IMG_VAZIA) return [1, 1];
-        return [270, 175]; // largura × altura em pontos
+        if ((tagName || "").includes("logo")) return [110, 40];
+        return [270, 175];
       },
     }));
   }
