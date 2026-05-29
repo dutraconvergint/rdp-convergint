@@ -246,58 +246,239 @@ function fotoBlocoHTML(f) {
 
 
 
+
 // ─────────────────────────────────────────────────────────────────────────────
-// DOCX via Docxtemplater + template_rdp.docx
+// DOCX via Docxtemplater SEM o docxtemplater-image-module-free
+// Motivo: esse módulo tem bug no navegador: "namespaceURI getter-only".
+// Aqui o Docxtemplater continua sendo usado para texto/loops e as imagens são
+// inseridas depois direto no OOXML do DOCX.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Imagem 1×1 transparente para campos vazios
-const IMG_VAZIA = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+function ptToEmu(pt) {
+  return Math.round(Number(pt || 0) * 12700);
+}
 
-function b64ToBytes(dataUrl) {
-  const base64 = (dataUrl || "").includes(",") ? dataUrl.split(",")[1] : (dataUrl || "");
-  try {
-    const bin = atob(base64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return bytes;
-  } catch (e) {
-    console.warn("Falha ao converter imagem base64:", e);
-    return new Uint8Array(0);
+function escapeRegex(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function escapeXmlAttr(s) {
+  return String(s || "")
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function dataUrlInfo(dataUrl) {
+  const m = String(dataUrl || "").match(/^data:([^;]+);base64,(.+)$/);
+  if (!m) return null;
+
+  const mime = m[1].toLowerCase();
+  const base64 = m[2];
+
+  let ext = "png";
+  let contentType = "image/png";
+
+  if (mime.includes("jpeg") || mime.includes("jpg")) {
+    ext = "jpg";
+    contentType = "image/jpeg";
+  } else if (mime.includes("png")) {
+    ext = "png";
+    contentType = "image/png";
+  } else if (mime.includes("gif")) {
+    ext = "gif";
+    contentType = "image/gif";
+  } else {
+    // Word não abre WEBP de forma confiável em DOCX. Mantém PNG como fallback.
+    ext = "png";
+    contentType = "image/png";
+  }
+
+  return { mime, base64, ext, contentType };
+}
+
+function obterDimensoesImagem(dataUrl) {
+  return new Promise(resolve => {
+    if (!dataUrl) return resolve(null);
+    const img = new Image();
+    img.onload = () => resolve({ width: img.naturalWidth || img.width, height: img.naturalHeight || img.height });
+    img.onerror = () => resolve(null);
+    img.src = dataUrl;
+  });
+}
+
+function ajustarTamanho(dim, maxWpt, maxHpt) {
+  if (!dim || !dim.width || !dim.height) return { wpt: maxWpt, hpt: maxHpt };
+
+  const escala = Math.min(maxWpt / dim.width, maxHpt / dim.height, 1);
+  return {
+    wpt: Math.max(1, Math.round(dim.width * escala)),
+    hpt: Math.max(1, Math.round(dim.height * escala)),
+  };
+}
+
+function criarDrawingXml(rId, item, n) {
+  const cx = ptToEmu(item.wpt);
+  const cy = ptToEmu(item.hpt);
+  const nome = escapeXmlAttr(item.name || `Imagem ${n}`);
+
+  return `<w:drawing>` +
+`<wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" distT="0" distB="0" distL="0" distR="0">` +
+`<wp:extent cx="${cx}" cy="${cy}"/>` +
+`<wp:effectExtent l="0" t="0" r="0" b="0"/>` +
+`<wp:docPr id="${5000 + n}" name="${nome}"/>` +
+`<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
+`<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">` +
+`<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+`<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+`<pic:nvPicPr><pic:cNvPr id="${6000 + n}" name="${nome}"/><pic:cNvPicPr/></pic:nvPicPr>` +
+`<pic:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
+`<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>` +
+`</pic:pic>` +
+`</a:graphicData>` +
+`</a:graphic>` +
+`</wp:inline>` +
+`</w:drawing>`;
+}
+
+function garantirContentType(zip, ext, contentType) {
+  const path = "[Content_Types].xml";
+  const f = zip.file(path);
+  if (!f) return;
+  let xml = f.asText();
+
+  const extRe = new RegExp(`<Default[^>]+Extension=["']${escapeRegex(ext)}["']`, "i");
+  if (!extRe.test(xml)) {
+    xml = xml.replace(
+      "</Types>",
+      `<Default Extension="${ext}" ContentType="${contentType}"/></Types>`
+    );
+    zip.file(path, xml);
   }
 }
 
-function montarParesFotos(fotos) {
+function adicionarRelImagem(zip, target) {
+  const relPath = "word/_rels/document.xml.rels";
+  let xml;
+
+  const f = zip.file(relPath);
+  if (f) {
+    xml = f.asText();
+  } else {
+    xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
+          `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`;
+  }
+
+  let max = 0;
+  const re = /Id="rId(\d+)"/g;
+  let m;
+  while ((m = re.exec(xml))) max = Math.max(max, parseInt(m[1], 10));
+
+  const rId = `rId${max + 1}`;
+  const rel = `<Relationship Id="${rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="${target}"/>`;
+  xml = xml.replace("</Relationships>", `${rel}</Relationships>`);
+  zip.file(relPath, xml);
+  return rId;
+}
+
+function substituirTokenPorDrawing(documentXml, token, drawingXml) {
+  const safe = escapeRegex(token);
+
+  // Caso normal: o token ocupa um <w:t> inteiro.
+  const reText = new RegExp(`<w:t([^>]*)>${safe}</w:t>`, "g");
+  let novo = documentXml.replace(reText, drawingXml);
+
+  // Fallback: se sobrou token por quebra de run, remove para não aparecer no Word.
+  novo = novo.replace(new RegExp(safe, "g"), "");
+  return novo;
+}
+
+function normalizarTemplateZip(zip) {
+  Object.keys(zip.files).forEach(nome => {
+    if (!nome.endsWith(".xml")) return;
+    const f = zip.files[nome];
+    if (!f || f.dir) return;
+
+    let xml = f.asText();
+
+    // Tags antigas erradas: {{campo}} -> {campo}
+    xml = xml.replace(/\{\{([A-Za-z0-9_]+)\}\}/g, "{$1}");
+
+    // Tags de imagem antigas do image-module -> tags texto para injeção própria
+    xml = xml.replace(/\{%logo_img\}/g, "{logo_img_token}");
+    xml = xml.replace(/\{%esq_img\}/g, "{esq_img_token}");
+    xml = xml.replace(/\{%dir_img\}/g, "{dir_img_token}");
+    xml = xml.replace(/\{%foto_(\d+)_img\}/g, "{foto_$1_img_token}");
+
+    // Remove chaves de GUIDs internos do Word: uri="{GUID}" -> uri="GUID"
+    xml = xml.replace(
+      /=\"\{([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})\}\"/g,
+      '="$1"'
+    );
+
+    zip.file(nome, xml);
+  });
+}
+
+function erroTemplateDetalhado(e) {
+  if (e?.properties && Array.isArray(e.properties.errors)) {
+    return e.properties.errors.map((err, i) => {
+      const p = err.properties || {};
+      const tag = p.xtag || p.id || p.tag || "tag_desconhecida";
+      const exp = p.explanation || err.message || "Erro no template";
+      return `${i + 1}. ${tag}: ${exp}`;
+    }).join("\n");
+  }
+  return e?.message || String(e);
+}
+
+function montarParesFotosDocx(fotos, imagens) {
   const lista = Array.isArray(fotos) ? fotos : [];
   const pares = [];
 
   for (let i = 0; i < lista.length; i += 2) {
     const esq = lista[i] || {};
-    const dir = lista[i + 1] || {};
+    const dir = lista[i + 1] || null;
+
+    const esqToken = esq.img ? `__RDPIMG_ESQ_${i}__` : "";
+    if (esq.img) imagens.push({ token: esqToken, dataUrl: esq.img, maxWpt: 265, maxHpt: 170, name: `Foto ${esq.num || i + 1}` });
+
+    let dirToken = "";
+    if (dir && dir.img) {
+      dirToken = `__RDPIMG_DIR_${i + 1}__`;
+      imagens.push({ token: dirToken, dataUrl: dir.img, maxWpt: 265, maxHpt: 170, name: `Foto ${dir.num || i + 2}` });
+    }
 
     pares.push({
       esq_num:  esq.num  ? String(esq.num) : String(i + 1),
       esq_sis:  esq.sis  || "",
       esq_amb:  esq.amb  || "",
       esq_desc: esq.desc || "",
-      esq_img:  esq.img  || IMG_VAZIA,
+      esq_img_token: esqToken,
 
       dir_num:  dir && (dir.img || dir.amb || dir.desc) ? String(dir.num || i + 2) : "",
       dir_sis:  dir && (dir.img || dir.amb || dir.desc) ? (dir.sis  || "") : "",
       dir_amb:  dir && (dir.img || dir.amb || dir.desc) ? (dir.amb  || "") : "",
       dir_desc: dir && (dir.img || dir.amb || dir.desc) ? (dir.desc || "") : "",
-      dir_img:  dir && (dir.img || dir.amb || dir.desc) ? (dir.img  || IMG_VAZIA) : IMG_VAZIA,
+      dir_img_token: dirToken,
     });
   }
 
   return pares;
 }
 
-function buildTags(d) {
+function buildTagsDocx(d) {
   const produtividade = d.produtividade || "Produtivo";
   const clima = d.clima || "Bom";
+  const imagens = [];
+
+  const logoToken = d.logo ? "__RDPIMG_LOGO__" : "";
+  if (d.logo) imagens.push({ token: logoToken, dataUrl: d.logo, maxWpt: 110, maxHpt: 42, name: "Logo do cliente" });
 
   const tags = {
-    logo_img:     d.logo         || IMG_VAZIA,
+    logo_img_token: logoToken,
+
     codigo:       d.codigo       || "",
     nome_cliente: d.nomeCliente  || "",
     data:         d.data         || "",
@@ -310,22 +491,16 @@ function buildTags(d) {
     h_fim_real:   d.hFimReal     || "",
     detalhamento: d.detalhamento || "",
 
-    // Resumo evolutivo do dia: somente o selecionado recebe X
     prod_muito: produtividade === "Muito Produtivo" ? "X" : "",
     prod_ok:    produtividade === "Produtivo"       ? "X" : "",
     prod_pouco: produtividade === "Pouco Produtivo" ? "X" : "",
 
-    // Condições climáticas: somente o selecionado recebe X
     clima_bom:          clima === "Bom"          ? "X" : "",
     clima_chuva_leve:   clima === "Chuva Leve"   ? "X" : "",
     clima_chuva_forte:  clima === "Chuva Forte"  ? "X" : "",
     clima_fora_turno:   clima === "Fora Turno"   ? "X" : "",
-
-    // Loop do relatório fotográfico no template corrigido
-    fotoPares: montarParesFotos(d.fotos || []),
   };
 
-  // 12 slots de profissionais
   for (let i = 0; i < 12; i++) {
     const p = d.profissionais?.[i] || {};
     tags[`prof_${i}_nome`]    = p.nome    || "";
@@ -333,7 +508,6 @@ function buildTags(d) {
     tags[`prof_${i}_funcao`]  = p.funcao  || "";
   }
 
-  // 12 slots de atividades
   for (let i = 0; i < 12; i++) {
     const a = d.atividades?.[i] || {};
     tags[`atv_${i}_num`]    = a.num    ? String(a.num) : "";
@@ -343,75 +517,72 @@ function buildTags(d) {
     tags[`atv_${i}_status`] = a.status || "";
   }
 
-  // Compatibilidade com templates antigos de 6 fotos fixas
-  for (let i = 0; i < 6; i++) {
+  // Compatibilidade com templates antigos de fotos fixas
+  for (let i = 0; i < 12; i++) {
     const f = d.fotos?.[i] || {};
     tags[`foto_${i}_sis`]  = f.sis  || "";
     tags[`foto_${i}_amb`]  = f.amb  || "";
     tags[`foto_${i}_desc`] = f.desc || "";
-    tags[`foto_${i}_img`]  = f.img  || IMG_VAZIA;
+    const token = f.img ? `__RDPIMG_FIXA_${i}__` : "";
+    tags[`foto_${i}_img_token`] = token;
+    if (f.img) imagens.push({ token, dataUrl: f.img, maxWpt: 265, maxHpt: 170, name: `Foto ${i + 1}` });
   }
 
-  return tags;
+  tags.fotoPares = montarParesFotosDocx(d.fotos || [], imagens);
+
+  return { tags, imagens };
 }
 
-function normalizarTemplateZip(zip, temImgModule) {
-  // Causa principal do "Multi error": tags antigas com {{...}}
-  // e GUIDs internos do Word com chaves {GUID} em atributos XML.
-  // O Docxtemplater tenta interpretar qualquer {...} como tag.
-  Object.keys(zip.files).forEach(nome => {
-    if (!nome.endsWith(".xml")) return;
+async function prepararImagens(imagens) {
+  const saida = [];
 
-    const f = zip.files[nome];
-    if (!f || f.dir) return;
+  for (const item of imagens) {
+    const info = dataUrlInfo(item.dataUrl);
+    if (!info || !item.token) continue;
 
-    let xml = f.asText();
+    const dim = await obterDimensoesImagem(item.dataUrl);
+    const tam = ajustarTamanho(dim, item.maxWpt || 265, item.maxHpt || 170);
 
-    // Corrige tags erradas do template antigo: {{campo}} -> {campo}
-    xml = xml.replace(/\{\{([A-Za-z0-9_]+)\}\}/g, "{$1}");
+    saida.push({
+      ...item,
+      ...info,
+      wpt: tam.wpt,
+      hpt: tam.hpt,
+    });
+  }
 
-    // Remove chaves de GUIDs internos do Word em atributos, ex.: uri="{28A...}".
-    xml = xml.replace(
-      /=\"\{([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})\}\"/g,
-      '=\"$1\"'
-    );
+  return saida;
+}
 
-    // Se o módulo de imagem não carregou, apaga tags de imagem para não quebrar o DOCX.
-    if (!temImgModule) {
-      xml = xml.replace(/\{%[A-Za-z0-9_]+\}/g, "");
-    }
+function inserirImagensNoDocx(zip, imagens) {
+  let docFile = zip.file("word/document.xml");
+  if (!docFile) throw new Error("template_rdp.docx inválido: word/document.xml não encontrado.");
 
-    zip.file(nome, xml);
+  let documentXml = docFile.asText();
+
+  imagens.forEach((item, i) => {
+    if (!documentXml.includes(item.token)) return;
+
+    const nomeArquivoImg = `rdp_img_${Date.now()}_${i}.${item.ext}`;
+    const mediaPath = `word/media/${nomeArquivoImg}`;
+    const target = `media/${nomeArquivoImg}`;
+
+    zip.file(mediaPath, item.base64, { base64: true });
+    garantirContentType(zip, item.ext, item.contentType);
+    const rId = adicionarRelImagem(zip, target);
+    const drawing = criarDrawingXml(rId, item, i + 1);
+
+    documentXml = substituirTokenPorDrawing(documentXml, item.token, drawing);
   });
-}
 
-function obterImageModule() {
-  const mod =
-    window.DocxtemplaterImageModuleFree ||
-    window.ImageModule ||
-    window.DocxtemplaterImageModule ||
-    window.docxtemplaterImageModuleFree;
-
-  return mod?.default || mod;
-}
-
-function erroTemplateDetalhado(e) {
-  if (e?.properties && Array.isArray(e.properties.errors)) {
-    return e.properties.errors.map((err, i) => {
-      const p = err.properties || {};
-      const tag = p.xtag || p.id || p.tag || "tag_desconhecida";
-      const exp = p.explanation || err.message || "Erro no template";
-      return `${i + 1}. ${tag}: ${exp}`;
-    }).join("\n");
-  }
-
-  return e?.message || String(e);
+  // Remove qualquer token remanescente para não aparecer no Word.
+  documentXml = documentXml.replace(/__RDPIMG_[A-Za-z0-9_]+__/g, "");
+  zip.file("word/document.xml", documentXml);
 }
 
 export async function gerarDOCX(d) {
   const PizZip = window.PizZip;
   const Docxtemplater = window.docxtemplater || window.Docxtemplater;
-  const ImageModule = obterImageModule();
 
   if (!PizZip || !Docxtemplater) {
     throw new Error("Bibliotecas DOCX não carregadas. Verifique pizzip e docxtemplater no app.html.");
@@ -424,37 +595,13 @@ export async function gerarDOCX(d) {
 
   const buf = await resp.arrayBuffer();
   const zip = new PizZip(buf);
+  normalizarTemplateZip(zip);
 
-  const modules = [];
-  let temImgModule = false;
-
-  if (ImageModule) {
-    try {
-      modules.push(new ImageModule({
-        centered: true,
-        getImage(tagValue) {
-          return b64ToBytes(tagValue || IMG_VAZIA);
-        },
-        getSize(img, tagValue, tagName) {
-          if (!tagValue || tagValue === IMG_VAZIA) return [1, 1];
-          if ((tagName || "").toLowerCase().includes("logo")) return [110, 42];
-          return [270, 175];
-        },
-      }));
-      temImgModule = true;
-    } catch (e) {
-      console.warn("Módulo de imagem não carregou. O DOCX sairá sem imagens.", e);
-    }
-  } else {
-    console.warn("DocxtemplaterImageModuleFree não encontrado. O DOCX sairá sem imagens.");
-  }
-
-  normalizarTemplateZip(zip, temImgModule);
+  const { tags, imagens } = buildTagsDocx(d);
 
   let tmpl;
   try {
     tmpl = new Docxtemplater(zip, {
-      modules,
       paragraphLoop: true,
       linebreaks: true,
       nullGetter() { return ""; },
@@ -464,13 +611,13 @@ export async function gerarDOCX(d) {
   }
 
   try {
-    tmpl.render(buildTags(d));
+    tmpl.render(tags);
   } catch (e) {
-    throw new Error(
-      "Erro no template_rdp.docx:\n" + erroTemplateDetalhado(e) +
-      "\n\nUse o template_rdp.docx corrigido deste pacote."
-    );
+    throw new Error("Erro no template_rdp.docx:\n" + erroTemplateDetalhado(e));
   }
+
+  const imagensPreparadas = await prepararImagens(imagens);
+  inserirImagensNoDocx(tmpl.getZip(), imagensPreparadas);
 
   const out = tmpl.getZip().generate({
     type: "blob",
