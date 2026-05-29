@@ -254,13 +254,9 @@ export async function gerarDOCX(d) {
 }
 
 function prepararHtmlParaDocx(html) {
-  // Garante fundo branco e texto preto no DOCX, mesmo com o site em modo dark.
-  // Também reforça quebras de página nas fotos.
+  // Garante que o DOCX receba HTML válido.
+  // Não fazemos replace com strings quebradas para evitar erro de módulo.
   return String(html || "")
-    .replace("html, body { background:#fff !important; color:#000 !important; }
-  body { font-family: Arial, Helvetica, sans-serif; color: #000; margin: 0; font-size: 8.5pt; }",
-             "html, body { background:#fff !important; color:#000 !important; } html, body { background:#fff !important; color:#000 !important; }
-  body { font-family: Arial, Helvetica, sans-serif; color: #000; margin: 0; font-size: 8.5pt; }")
     .replace(/<title>.*?<\/title>/, "<title>Relatório Diário de Programação</title>");
 }
 
