@@ -1,3 +1,5 @@
+// js/config.js
+
 export const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCpaZuife0p6M2bvwyllnf5TtuB93SuQTk",
   authDomain: "rdp-convergint.firebaseapp.com",

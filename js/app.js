@@ -264,7 +264,7 @@ function coletarDados() {
 
   const sis = document.getElementById("sistema")?.value || "AV";
   return {
-    logo:          document.getElementById("logoPreview")?.src || "",
+    logo:          (document.getElementById("logoPreview")?.src || "").startsWith("data:image/") ? document.getElementById("logoPreview").src : "",
     nomeCliente:   document.getElementById("nomeCliente")?.value?.trim() || "",
     codigo:        document.getElementById("codigo")?.value?.trim()      || "",
     data:          document.getElementById("data")?.value?.trim()        || "",
@@ -289,9 +289,20 @@ window.gerarRelatorio = function() {
   const dados = coletarDados();
   const html  = gerarHTML(dados);
   const win   = window.open("", "_blank");
+  if (!win) {
+    alert("O navegador bloqueou a janela de impressão. Libere pop-ups para este site.");
+    return;
+  }
+  win.document.open();
   win.document.write(html);
   win.document.close();
-  setTimeout(() => win.print(), 800);
+
+  // Aguarda imagens/logo carregarem antes de abrir o diálogo de impressão.
+  const imprimir = () => {
+    try { win.focus(); win.print(); }
+    catch (e) { console.error("Erro ao imprimir:", e); }
+  };
+  setTimeout(imprimir, 1000);
 };
 
 // ── Gerar relatório DOCX ───────────────────────────────────────────────────────
