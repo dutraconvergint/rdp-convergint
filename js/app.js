@@ -21,16 +21,28 @@ const fotosImgs = {};  // idx → dataURL
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
-  if (!user) { location.href = "index.html"; return; }
-  const snap = await getDoc(doc(db, "usuarios", user.uid));
-  if (snap.exists() && snap.data().ativo === false) {
-    await signOut(auth); location.href = "index.html"; return;
+  try {
+    if (!user) { location.replace("index.html"); return; }
+
+    const snap = await getDoc(doc(db, "usuarios", user.uid));
+
+    // Segurança de tela: só libera o app se existir cadastro em usuarios e estiver ativo.
+    if (!snap.exists() || snap.data().ativo === false) {
+      await signOut(auth);
+      location.replace("index.html");
+      return;
+    }
+
+    usuarioAtual = user;
+    document.getElementById("nomeUsuario").textContent = snap.data()?.nome || user.email;
+    document.getElementById("appContent").style.display = "block";
+    initForm();
+    carregarClientes();
+  } catch (e) {
+    console.error("Falha na validação do login:", e);
+    await signOut(auth);
+    location.replace("index.html");
   }
-  usuarioAtual = user;
-  document.getElementById("nomeUsuario").textContent = snap.data()?.nome || user.email;
-  document.getElementById("appContent").style.display = "block";
-  initForm();
-  carregarClientes();
 });
 
 window.sair = () => signOut(auth).then(() => location.href = "index.html");

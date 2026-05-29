@@ -38,8 +38,11 @@ export async function gerarDOCX(d) {
       getImage(tagValue) {
         return b64ToBytes(tagValue || IMG_VAZIA);
       },
-      getSize(img, tagValue) {
+      getSize(img, tagValue, tagName) {
         if (!tagValue || tagValue === IMG_VAZIA) return [1, 1];
+        // Logo do cliente no cabeçalho do DOCX
+        if (tagName === "logo_cliente") return [95, 45];
+        // Fotos do relatório fotográfico
         return [270, 175];   // largura × altura em pontos
       },
     }));
@@ -52,6 +55,7 @@ export async function gerarDOCX(d) {
   });
 
   const tags = {
+    logo_cliente: (d.logo && d.logo.startsWith("data:")) ? d.logo : IMG_VAZIA,
     codigo:       d.codigo,
     nome_cliente: d.nomeCliente,
     data:         d.data,
