@@ -131,73 +131,67 @@ html[data-bs-theme="dark"] body {
 }
 
 
-/* ===== Editor online estilo Word para Detalhamento ===== */
-.rdp-word-toolbar.ql-toolbar.ql-snow,
-.rdp-word-toolbar {
-  border: 1px solid #334155 !important;
-  border-radius: 8px 8px 0 0;
-  background: #e5e7eb !important;
+
+/* ===== Editor online estilo Word para Detalhamento (CKEditor) ===== */
+.ck-editor {
   color: #111827 !important;
 }
 
-.rdp-word-toolbar .ql-picker,
-.rdp-word-toolbar .ql-stroke,
-.rdp-word-toolbar .ql-fill,
-.rdp-word-toolbar button,
-.rdp-word-toolbar .ql-picker-label {
-  color: #111827 !important;
+.ck-editor__top,
+.ck-toolbar {
+  border-radius: 8px 8px 0 0 !important;
 }
 
-.rdp-word-toolbar .ql-stroke {
-  stroke: #111827 !important;
-}
-
-.rdp-word-toolbar .ql-fill {
-  fill: #111827 !important;
-}
-
-.rdp-word-editor.ql-container.ql-snow {
-  border: 1px solid #334155 !important;
-  border-top: 0 !important;
-  border-radius: 0 0 8px 8px;
+.ck-editor__main > .ck-editor__editable {
+  min-height: 420px;
+  max-height: 70vh;
+  overflow-y: auto;
   background: #ffffff !important;
   color: #111827 !important;
-  min-height: 360px;
+  border-radius: 0 0 8px 8px !important;
+  padding: 28px 36px !important;
   font-family: Arial, "Segoe UI", sans-serif;
-}
-
-.rdp-word-editor .ql-editor {
-  min-height: 360px;
-  max-height: 65vh;
-  overflow-y: auto;
-  padding: 28px 34px;
   font-size: 12pt;
   line-height: 1.45;
-  background: #ffffff !important;
-  color: #111827 !important;
 }
 
-.rdp-word-editor .ql-editor.ql-blank::before {
-  color: #64748b !important;
-  font-style: normal;
-  left: 34px;
-}
-
-.rdp-word-editor .ql-editor p,
-.rdp-word-editor .ql-editor ol,
-.rdp-word-editor .ql-editor ul {
+.ck-content p,
+.ck-content ul,
+.ck-content ol {
   margin-bottom: 8px;
 }
 
-.rdp-word-editor .ql-editor h1,
-.rdp-word-editor .ql-editor h2,
-.rdp-word-editor .ql-editor h3 {
-  margin: 10px 0 8px;
+.ck-content h2,
+.ck-content h3,
+.ck-content h4 {
+  margin: 12px 0 8px;
+}
+
+.ck-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.ck-content table td,
+.ck-content table th {
+  border: 1px solid #9ca3af;
+  padding: 6px 8px;
+  color: #111827;
+}
+
+.ck-content table th {
+  background: #e5e7eb;
+  font-weight: 700;
+}
+
+.rdp-word-editor {
+  min-height: 420px;
 }
 
 @media (max-width: 768px) {
-  .rdp-word-editor .ql-editor {
-    min-height: 280px;
-    padding: 18px;
+  .ck-editor__main > .ck-editor__editable {
+    min-height: 300px;
+    padding: 18px !important;
   }
 }
