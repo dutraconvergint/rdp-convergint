@@ -1,9 +1,4 @@
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
+export const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCpaZuife0p6M2bvwyllnf5TtuB93SuQTk",
   authDomain: "rdp-convergint.firebaseapp.com",
   projectId: "rdp-convergint",
