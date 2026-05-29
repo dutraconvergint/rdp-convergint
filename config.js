@@ -5,5 +5,5 @@ export const FIREBASE_CONFIG = {
   storageBucket: "rdp-convergint.firebasestorage.app",
   messagingSenderId: "851747330602",
   appId: "1:851747330602:web:3479e8d4fb2210a6abc153",
-  measurementId: "G-2CGYD3KK5N"
+  //measurementId: "G-2CGYD3KK5N"
 };
