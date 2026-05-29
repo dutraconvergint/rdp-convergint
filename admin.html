@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RDP – Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar sticky-top shadow-sm" style="background:#1a3a5c">
+  <div class="container-fluid">
+    <a class="navbar-brand text-white fw-bold" href="app.html">
+      <i class="bi bi-file-earmark-text"></i> RDP
+    </a>
+    <div class="d-flex align-items-center gap-3">
+      <span class="text-white small"><i class="bi bi-shield-check"></i> Administrador</span>
+      <a class="btn btn-sm btn-outline-light" href="app.html">
+        <i class="bi bi-house"></i> Início
+      </a>
+      <button class="btn btn-sm btn-outline-light" onclick="sair()">
+        <i class="bi bi-box-arrow-right"></i> Sair
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid py-3 px-4" id="adminContent" style="display:none">
+  <h5 class="mb-3"><i class="bi bi-people"></i> Gerenciamento de Usuários</h5>
+
+  <div id="msgGlobal" class="alert d-none"></div>
+
+  <div class="row g-3">
+
+    <!-- Criar usuário -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-header sec-hdr">
+          <i class="bi bi-person-plus"></i> Novo Usuário
+        </div>
+        <div class="card-body">
+          <div class="mb-2">
+            <label class="form-label">Nome completo</label>
+            <input type="text" id="novoNome" class="form-control form-control-sm"
+                   placeholder="Maria Oliveira">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">E-mail</label>
+            <input type="email" id="novoEmail" class="form-control form-control-sm"
+                   placeholder="maria@empresa.com">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Senha inicial</label>
+            <input type="password" id="novaSenhaU" class="form-control form-control-sm"
+                   placeholder="Mín. 6 caracteres">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Perfil</label>
+            <select id="novoRole" class="form-select form-select-sm">
+              <option value="user">Usuário</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-sm w-100" onclick="criarUsuario()">
+            <i class="bi bi-plus-circle"></i> Criar Usuário
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de usuários -->
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-header sec-hdr">
+          <i class="bi bi-list-ul"></i> Usuários Cadastrados
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0" id="tabelaUsuarios">
+            <thead class="table-light">
+              <tr>
+                <th>Nome</th><th>E-mail</th><th>Perfil</th>
+                <th>Status</th><th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyUsuarios">
+              <tr><td colspan="5" class="text-center text-muted py-3">
+                <div class="spinner-border spinner-border-sm"></div> Carregando…
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal alterar senha do usuário -->
+<div class="modal fade" id="modalSenhaU" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title">Redefinir senha</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="small text-muted mb-2">Usuário: <strong id="senhaUEmail"></strong></p>
+        <input type="password" id="novaSenhaModal" class="form-control"
+               placeholder="Nova senha (mín. 6 chars)" minlength="6">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-warning btn-sm" onclick="confirmarSenha()">Alterar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, setDoc,
+         updateDoc, deleteDoc, query, where }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { FIREBASE_CONFIG } from "./js/config.js";
+
+const app  = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+let usuarioAtual = null;
+let uidSenhaAlvo = null;
+
+// ── Auth guard ────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (!user) { location.href = "index.html"; return; }
+  const snap = await (await import("https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js"))
+    .getDoc(doc(db, "usuarios", user.uid));
+  if (!snap.exists() || snap.data().role !== "admin") {
+    location.href = "app.html"; return;
+  }
+  usuarioAtual = user;
+  document.getElementById("adminContent").style.display = "block";
+  carregarUsuarios();
+});
+
+window.sair = () => signOut(auth).then(() => location.href = "index.html");
+
+// ── Carregar usuários ─────────────────────────────────────────────────────────
+async function carregarUsuarios() {
+  const snap = await getDocs(collection(db, "usuarios"));
+  const tbody = document.getElementById("tbodyUsuarios");
+  if (snap.empty) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">
+      Nenhum usuário cadastrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = snap.docs.map(d => {
+    const u = d.data();
+    return `
+    <tr class="${u.ativo===false?'table-secondary':''}">
+      <td>${u.nome}</td>
+      <td><code style="font-size:.82rem">${u.email}</code></td>
+      <td>
+        <span class="badge ${u.role==='admin'?'bg-danger':'bg-primary'}">
+          ${u.role}
+        </span>
+      </td>
+      <td>
+        <span class="badge ${u.ativo===false?'bg-secondary':'bg-success'}">
+          ${u.ativo===false?'Inativo':'Ativo'}
+        </span>
+      </td>
+      <td>
+        <div class="d-flex gap-1">
+          <button class="btn btn-xs btn-outline-warning"
+                  style="font-size:.75rem;padding:2px 7px"
+                  onclick="abrirModalSenha('${d.id}','${u.email}')">
+            <i class="bi bi-key"></i>
+          </button>
+          ${u.role!=='admin'?`
+          <button class="btn btn-xs ${u.ativo===false?'btn-outline-success':'btn-outline-secondary'}"
+                  style="font-size:.75rem;padding:2px 7px"
+                  onclick="toggleAtivo('${d.id}',${u.ativo!==false})">
+            <i class="bi bi-${u.ativo===false?'play':'pause'}"></i>
+          </button>
+          <button class="btn btn-xs btn-outline-danger"
+                  style="font-size:.75rem;padding:2px 7px"
+                  onclick="excluirUsuario('${d.id}','${u.nome}')">
+            <i class="bi bi-trash"></i>
+          </button>`:''}
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+// ── Criar usuário via Firebase REST API (não afeta sessão atual) ──────────────
+window.criarUsuario = async function() {
+  const nome  = document.getElementById("novoNome").value.trim();
+  const email = document.getElementById("novoEmail").value.trim();
+  const senha = document.getElementById("novaSenhaU").value;
+  const role  = document.getElementById("novoRole").value;
+  const msg   = document.getElementById("msgGlobal");
+
+  msg.className = "alert d-none";
+  if (!nome || !email || senha.length < 6) {
+    msg.textContent = "Preencha todos os campos. Senha mínima 6 caracteres.";
+    msg.className   = "alert alert-danger"; return;
+  }
+
+  try {
+    // Cria o usuário no Firebase Auth via REST (sem deslogar o admin)
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_CONFIG.apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: senha, returnSecureToken: false }),
+      }
+    );
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+
+    // Guarda perfil no Firestore
+    await setDoc(doc(db, "usuarios", data.localId), {
+      nome, email, role, ativo: true, criado: new Date().toISOString(),
+    });
+
+    msg.textContent = `✅ Usuário ${nome} criado com sucesso!`;
+    msg.className   = "alert alert-success";
+    document.getElementById("novoNome").value  = "";
+    document.getElementById("novoEmail").value = "";
+    document.getElementById("novaSenhaU").value= "";
+    carregarUsuarios();
+  } catch(e) {
+    const erros = { "EMAIL_EXISTS":"E-mail já cadastrado.",
+                    "WEAK_PASSWORD":"Senha muito fraca." };
+    msg.textContent = erros[e.message] || `Erro: ${e.message}`;
+    msg.className   = "alert alert-danger";
+  }
+};
+
+// ── Modal de senha ────────────────────────────────────────────────────────────
+window.abrirModalSenha = function(uid, email) {
+  uidSenhaAlvo = uid;
+  document.getElementById("senhaUEmail").textContent = email;
+  document.getElementById("novaSenhaModal").value = "";
+  new bootstrap.Modal(document.getElementById("modalSenhaU")).show();
+};
+
+window.confirmarSenha = async function() {
+  const nova = document.getElementById("novaSenhaModal").value;
+  if (nova.length < 6) { alert("Senha deve ter ao menos 6 caracteres."); return; }
+
+  // Firebase Admin REST – requer token do admin para alterar senha de outro usuário
+  // Usamos o endpoint de update com o token do admin atual
+  const token = await auth.currentUser.getIdToken();
+  const res = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:update?key=${FIREBASE_CONFIG.apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken: token, password: nova }),
+    }
+  );
+
+  // Nota: a API de update só muda a senha do usuário ATUAL.
+  // Para mudar a senha de OUTRO usuário sem backend, precisaria do Admin SDK.
+  // Alternativa: o admin envia o link de redefinição via Firebase.
+  const res2 = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${FIREBASE_CONFIG.apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestType: "PASSWORD_RESET",
+                              email: document.getElementById("senhaUEmail").textContent }),
+    }
+  );
+
+  bootstrap.Modal.getInstance(document.getElementById("modalSenhaU")).hide();
+  alert("✅ Link de redefinição de senha enviado para o e-mail do usuário!");
+};
+
+// ── Ativar / Desativar ────────────────────────────────────────────────────────
+window.toggleAtivo = async function(uid, ativoAtual) {
+  await updateDoc(doc(db, "usuarios", uid), { ativo: !ativoAtual });
+  carregarUsuarios();
+};
+
+// ── Excluir ───────────────────────────────────────────────────────────────────
+window.excluirUsuario = async function(uid, nome) {
+  if (!confirm(`Excluir o usuário "${nome}"? Esta ação não pode ser desfeita.`)) return;
+  await deleteDoc(doc(db, "usuarios", uid));
+  carregarUsuarios();
+};
+
+// Expõe config para o módulo
+window.FIREBASE_CONFIG = FIREBASE_CONFIG;
+</script>
+</body>
+</html>

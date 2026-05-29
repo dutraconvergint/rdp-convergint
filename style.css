@@ -1,0 +1,26 @@
+:root { --azul: #1a3a5c; --azul-claro: #e8f0fa; }
+
+.sec-header {
+  background: var(--azul); color: #fff;
+  padding: 5px 14px; border-radius: 6px;
+  font-weight: 600; margin: 14px 0 8px;
+  font-size: .91rem; letter-spacing: .4px;
+}
+.sec-hdr {
+  background: var(--azul-claro); color: var(--azul);
+  font-weight: 600; font-size: .9rem;
+}
+.card { border: 1px solid #d0d7e3; }
+.prof-row, .atv-row {
+  background: #fafbfc; border-radius: 6px;
+  padding: 6px; margin-bottom: 6px;
+  border: 1px solid #e2e8f0;
+}
+.foto-card {
+  border: 1px solid #c8d8ea; border-radius: 8px;
+  padding: 10px; background: #f8fafc; margin-bottom: 8px;
+}
+.btn-xs {
+  padding: 2px 6px !important;
+  font-size: .75rem !important;
+}
