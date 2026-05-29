@@ -16,10 +16,19 @@ const ABREV = {AV:"AV", BMS:"BMS", SDAI:"SDAI", SECURITY:"SEG"};
 
 let usuarioAtual = null;
 let clientes = [];
-let nProfs = 2, nAtv = 3, nFotos = 1;
+let nProfs = 2, nAtv = 3, nFotos = 0;
 let ultimoSistemaGlobal = "AV";
 const fotosImgs = {};  // idx → dataURL
-let detalhamentoQuill = null;
+let detalhamentoEditor = null;
+let detalhamentoEditorReady = null;
+
+function atualizarMensagemFotosVazia() {
+  const lista = document.getElementById("listaFotos");
+  if (!lista) return;
+  if (!lista.querySelector(".foto-card")) {
+    lista.innerHTML = `<p class="foto-empty text-muted small text-center my-2">Nenhuma foto adicionada. Use <strong>Upload em Lote</strong> ou <strong>Foto</strong> para adicionar.</p>`;
+  }
+}
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
@@ -55,6 +64,7 @@ function initForm() {
   for (let i = 0; i < nAtv;   i++) addAtv(false);
   ultimoSistemaGlobal = document.getElementById("sistema")?.value || "AV";
   for (let i = 0; i < nFotos; i++) addFoto(false);
+  atualizarMensagemFotosVazia();
   atualizarPreviewNome();
   ["codigo","data","sistema","profArq"].forEach(id =>
     document.getElementById(id)?.addEventListener("input", atualizarPreviewNome));
@@ -70,7 +80,7 @@ function atualizarPreviewNome() {
   let iso = data;
   try { const p=data.split("/"); iso=`${p[2]}-${p[1]}-${p[0]}`; } catch{}
   document.getElementById("previewNome").textContent =
-    `📄 ${cod}_${iso}_RDP_(${ABREV[sis]||sis})_${prof}.pdf`;
+    `📄 ${cod}_${iso}_RDP_(${ABREV[sis]||sis})_${prof}.docx`;
 }
 
 // ── Logo preview ─────────────────────────────────────────────────────────────
@@ -157,6 +167,8 @@ window.addFoto = function(increment=true) {
   const idx = document.querySelectorAll(".foto-card").length;
   if (increment) nFotos++;
   const sis = document.getElementById("sistema")?.value || "AV";
+  const listaFotos = document.getElementById("listaFotos");
+  listaFotos?.querySelector(".foto-empty")?.remove();
   const div = document.createElement("div");
   div.className = "foto-card border rounded p-2 mb-2";
   div.dataset.idx = idx;
@@ -191,16 +203,17 @@ window.addFoto = function(increment=true) {
         <img id="thumbFoto${idx}" src="" class="mt-1 rounded d-none foto-thumb">
       </div>
     </div>`;
-  document.getElementById("listaFotos").appendChild(div);
+  listaFotos.appendChild(div);
 };
 
 window.remFoto = function() {
   const cards = document.querySelectorAll(".foto-card");
-  if (cards.length <= 1) return;
+  if (cards.length <= 0) return;
   const last = cards.length - 1;
   delete fotosImgs[last];
   cards[last].remove();
   nFotos = document.querySelectorAll(".foto-card").length;
+  atualizarMensagemFotosVazia();
 };
 
 window.carregarFoto = function(input, idx) {
@@ -261,44 +274,66 @@ window.atualizarSistemaFotos = function() {
 
 // ── Editor online do detalhamento ─────────────────────────────────────────────
 function inicializarEditorDetalhamento() {
-  if (detalhamentoQuill) return;
+  if (detalhamentoEditor || detalhamentoEditorReady) return detalhamentoEditorReady;
   const editorEl = document.getElementById("detalhamentoEditor");
-  if (!editorEl) return;
+  if (!editorEl) return Promise.resolve(null);
 
-  if (!window.Quill) {
-    console.warn("Quill não carregou. Usando editor simples contenteditable.");
-    editorEl.setAttribute("contenteditable", "true");
+  if (!window.ClassicEditor) {
+    console.warn("CKEditor não carregou. Usando textarea simples.");
     editorEl.classList.add("form-control");
-    editorEl.innerHTML = "";
-    return;
+    return Promise.resolve(null);
   }
 
-  detalhamentoQuill = new window.Quill("#detalhamentoEditor", {
-    theme: "snow",
-    placeholder: "Digite ou cole aqui o detalhamento das atividades...",
-    modules: {
-      toolbar: "#detalhamentoToolbar",
-      clipboard: {
-        matchVisual: false
+  detalhamentoEditorReady = window.ClassicEditor
+    .create(editorEl, {
+      placeholder: "Digite ou cole aqui o detalhamento das atividades...",
+      toolbar: {
+        items: [
+          "heading", "|",
+          "bold", "italic", "underline", "strikethrough", "link", "|",
+          "bulletedList", "numberedList", "outdent", "indent", "|",
+          "alignment", "insertTable", "blockQuote", "|",
+          "undo", "redo"
+        ],
+        shouldNotGroupWhenFull: true
+      },
+      table: {
+        contentToolbar: [
+          "tableColumn", "tableRow", "mergeTableCells",
+          "tableProperties", "tableCellProperties"
+        ]
       }
-    }
-  });
+    })
+    .then(editor => {
+      detalhamentoEditor = editor;
+      return editor;
+    })
+    .catch(err => {
+      console.error("Erro ao iniciar CKEditor:", err);
+      editorEl.classList.add("form-control");
+      return null;
+    });
 
-  // Evita perder a formatação principal ao colar textos grandes do Word.
-  detalhamentoQuill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => delta);
+  return detalhamentoEditorReady;
 }
 
 function obterDetalhamentoHtml() {
-  if (detalhamentoQuill) {
-    const html = detalhamentoQuill.root.innerHTML || "";
-    return html === "<p><br></p>" ? "" : html;
+  if (detalhamentoEditor) {
+    const html = detalhamentoEditor.getData() || "";
+    return html.trim() === "<p>&nbsp;</p>" ? "" : html;
   }
-  return document.getElementById("detalhamentoEditor")?.innerHTML || "";
+  const el = document.getElementById("detalhamentoEditor");
+  return el?.value || el?.innerHTML || "";
 }
 
 function obterDetalhamentoTexto() {
-  if (detalhamentoQuill) return (detalhamentoQuill.getText() || "").trim();
-  return (document.getElementById("detalhamentoEditor")?.innerText || "").trim();
+  if (detalhamentoEditor) {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = detalhamentoEditor.getData() || "";
+    return (tmp.innerText || "").trim();
+  }
+  const el = document.getElementById("detalhamentoEditor");
+  return (el?.value || el?.innerText || "").trim();
 }
 
 

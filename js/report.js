@@ -216,7 +216,7 @@ export function gerarHTML(d) {
 </table>
 
 <div class="section-title">DETALHAMENTO DAS ATIVIDADES</div>
-<table><tr><td class="detalhe">${esc(d.detalhamento).replace(/\n/g,"<br>")}</td></tr></table>
+<table><tr><td class="detalhe">${d.detalhamentoHtml || esc(d.detalhamento).replace(/\n/g,"<br>")}</td></tr></table>
 
 <table class="assinaturas">
   <tr>
@@ -698,7 +698,70 @@ function paragraphXml(runs, opts = {}) {
 
 function elementoEhBloco(el) {
   if (!el || el.nodeType !== 1) return false;
-  return /^(p|div|section|article|li|ul|ol|h1|h2|h3|h4|h5|h6|blockquote)$/i.test(el.tagName);
+  return /^(p|div|section|article|li|ul|ol|h1|h2|h3|h4|h5|h6|blockquote|figure|table)$/i.test(el.tagName);
+}
+
+
+function filhosLinhasTabela(table) {
+  const rows = [];
+  Array.from(table.children || []).forEach(ch => {
+    const tag = (ch.tagName || "").toLowerCase();
+    if (tag === "tr") rows.push(ch);
+    if (["thead", "tbody", "tfoot"].includes(tag)) {
+      Array.from(ch.children || []).forEach(tr => {
+        if ((tr.tagName || "").toLowerCase() === "tr") rows.push(tr);
+      });
+    }
+  });
+  return rows;
+}
+
+function countCols(row) {
+  return Array.from(row.children || [])
+    .filter(c => /^(td|th)$/i.test(c.tagName || ""))
+    .reduce((sum, cell) => sum + Math.max(1, Number(cell.getAttribute("colspan") || 1)), 0);
+}
+
+function cellContentXml(cell) {
+  const out = [];
+  Array.from(cell.childNodes || []).forEach(ch => {
+    if (ch.nodeType === 1 && /^(table)$/i.test(ch.tagName || "")) return;
+    if (ch.nodeType === 1 && /^(p|div|section|article|li|ul|ol|h1|h2|h3|h4|h5|h6|blockquote|figure)$/i.test(ch.tagName || "")) {
+      blocosDetalhamento(ch, out);
+    } else if (ch.nodeType === 3) {
+      const t = ch.nodeValue.replace(/\s+/g, " ").trim();
+      if (t) out.push(paragraphXml(runXml(t)));
+    } else {
+      const runs = inlineRuns(ch, {});
+      if (runs) out.push(paragraphXml(runs));
+    }
+  });
+  if (!out.length) out.push(paragraphXml(runXml(" ")));
+  return out.join("");
+}
+
+function tableCellXml(cell, colWidth, isHeader = false) {
+  const colspan = Math.max(1, Number(cell.getAttribute("colspan") || 1));
+  const span = colspan > 1 ? `<w:gridSpan w:val="${colspan}"/>` : "";
+  const shade = (isHeader || (cell.tagName || "").toLowerCase() === "th") ? '<w:shd w:fill="E5E7EB"/>' : "";
+  const width = Math.max(800, colWidth * colspan);
+  return `<w:tc><w:tcPr><w:tcW w:w="${width}" w:type="dxa"/>${span}${shade}</w:tcPr>${cellContentXml(cell)}</w:tc>`;
+}
+
+function tableXml(table) {
+  const rows = filhosLinhasTabela(table);
+  if (!rows.length) return paragraphXml(runXml(" "));
+  const maxCols = Math.max(1, ...rows.map(countCols));
+  const colWidth = Math.floor(9000 / maxCols);
+  const grid = Array.from({ length: maxCols }).map(() => `<w:gridCol w:w="${colWidth}"/>`).join("");
+  const tblPr = `<w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders><w:top w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:left w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:bottom w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:right w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:insideH w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:insideV w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/></w:tblBorders><w:tblCellMar><w:top w:w="80" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr>`;
+  const trs = rows.map((row, rIdx) => {
+    const cells = Array.from(row.children || []).filter(c => /^(td|th)$/i.test(c.tagName || ""));
+    const isHeader = rIdx === 0 && cells.some(c => (c.tagName || "").toLowerCase() === "th");
+    const trPr = isHeader ? '<w:trPr><w:tblHeader/></w:trPr>' : '';
+    return `<w:tr>${trPr}${cells.map(c => tableCellXml(c, colWidth, isHeader)).join("")}</w:tr>`;
+  }).join("");
+  return `<w:tbl>${tblPr}<w:tblGrid>${grid}</w:tblGrid>${trs}</w:tbl>`;
 }
 
 function blocosDetalhamento(node, out, level = 0, listType = null) {
@@ -712,6 +775,19 @@ function blocosDetalhamento(node, out, level = 0, listType = null) {
   if (node.nodeType !== 1) return;
 
   const tag = node.tagName.toLowerCase();
+
+  if (tag === "figure") {
+    const tbl = node.querySelector && node.querySelector("table");
+    if (tbl) {
+      out.push(tableXml(tbl));
+      return;
+    }
+  }
+
+  if (tag === "table") {
+    out.push(tableXml(node));
+    return;
+  }
 
   if (tag === "ul" || tag === "ol") {
     let n = 1;
