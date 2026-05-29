@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -58,10 +58,11 @@
     onAuthStateChanged(auth, async user => {
       if (!user) return;
       const snap = await getDoc(doc(db, "usuarios", user.uid));
-      if (snap.exists() && snap.data().ativo === false) {
-        auth.signOut(); return;
+      if (!snap.exists() || snap.data().ativo === false) {
+        await auth.signOut();
+        return;
       }
-      const role = snap.exists() ? snap.data().role : "user";
+      const role = snap.data().role || "user";
       location.href = role === "admin" ? "admin.html" : "app.html";
     });
 
@@ -74,13 +75,13 @@
         const cred = await signInWithEmailAndPassword(auth, email, senha);
         // Verifica se ativo no Firestore
         const snap = await getDoc(doc(db, "usuarios", cred.user.uid));
-        if (snap.exists() && snap.data().ativo === false) {
+        if (!snap.exists() || snap.data().ativo === false) {
           await auth.signOut();
-          msg.textContent = "Usuário desativado. Contate o administrador.";
+          msg.textContent = "Usuário sem permissão ou desativado. Contate o administrador.";
           msg.style.display = "block";
           return;
         }
-        const role = snap.exists() ? snap.data().role : "user";
+        const role = snap.data().role || "user";
         location.href = role === "admin" ? "admin.html" : "app.html";
       } catch (e) {
         msg.textContent = "E-mail ou senha incorretos.";
