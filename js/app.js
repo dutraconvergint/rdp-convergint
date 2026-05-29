@@ -7,7 +7,7 @@ import { getFirestore, collection, addDoc, getDocs, deleteDoc,
          doc, query, where, getDoc }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 import { FIREBASE_CONFIG } from "./config.js";
-import { gerarHTML, gerarDOCX } from "./report.js";
+import { gerarDOCX } from "./report.js";
 
 const app  = initializeApp(FIREBASE_CONFIG);
 const auth = getAuth(app);
@@ -19,6 +19,7 @@ let clientes = [];
 let nProfs = 2, nAtv = 3, nFotos = 1;
 let ultimoSistemaGlobal = "AV";
 const fotosImgs = {};  // idx → dataURL
+let detalhamentoQuill = null;
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
@@ -58,6 +59,7 @@ function initForm() {
   ["codigo","data","sistema","profArq"].forEach(id =>
     document.getElementById(id)?.addEventListener("input", atualizarPreviewNome));
   document.getElementById("sistema")?.addEventListener("change", atualizarSistemaFotos);
+  inicializarEditorDetalhamento();
 }
 
 function atualizarPreviewNome() {
@@ -257,23 +259,48 @@ window.atualizarSistemaFotos = function() {
   atualizarPreviewNome();
 };
 
+// ── Editor online do detalhamento ─────────────────────────────────────────────
+function inicializarEditorDetalhamento() {
+  if (detalhamentoQuill) return;
+  const editorEl = document.getElementById("detalhamentoEditor");
+  if (!editorEl) return;
 
-// ── Editor rico do detalhamento ───────────────────────────────────────────────
-window.formatarDetalhamento = function(cmd, value = null) {
-  const editor = document.getElementById("detalhamentoEditor");
-  if (!editor) return;
-  editor.focus();
-  try { document.execCommand(cmd, false, value); }
-  catch (e) { console.warn("Falha ao formatar detalhamento:", e); }
-};
+  if (!window.Quill) {
+    console.warn("Quill não carregou. Usando editor simples contenteditable.");
+    editorEl.setAttribute("contenteditable", "true");
+    editorEl.classList.add("form-control");
+    editorEl.innerHTML = "";
+    return;
+  }
 
-window.limparFormatacaoDetalhamento = function() {
-  const editor = document.getElementById("detalhamentoEditor");
-  if (!editor) return;
-  editor.focus();
-  try { document.execCommand("removeFormat", false, null); }
-  catch (e) { console.warn("Falha ao limpar formatação:", e); }
-};
+  detalhamentoQuill = new window.Quill("#detalhamentoEditor", {
+    theme: "snow",
+    placeholder: "Digite ou cole aqui o detalhamento das atividades...",
+    modules: {
+      toolbar: "#detalhamentoToolbar",
+      clipboard: {
+        matchVisual: false
+      }
+    }
+  });
+
+  // Evita perder a formatação principal ao colar textos grandes do Word.
+  detalhamentoQuill.clipboard.addMatcher(Node.ELEMENT_NODE, (node, delta) => delta);
+}
+
+function obterDetalhamentoHtml() {
+  if (detalhamentoQuill) {
+    const html = detalhamentoQuill.root.innerHTML || "";
+    return html === "<p><br></p>" ? "" : html;
+  }
+  return document.getElementById("detalhamentoEditor")?.innerHTML || "";
+}
+
+function obterDetalhamentoTexto() {
+  if (detalhamentoQuill) return (detalhamentoQuill.getText() || "").trim();
+  return (document.getElementById("detalhamentoEditor")?.innerText || "").trim();
+}
+
 
 // ── Coletar dados do formulário ────────────────────────────────────────────────
 function coletarDados() {
@@ -326,32 +353,11 @@ function coletarDados() {
     hFimReal:      document.getElementById("hFimReal")?.value  || "17:00",
     produtividade: document.getElementById("produtividade")?.value || "Produtivo",
     clima:         document.getElementById("clima")?.value         || "Bom",
-    detalhamento:  (document.getElementById("detalhamentoEditor")?.innerText || "").trim(),
-    detalhamentoHtml: document.getElementById("detalhamentoEditor")?.innerHTML || "",
+    detalhamento:  obterDetalhamentoTexto(),
+    detalhamentoHtml: obterDetalhamentoHtml(),
     profissionais, atividades, fotos,
   };
 }
-
-// ── Gerar relatório PDF ────────────────────────────────────────────────────────
-window.gerarRelatorio = function() {
-  const dados = coletarDados();
-  const html  = gerarHTML(dados);
-  const win   = window.open("", "_blank");
-  if (!win) {
-    alert("O navegador bloqueou a janela de impressão. Libere pop-ups para este site.");
-    return;
-  }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-
-  // Aguarda imagens/logo carregarem antes de abrir o diálogo de impressão.
-  const imprimir = () => {
-    try { win.focus(); win.print(); }
-    catch (e) { console.error("Erro ao imprimir:", e); }
-  };
-  setTimeout(imprimir, 1000);
-};
 
 // ── Gerar relatório DOCX ───────────────────────────────────────────────────────
 window.gerarDOCX = async function() {

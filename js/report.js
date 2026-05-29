@@ -633,11 +633,17 @@ function runXml(text, fmt = {}) {
   const parts = String(text).split(/\n/);
   const rPr = [];
   rPr.push(`<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>`);
-  rPr.push(`<w:sz w:val="20"/><w:szCs w:val="20"/>`);
+  if (!fmt.size) rPr.push(`<w:sz w:val="20"/><w:szCs w:val="20"/>`);
   if (fmt.bold) rPr.push(`<w:b/><w:bCs/>`);
   if (fmt.italic) rPr.push(`<w:i/><w:iCs/>`);
   if (fmt.underline) rPr.push(`<w:u w:val="single"/>`);
+  if (fmt.strike) rPr.push(`<w:strike/>`);
+  if (fmt.size) {
+    const sz = String(fmt.size);
+    rPr.push(`<w:sz w:val="${escapeXmlAttr(sz)}"/><w:szCs w:val="${escapeXmlAttr(sz)}"/>`);
+  }
   if (fmt.color) rPr.push(`<w:color w:val="${escapeXmlAttr(fmt.color)}"/>`);
+  if (fmt.background) rPr.push(`<w:shd w:val="clear" w:color="auto" w:fill="${escapeXmlAttr(fmt.background)}"/>`);
   const pr = `<w:rPr>${rPr.join("")}</w:rPr>`;
   return parts.map((part, i) => {
     const textXml = part ? `<w:t xml:space="preserve">${escXml(part)}</w:t>` : "";
@@ -658,6 +664,14 @@ function inlineRuns(node, fmt = {}) {
   if (tag === "b" || tag === "strong") nf.bold = true;
   if (tag === "i" || tag === "em") nf.italic = true;
   if (tag === "u") nf.underline = true;
+  if (tag === "s" || tag === "strike" || tag === "del") nf.strike = true;
+  if (tag === "a") { nf.underline = true; nf.color = nf.color || "0563C1"; }
+  if (tag === "code") { nf.color = nf.color || "C7254E"; }
+
+  const cls = node.getAttribute("class") || "";
+  if (/ql-size-small/.test(cls)) nf.size = "16";
+  if (/ql-size-large/.test(cls)) nf.size = "26";
+  if (/ql-size-huge/.test(cls)) nf.size = "32";
 
   const style = node.getAttribute("style") || "";
   if (/font-weight\s*:\s*(bold|[6-9]00)/i.test(style)) nf.bold = true;
@@ -666,6 +680,9 @@ function inlineRuns(node, fmt = {}) {
   const color = style.match(/(?:^|;)\s*color\s*:\s*([^;]+)/i);
   const hex = color ? hexColorFromCss(color[1]) : "";
   if (hex) nf.color = hex;
+  const bg = style.match(/(?:^|;)\s*background(?:-color)?\s*:\s*([^;]+)/i);
+  const bgHex = bg ? hexColorFromCss(bg[1]) : "";
+  if (bgHex) nf.background = bgHex;
 
   let out = "";
   node.childNodes.forEach(child => { out += inlineRuns(child, nf); });
@@ -708,10 +725,13 @@ function blocosDetalhamento(node, out, level = 0, listType = null) {
 
   if (tag === "li") {
     const prefix = listType === "bullet" ? "• " : `${listType || 1}. `;
+    const cls = node.getAttribute("class") || "";
+    const mIndent = cls.match(/ql-indent-(\d+)/i);
+    const extraIndent = mIndent ? Number(mIndent[1]) : 0;
     const runs = runXml(prefix, {}) + Array.from(node.childNodes)
       .filter(ch => !(ch.nodeType === 1 && /^(ul|ol)$/i.test(ch.tagName)))
       .map(ch => inlineRuns(ch, {})).join("");
-    out.push(paragraphXml(runs, { indent: Math.min(1440, level * 360) }));
+    out.push(paragraphXml(runs, { indent: Math.min(2160, (level + extraIndent) * 360) }));
     Array.from(node.children).forEach(ch => {
       if (/^(ul|ol)$/i.test(ch.tagName)) blocosDetalhamento(ch, out, level + 1, null);
     });
@@ -719,16 +739,21 @@ function blocosDetalhamento(node, out, level = 0, listType = null) {
   }
 
   if (/^h[1-6]$/.test(tag)) {
-    out.push(paragraphXml(inlineRuns(node, { bold: true })));
+    const level = Number(tag.substring(1));
+    const size = level === 1 ? "32" : level === 2 ? "28" : "24";
+    out.push(paragraphXml(inlineRuns(node, { bold: true, size })));
     return;
   }
 
   if (tag === "p" || tag === "div" || tag === "blockquote") {
     const style = node.getAttribute("style") || "";
     let align = "";
-    const mAlign = style.match(/text-align\s*:\s*(center|right|left|justify)/i);
+    const cls = node.getAttribute("class") || "";
+    const mAlign = style.match(/text-align\s*:\s*(center|right|left|justify)/i) || cls.match(/ql-align-(center|right|left|justify)/i);
     if (mAlign) align = mAlign[1].toLowerCase();
-    out.push(paragraphXml(inlineRuns(node, {}), { align }));
+    const mIndent = cls.match(/ql-indent-(\d+)/i);
+    const indent = mIndent ? Math.min(2160, Number(mIndent[1]) * 360) : 0;
+    out.push(paragraphXml(inlineRuns(node, {}), { align, indent }));
     return;
   }
 
