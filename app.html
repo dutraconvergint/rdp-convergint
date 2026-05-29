@@ -123,19 +123,19 @@
           <div class="row g-2">
             <div class="col">
               <label class="form-label">Início Prev.</label>
-              <input type="text" id="hIniPrev" class="form-control form-control-sm" value="08:30">
+              <input type="text" id="hIniPrev" class="form-control form-control-sm" value="08:00">
             </div>
             <div class="col">
               <label class="form-label">Início Real</label>
-              <input type="text" id="hIniReal" class="form-control form-control-sm" placeholder="08:30">
+              <input type="text" id="hIniReal" class="form-control form-control-sm" value="08:00">
             </div>
             <div class="col">
               <label class="form-label">Término Prev.</label>
-              <input type="text" id="hFimPrev" class="form-control form-control-sm" value="18:00">
+              <input type="text" id="hFimPrev" class="form-control form-control-sm" value="17:00">
             </div>
             <div class="col">
               <label class="form-label">Término Real</label>
-              <input type="text" id="hFimReal" class="form-control form-control-sm" placeholder="17:45">
+              <input type="text" id="hFimReal" class="form-control form-control-sm" value="17:00">
             </div>
             <div class="col">
               <label class="form-label">Produtividade</label>
@@ -205,16 +205,23 @@
       <div class="sec-header"><i class="bi bi-card-text"></i> DETALHAMENTO DAS ATIVIDADES</div>
       <div class="card shadow-sm mb-4">
         <div class="card-body">
-          <textarea id="detalhamento" class="form-control" rows="4"
-                    placeholder="1) Configuração concluída. 2) Integração BMS em andamento…"></textarea>
+          <div class="rdp-editor-toolbar mb-2">
+            <button type="button" class="btn btn-sm btn-outline-light" onclick="formatarDetalhamento('bold')"><b>B</b></button>
+            <button type="button" class="btn btn-sm btn-outline-light" onclick="formatarDetalhamento('italic')"><i>I</i></button>
+            <button type="button" class="btn btn-sm btn-outline-light" onclick="formatarDetalhamento('underline')"><u>U</u></button>
+            <button type="button" class="btn btn-sm btn-outline-light" onclick="formatarDetalhamento('insertUnorderedList')">• Lista</button>
+            <button type="button" class="btn btn-sm btn-outline-light" onclick="formatarDetalhamento('insertOrderedList')">1. Lista</button>
+            <button type="button" class="btn btn-sm btn-outline-light" onclick="formatarDetalhamento('formatBlock','p')">Parágrafo</button>
+            <button type="button" class="btn btn-sm btn-outline-warning" onclick="limparFormatacaoDetalhamento()">Limpar formatação</button>
+          </div>
+          <div id="detalhamentoEditor" class="form-control rdp-rich-editor" contenteditable="true"
+               data-placeholder="Cole aqui o detalhamento. Aceita parágrafos, tópicos e texto formatado do Word."></div>
+          <small class="text-muted d-block mt-2">Você pode copiar um texto formatado do Word e colar aqui. O DOCX preserva parágrafos, tópicos e formatações básicas.</small>
         </div>
       </div>
 
-      <!-- Botões gerar -->
+      <!-- Botão gerar -->
       <div class="d-flex gap-2 justify-content-center mb-5">
-        <button class="btn btn-primary btn-lg shadow px-4" onclick="gerarRelatorio()">
-          <i class="bi bi-printer"></i> Visualizar / Salvar PDF
-        </button>
         <button id="btnDocx" class="btn btn-success btn-lg shadow px-4" onclick="gerarDOCX()">
           <i class="bi bi-file-word"></i> Baixar DOCX
         </button>
