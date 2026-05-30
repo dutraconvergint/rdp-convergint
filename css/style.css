@@ -614,3 +614,37 @@ select.browser-default, select.form-select {
   color: var(--hi) !important;
   border: 1.5px solid var(--border) !important;
 }
+
+
+
+/* Correção de layout:
+   O JS precisa abrir #appContent como grid.
+   Esta regra apenas reforça o layout quando o elemento estiver visível. */
+.rdp-app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+}
+
+.rdp-main {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.rdp-main .rdp-section,
+.rdp-main .rdp-card,
+.rdp-main .rdp-card-body {
+  width: 100%;
+}
+
+@media (max-width: 1180px) {
+  .rdp-app {
+    grid-template-columns: 1fr;
+  }
+
+  .rdp-sidebar {
+    position: static;
+    height: auto;
+    max-height: 420px;
+  }
+}
