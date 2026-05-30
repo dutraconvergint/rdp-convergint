@@ -83,7 +83,12 @@
 
             <div class="input-field rdp-mi-field rdp-logo-input-field">
               <div class="rdp-file-label">Logo do Cliente</div>
-              <input type="file" id="inputLogo" accept="image/*" onchange="previewLogo(this)" class="rdp-file-material">
+
+              <label for="inputLogo" class="rdp-logo-upload-btn" title="Subir logo do cliente">
+                <span class="material-icons">upload_file</span>
+              </label>
+
+              <input type="file" id="inputLogo" accept="image/*" onchange="previewLogo(this)" class="rdp-file-material-hidden">
               <img id="logoPreview" src="" class="rdp-logo-preview d-none" alt="Logo">
             </div>
 
