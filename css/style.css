@@ -14,9 +14,9 @@
   --panel:     #0c1425;
   --card:      #101c2e;
   --card2:     #132235;
-  --inp:       #080f1c;
-  --border:    #1c2e48;
-  --border2:   #253d5e;
+  --inp:       #162438;
+  --border:    #2a4166;
+  --border2:   #3a5580;
   --text:      #b8cfe4;
   --hi:        #e8f2ff;
   --muted:     #4e6a85;
@@ -41,8 +41,8 @@
   --card:   #ffffff;
   --card2:  #f0f6ff;
   --inp:    #ffffff;
-  --border: #d0e0f0;
-  --border2:#baceea;
+  --border: #b8d0e8;
+  --border2:#8ab0d0;
   --text:   #334d68;
   --hi:     #0e1e32;
   --muted:  #7a96b2;
@@ -64,8 +64,14 @@ body {
   overflow-x: hidden;
 }
 
-/* Kill Materialize nav/input conflicts */
+/* Kill ALL Materialize input/nav conflicts */
 nav, nav .nav-wrapper { height: auto; line-height: normal; box-shadow: none; }
+
+/* Reset Materialize input overrides - let our .form-control take over */
+input, input[type], textarea, select {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
 input:not([type]):not(.browser-default),
 input[type=text]:not(.browser-default),
 input[type=password]:not(.browser-default),
@@ -74,8 +80,16 @@ input[type=date]:not(.browser-default),
 input[type=tel]:not(.browser-default),
 input[type=number]:not(.browser-default),
 textarea.materialize-textarea {
-  height: auto; margin: 0; border-bottom: none; box-shadow: none;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
+
+/* Materialize .col.s* grid — prevent conflict with our .c* span classes */
+.rdp-grid .col { width: auto !important; float: none !important; }
 
 /* ── 3. Topbar ─────────────────────────────────────────────────── */
 .rdp-topbar {
@@ -277,15 +291,23 @@ textarea.materialize-textarea {
 .form-select,
 select.browser-default,
 textarea.form-control {
-  width: 100% !important; height: 42px !important; min-height: 42px !important;
-  margin: 0 !important; padding: 0 12px !important;
+  width: 100% !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
   font-family: "DM Sans", sans-serif !important;
-  font-size: .88rem !important; color: var(--hi) !important;
+  font-size: .89rem !important;
+  color: var(--hi) !important;
   background: var(--inp) !important;
-  border: 1px solid var(--border) !important; border-radius: var(--r) !important;
-  outline: none !important; box-shadow: none !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--r) !important;
+  outline: none !important;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.25) !important;
   transition: border-color var(--t), box-shadow var(--t);
   -webkit-appearance: none;
+  appearance: none;
+  display: block !important;
 }
 textarea.form-control { height: auto !important; min-height: 80px !important; padding: 10px 12px !important; resize: vertical; line-height: 1.5; }
 .form-control-sm, .form-select-sm { height: 36px !important; min-height: 36px !important; font-size: .83rem !important; }
@@ -309,11 +331,11 @@ input[type="file"].form-control { padding: 0 10px !important; cursor: pointer; d
 .rdp-g-2  { grid-template-columns: repeat(2,  minmax(0,1fr)); }
 .rdp-g-1  { grid-template-columns: 1fr; }
 
-.s2  { grid-column: span 2; }
-.s3  { grid-column: span 3; }
-.s4  { grid-column: span 4; }
-.s6  { grid-column: span 6; }
-.s12 { grid-column: 1 / -1; }
+.c2  { grid-column: span 2; }
+.c3  { grid-column: span 3; }
+.c4  { grid-column: span 4; }
+.c6  { grid-column: span 6; }
+.c12 { grid-column: 1 / -1; }
 .rdp-logo-field { grid-column: span 2; grid-row: span 2; align-self: stretch; }
 
 /* Bottom toolbar inside a card */
@@ -560,4 +582,35 @@ body.login-page {
   .prof-row.row, .atv-row.row, .foto-card .row { grid-template-columns: 1fr; }
   .login-form { padding: 28px 20px; }
   .admin-layout { padding: 16px 14px 40px; }
+}
+
+/* ── Extra: select arrow + visible borders ─────────────────────── */
+select.browser-default, select.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234e6a85' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  padding-right: 36px !important;
+  cursor: pointer;
+}
+
+/* Ensure labels are always visible */
+.rdp-field > label,
+.f-label {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Extra specificity for Materialize conflicts on inputs */
+.rdp-card .form-control,
+.rdp-grid .form-control,
+.rdp-field .form-control,
+.rdp-card select.browser-default,
+.rdp-grid select.browser-default {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: var(--inp) !important;
+  color: var(--hi) !important;
+  border: 1.5px solid var(--border) !important;
 }
