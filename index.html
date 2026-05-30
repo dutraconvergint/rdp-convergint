@@ -364,24 +364,21 @@
 
         <div id="msgErro"></div>
 
-        <div class="rdp-field">
+        <div class="input-field prefix-field" style="margin-top:2rem">
+          <i class="material-icons prefix">mail</i>
+          <input id="email" type="email" autocomplete="username">
           <label for="email">E-mail</label>
-          <div class="rdp-input-wrap">
-            <i class="material-icons">mail</i>
-            <input id="email" class="rdp-input" type="email" autocomplete="username" placeholder="seu@email.com" autofocus>
-          </div>
         </div>
 
-        <div class="rdp-field">
+        <div class="input-field prefix-field" style="margin-top:2rem">
+          <i class="material-icons prefix">key</i>
+          <input id="senha" type="password" autocomplete="current-password"
+                 onkeydown="if(event.key === 'Enter') entrar()">
           <label for="senha">Senha</label>
-          <div class="rdp-input-wrap">
-            <i class="material-icons">key</i>
-            <input id="senha" class="rdp-input" type="password" autocomplete="current-password" placeholder="••••••••"
-                   onkeydown="if(event.key === 'Enter') entrar()">
-          </div>
         </div>
 
-        <button id="btnEntrar" class="rdp-btn-login" onclick="entrar()">
+        <button id="btnEntrar" class="rdp-btn rdp-btn-primary w-100" onclick="entrar()"
+                style="height:46px;font-size:.95rem;margin-top:24px;border-radius:10px">
           <i class="material-icons">login</i>
           Entrar
         </button>
@@ -394,7 +391,26 @@
     </section>
   </main>
 
-  <script type="module">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add Materialize input-field dark styles inline for login page
+    document.querySelectorAll('.input-field input').forEach(inp => {
+      inp.addEventListener('focus', function() {
+        this.parentElement.querySelector('.prefix')?.classList.add('active');
+      });
+      inp.addEventListener('blur', function() {
+        if (!this.value) this.parentElement.querySelector('.prefix')?.classList.remove('active');
+      });
+    });
+  });
+  window.rdpToggleTheme = function() {
+    const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('rdp-theme', t);
+  };
+</script>
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
     import {
       getAuth,
