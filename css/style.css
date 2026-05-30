@@ -1710,3 +1710,35 @@ i.material-icons,
     width: calc(100% - 18px);
   }
 }
+
+
+/* ============================================================
+   FIX LOGIN LOOP + NAV USER
+   ============================================================ */
+.rdp-nav-user {
+  gap: 6px !important;
+  max-width: 240px;
+}
+
+.rdp-nav-user span {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .86rem;
+  font-weight: 700;
+}
+
+.spinner-border {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: rdpSpin .8s linear infinite;
+}
+
+@keyframes rdpSpin {
+  to { transform: rotate(360deg); }
+}
