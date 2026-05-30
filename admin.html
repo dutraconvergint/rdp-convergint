@@ -8,77 +8,67 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <script>(function(){const s=localStorage.getItem('rdp-theme')||'dark';document.documentElement.setAttribute('data-theme',s);})();</script>
+  <script>(function(){document.documentElement.setAttribute('data-theme',localStorage.getItem('rdp-theme')||'dark');})();</script>
 </head>
-<body class="rdp-body">
+<body>
 
-<!-- ═══ TOPBAR ═══════════════════════════════════════════════════════════════ -->
 <nav class="rdp-topbar">
   <div class="rdp-topbar-inner">
     <a class="rdp-logo" href="app.html">
-      <span class="material-icons">assignment</span>
-      <span>RDP</span>
+      <span class="material-icons">assignment</span>RDP
     </a>
     <div class="rdp-topbar-actions">
-      <span class="rdp-user-pill">
-        <span class="material-icons" style="font-size:16px">shield</span>
+      <span class="rdp-user-chip" style="background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:#fde68a">
+        <span class="material-icons" style="color:#fbbf24;font-size:15px">shield</span>
         Administrador
       </span>
-      <a class="rdp-btn rdp-btn-light" href="app.html">
+      <a class="rdp-tb-btn" href="app.html" title="Voltar ao app">
         <span class="material-icons">home</span>
-        <span>Início</span>
       </a>
-      <button class="rdp-btn rdp-btn-light" onclick="rdpToggleTheme()">
-        <span class="material-icons" data-theme-icon>light_mode</span>
+      <button class="rdp-tb-btn" onclick="toggleTheme()" title="Alternar tema">
+        <span class="material-icons" id="themeIcon">light_mode</span>
       </button>
-      <button class="rdp-btn rdp-btn-danger" onclick="sair()">
+      <button class="rdp-tb-btn" onclick="sair()" title="Sair"
+              style="border-color:rgba(248,113,113,.4);color:#f87171!important">
         <span class="material-icons">logout</span>
-        <span>Sair</span>
       </button>
     </div>
   </div>
 </nav>
 
-<!-- ═══ CONTEÚDO ══════════════════════════════════════════════════════════════ -->
-<main class="rdp-admin-shell" id="adminContent" style="display:none">
+<div class="admin-layout" id="adminContent" style="display:none">
 
-  <!-- Título da página -->
-  <div class="rdp-page-title">
+  <div class="admin-page-title">
     <span class="material-icons">groups</span>
     Gerenciamento de Usuários
   </div>
 
-  <!-- Mensagem global -->
   <div id="msgGlobal" class="alert d-none"></div>
 
-  <!-- ── Criar usuário ──────────────────────────────────────────────────────── -->
+  <!-- Criar usuário -->
   <aside>
-    <div class="rdp-panel">
-      <div class="rdp-panel-title">
-        <span class="material-icons">person_add</span>
-        <strong>Novo Usuário</strong>
-      </div>
-      <div class="rdp-panel-body">
-        <div class="rdp-form-grid" style="grid-template-columns:1fr; gap:12px">
-
+    <div class="rdp-section-label" style="margin-bottom:10px">
+      <span class="material-icons">person_add</span>
+      <span>Novo Usuário</span>
+    </div>
+    <div class="rdp-card">
+      <div class="rdp-card-body">
+        <div class="rdp-grid rdp-g-1" style="gap:16px">
           <div class="rdp-field">
             <label>Nome completo</label>
             <input type="text" id="novoNome" class="form-control" placeholder="Maria Oliveira">
           </div>
           <div class="rdp-field">
             <label>Função</label>
-            <input type="text" id="novaFuncao" class="form-control"
-                   placeholder="Técnico de Automação">
+            <input type="text" id="novaFuncao" class="form-control" placeholder="Técnico de Automação">
           </div>
           <div class="rdp-field">
             <label>E-mail</label>
-            <input type="email" id="novoEmail" class="form-control"
-                   placeholder="maria@empresa.com">
+            <input type="email" id="novoEmail" class="form-control" placeholder="maria@empresa.com">
           </div>
           <div class="rdp-field">
             <label>Senha inicial</label>
-            <input type="password" id="novaSenhaU" class="form-control"
-                   placeholder="Mínimo 6 caracteres">
+            <input type="password" id="novaSenhaU" class="form-control" placeholder="Mínimo 6 caracteres">
           </div>
           <div class="rdp-field">
             <label>Perfil</label>
@@ -87,89 +77,69 @@
               <option value="admin">Administrador</option>
             </select>
           </div>
-
           <button class="rdp-btn rdp-btn-primary w-100" onclick="criarUsuario()"
-                  style="margin-top:4px; min-height:44px">
-            <span class="material-icons">add_circle</span>
-            Criar Usuário
+                  style="height:42px!important">
+            <span class="material-icons">add_circle</span>Criar Usuário
           </button>
         </div>
       </div>
     </div>
   </aside>
 
-  <!-- ── Lista de usuários ─────────────────────────────────────────────────── -->
+  <!-- Tabela de usuários -->
   <section>
-    <div class="rdp-panel">
-      <div class="rdp-panel-title" style="justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span class="material-icons">format_list_bulleted</span>
-          <strong>Usuários Cadastrados</strong>
-        </div>
-        <button class="rdp-btn rdp-btn-muted" onclick="carregarUsuarios()"
-                style="min-height:30px;padding:0 10px;font-size:.8rem">
-          <span class="material-icons" style="font-size:17px">refresh</span>
-          Atualizar
-        </button>
+    <div class="rdp-section-label" style="margin-bottom:10px;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:9px">
+        <span class="material-icons" style="font-size:17px;color:var(--blue)">format_list_bulleted</span>
+        <span style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--hi)">Usuários Cadastrados</span>
       </div>
+      <button class="rdp-btn rdp-btn-ghost" onclick="carregarUsuarios()"
+              style="height:28px!important;padding:0 10px!important;font-size:.78rem!important">
+        <span class="material-icons" style="font-size:15px">refresh</span>Atualizar
+      </button>
+    </div>
+    <div class="rdp-card" style="overflow:hidden">
       <div style="overflow-x:auto">
-        <table class="rdp-table" id="tabelaUsuarios">
+        <table class="rdp-table">
           <thead>
             <tr>
-              <th>Nome</th>
-              <th>Função</th>
-              <th>E-mail</th>
-              <th>Perfil</th>
-              <th>Status</th>
-              <th>Ações</th>
+              <th>Nome</th><th>Função</th><th>E-mail</th>
+              <th>Perfil</th><th>Status</th><th>Ações</th>
             </tr>
           </thead>
           <tbody id="tbodyUsuarios">
-            <tr>
-              <td colspan="6" class="text-center text-muted" style="padding:24px">
-                <div class="preloader-wrapper active small">
-                  <div class="spinner-layer spinner-blue-only">
-                    <div class="circle-clipper left"><div class="circle"></div></div>
-                    <div class="gap-patch"><div class="circle"></div></div>
-                    <div class="circle-clipper right"><div class="circle"></div></div>
-                  </div>
-                </div>
-                &nbsp; Carregando…
-              </td>
-            </tr>
+            <tr><td colspan="6" class="text-center text-muted" style="padding:28px">
+              <div class="preloader-wrapper active small"><div class="spinner-layer spinner-blue-only"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>
+              &nbsp; Carregando…
+            </td></tr>
           </tbody>
         </table>
       </div>
     </div>
   </section>
+</div>
 
-</main>
-
-<!-- ═══ MODAL: Editar usuário ════════════════════════════════════════════════ -->
+<!-- Modal: Editar usuário -->
 <div id="modalEditarUsuario" class="modal modal-fixed-footer app-modal">
   <div class="modal-content">
-    <h5 class="rdp-modal-title">
-      <span class="material-icons">edit</span>
-      Editar Usuário
-    </h5>
+    <div class="modal-title">
+      <span class="material-icons">edit</span>Editar Usuário
+    </div>
     <input type="hidden" id="editUid">
-    <div class="rdp-form-grid rdp-grid-2">
-      <div class="rdp-field rdp-field-full">
+    <div class="rdp-grid rdp-g-2" style="gap:18px">
+      <div class="rdp-field s12">
         <label>Nome completo</label>
         <input type="text" id="editNome" class="form-control">
       </div>
-      <div class="rdp-field rdp-field-full">
+      <div class="rdp-field s12">
         <label>Função</label>
-        <input type="text" id="editFuncao" class="form-control"
-               placeholder="Técnico de Automação">
+        <input type="text" id="editFuncao" class="form-control">
       </div>
-      <div class="rdp-field rdp-field-full">
+      <div class="rdp-field s12">
         <label>E-mail (somente leitura)</label>
         <input type="email" id="editEmail" class="form-control" readonly
-               style="opacity:.6;cursor:not-allowed">
-        <small class="text-muted" style="margin-top:5px;display:block">
-          O e-mail pertence ao Firebase Auth e não pode ser alterado aqui.
-        </small>
+               style="opacity:.5;cursor:not-allowed">
+        <span class="rdp-hint">O e-mail pertence ao Firebase Auth e não pode ser alterado aqui.</span>
       </div>
       <div class="rdp-field">
         <label>Perfil</label>
@@ -188,60 +158,47 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button class="modal-close rdp-btn rdp-btn-muted">Cancelar</button>
+    <button class="modal-close btn-flat">Cancelar</button>
     <button class="rdp-btn rdp-btn-primary" onclick="salvarEdicaoUsuario()">
-      <span class="material-icons">save</span>Salvar alterações
+      <span class="material-icons">save</span>Salvar
     </button>
   </div>
 </div>
 
-<!-- ═══ MODAL: Redefinir senha ═══════════════════════════════════════════════ -->
-<div id="modalSenhaU" class="modal app-modal">
+<!-- Modal: Redefinir senha -->
+<div id="modalSenhaU" class="modal app-modal" style="max-width:420px">
   <div class="modal-content">
-    <h5 class="rdp-modal-title">
-      <span class="material-icons">lock_reset</span>
-      Redefinir Senha
-    </h5>
-    <p style="color:var(--text);font-size:.92rem;line-height:1.6">
-      Será enviado um link de redefinição de senha para:<br>
-      <strong id="senhaUEmail" style="color:var(--text-hi)"></strong>
+    <div class="modal-title">
+      <span class="material-icons">lock_reset</span>Redefinir Senha
+    </div>
+    <p style="color:var(--text);font-size:.9rem;line-height:1.6;margin:0">
+      Será enviado um link de redefinição para:<br>
+      <strong id="senhaUEmail" style="color:var(--hi)"></strong>
     </p>
-    <p class="text-muted" style="font-size:.84rem">
-      O usuário receberá um e-mail com instruções para criar uma nova senha.
+    <p class="rdp-hint" style="margin-top:10px">
+      O usuário receberá um e-mail com instruções para criar nova senha.
     </p>
   </div>
   <div class="modal-footer">
-    <button class="modal-close rdp-btn rdp-btn-muted">Cancelar</button>
+    <button class="modal-close btn-flat">Cancelar</button>
     <button class="rdp-btn rdp-btn-warning" onclick="confirmarSenha()">
       <span class="material-icons">send</span>Enviar link
     </button>
   </div>
 </div>
 
-<!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script>
-  function rdpApplyThemeIcon() {
-    const t = document.documentElement.getAttribute('data-theme') || 'dark';
-    document.querySelectorAll('[data-theme-icon]').forEach(el =>
-      el.textContent = t === 'dark' ? 'light_mode' : 'dark_mode');
+  function toggleTheme() {
+    const t = document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('rdp-theme', t);
+    document.getElementById('themeIcon').textContent = t==='dark' ? 'light_mode' : 'dark_mode';
   }
-  window.rdpToggleTheme = function() {
-    const atual = document.documentElement.getAttribute('data-theme') || 'dark';
-    const prox  = atual === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('rdp-theme', prox);
-    document.documentElement.setAttribute('data-theme', prox);
-    rdpApplyThemeIcon();
-  };
   document.addEventListener('DOMContentLoaded', () => {
-    if (window.M) {
-      M.AutoInit();
-      document.querySelectorAll('.modal').forEach(el => {
-        if (!M.Modal.getInstance(el))
-          M.Modal.init(el, { dismissible: true, opacity: 0.55 });
-      });
-    }
-    rdpApplyThemeIcon();
+    if (window.M) { M.AutoInit(); document.querySelectorAll('.modal').forEach(el => { if (!M.Modal.getInstance(el)) M.Modal.init(el, {dismissible:true, opacity:.55}); }); }
+    const t = document.documentElement.getAttribute('data-theme')||'dark';
+    document.getElementById('themeIcon').textContent = t==='dark' ? 'light_mode' : 'dark_mode';
   });
 </script>
 
@@ -254,197 +211,137 @@ import { getFirestore, collection, getDocs, doc,
                                   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 import { FIREBASE_CONFIG }        from "./js/config.js";
 
-const app  = initializeApp(FIREBASE_CONFIG);
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const auth = getAuth(initializeApp(FIREBASE_CONFIG));
+const db   = getFirestore();
+let me = null, uidSenha = null, emailSenha = null, cache = [];
 
-let usuarioAtual   = null;
-let uidSenhaAlvo   = null;
-let emailSenhaAlvo = null;
-let usuariosCache  = [];
+const msg = t => {
+  const el = document.getElementById("msgGlobal");
+  const [txt, tipo] = Array.isArray(t) ? t : [t, "danger"];
+  el.innerHTML = txt; el.className = `alert alert-${tipo}`;
+};
+const clearMsg = () => { const el = document.getElementById("msgGlobal"); el.innerHTML=""; el.className="alert d-none"; };
+const esc = v => String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
-function mostrarMsg(texto, tipo = "danger") {
-  const msg = document.getElementById("msgGlobal");
-  msg.innerHTML  = texto;
-  msg.className  = `alert alert-${tipo}`;
-}
-function limparMsg() {
-  const msg = document.getElementById("msgGlobal");
-  msg.innerHTML = ""; msg.className = "alert d-none";
-}
-function esc(v) {
-  return String(v ?? "")
-    .replaceAll("&","&amp;").replaceAll("<","&lt;")
-    .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-}
-function traduzirErro(e) {
-  const c = e?.code || "", m = e?.message || String(e || "");
-  if (c === "permission-denied")  return `Permissão negada. Verifique se seu documento em <strong>usuarios/${auth.currentUser?.uid}</strong> tem <strong>role = admin</strong> e <strong>ativo = true</strong>.`;
-  if (m === "EMAIL_EXISTS")       return "E-mail já cadastrado.";
-  if (m === "WEAK_PASSWORD")      return "Senha muito fraca — mínimo 6 caracteres.";
-  if (m === "INVALID_EMAIL")      return "E-mail inválido.";
-  if (m === "OPERATION_NOT_ALLOWED") return "Login por e-mail/senha não habilitado no Firebase.";
-  return `${esc(c || "erro")} — ${esc(m)}`;
+function trad(e) {
+  const c=e?.code||"", m=e?.message||"";
+  if (c==="permission-denied") return `Permissão negada. Verifique <strong>usuarios/${auth.currentUser?.uid}</strong>: <strong>role = admin</strong>, <strong>ativo = true</strong>.`;
+  if (m==="EMAIL_EXISTS") return "E-mail já cadastrado.";
+  if (m==="WEAK_PASSWORD") return "Senha fraca — mínimo 6 caracteres.";
+  if (m==="INVALID_EMAIL") return "E-mail inválido.";
+  return `${esc(c||"erro")} — ${esc(m)}`;
 }
 
-async function validarAdmin(user) {
-  const snap = await getDoc(doc(db, "usuarios", user.uid));
-  if (!snap.exists() || snap.data().ativo !== true) { await signOut(auth); location.replace("index.html"); return false; }
-  if (snap.data().role !== "admin") { location.replace("app.html"); return false; }
-  usuarioAtual = user; return true;
+async function validar(user) {
+  const s = await getDoc(doc(db,"usuarios",user.uid));
+  if (!s.exists()||s.data().ativo!==true) { await signOut(auth); location.replace("index.html"); return false; }
+  if (s.data().role!=="admin") { location.replace("app.html"); return false; }
+  me = user; return true;
 }
 
-onAuthStateChanged(auth, async user => {
+onAuthStateChanged(auth, async u => {
   try {
-    if (!user) { location.replace("index.html"); return; }
-    const ok = await validarAdmin(user);
-    if (!ok) return;
+    if (!u) { location.replace("index.html"); return; }
+    if (!await validar(u)) return;
     document.getElementById("adminContent").style.display = "block";
     await carregarUsuarios();
-  } catch(e) { console.error(e); mostrarMsg(traduzirErro(e)); }
+  } catch(e) { console.error(e); msg(trad(e)); }
 });
 
 window.sair = () => signOut(auth).then(() => location.href = "index.html");
 
 window.carregarUsuarios = async function() {
-  const tbody = document.getElementById("tbodyUsuarios");
-  tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding:20px">
-    <div class="preloader-wrapper active small"><div class="spinner-layer spinner-blue-only">
-    <div class="circle-clipper left"><div class="circle"></div></div>
-    <div class="gap-patch"><div class="circle"></div></div>
-    <div class="circle-clipper right"><div class="circle"></div></div>
-    </div></div>&nbsp;Carregando…</td></tr>`;
+  const tb = document.getElementById("tbodyUsuarios");
+  tb.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding:28px">Carregando…</td></tr>`;
   try {
-    limparMsg();
-    const snap = await getDocs(collection(db, "usuarios"));
-    usuariosCache = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
-
-    if (!usuariosCache.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding:20px">Nenhum usuário cadastrado.</td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = usuariosCache.map(u => {
-      const nome  = esc(u.nome || "");
-      const func  = esc(u.funcao || u["função"] || "");
-      const email = esc(u.email || "");
-      const role  = esc(u.role  || "user");
-      const ativo = u.ativo === true;
-      const ehAdm = u.role === "admin";
-      return `
-        <tr>
-          <td><strong>${nome}</strong></td>
-          <td>${func || '<span class="text-muted">—</span>'}</td>
-          <td><code>${email}</code></td>
-          <td><span class="rdp-badge ${ehAdm ? 'rdp-badge-admin' : 'rdp-badge-user'}">${role}</span></td>
-          <td><span class="rdp-badge ${ativo ? 'rdp-badge-active' : 'rdp-badge-inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span></td>
-          <td>
-            <div class="d-flex gap-1 flex-wrap">
-              <button class="rdp-btn rdp-btn-muted btn-xs"
-                      onclick="abrirModalEditar('${u.uid}')" title="Editar">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="rdp-btn btn-xs" style="background:#ff8f00!important;color:#fff!important"
-                      onclick="abrirModalSenha('${u.uid}','${email.replaceAll("'","\\'")}')">
-                <i class="bi bi-key"></i>
-              </button>
-              ${!ehAdm ? `
-              <button class="rdp-btn btn-xs ${ativo ? 'rdp-btn-muted' : 'rdp-btn-success'}"
-                      onclick="toggleAtivo('${u.uid}',${ativo})" title="${ativo ? 'Desativar' : 'Ativar'}">
-                <i class="bi bi-${ativo ? 'pause' : 'play'}"></i>
-              </button>
-              <button class="rdp-btn rdp-btn-danger btn-xs"
-                      onclick="excluirUsuario('${u.uid}','${nome.replaceAll("'","\\'")}')">
-                <i class="bi bi-trash"></i>
-              </button>` : ''}
-            </div>
-          </td>
-        </tr>`;
+    clearMsg();
+    const snap = await getDocs(collection(db,"usuarios"));
+    cache = snap.docs.map(d => ({uid:d.id,...d.data()}));
+    if (!cache.length) { tb.innerHTML=`<tr><td colspan="6" class="text-center text-muted" style="padding:28px">Nenhum usuário.</td></tr>`; return; }
+    tb.innerHTML = cache.map(u => {
+      const nome=esc(u.nome||""), func=esc(u.funcao||u["função"]||""), email=esc(u.email||"");
+      const adm=u.role==="admin", ativo=u.ativo===true;
+      return `<tr>
+        <td><strong style="color:var(--hi)">${nome}</strong></td>
+        <td>${func||'<span class="text-muted">—</span>'}</td>
+        <td><code>${email}</code></td>
+        <td><span class="rdp-badge ${adm?"rdp-badge-admin":"rdp-badge-user"}">${esc(u.role||"user")}</span></td>
+        <td><span class="rdp-badge ${ativo?"rdp-badge-active":"rdp-badge-inactive"}">${ativo?"Ativo":"Inativo"}</span></td>
+        <td>
+          <div class="d-flex gap-1">
+            <button class="rdp-btn rdp-btn-muted btn-xs" onclick="abrirEditar('${u.uid}')" title="Editar"><i class="bi bi-pencil"></i></button>
+            <button class="rdp-btn btn-xs" style="background:#b45309!important;color:#fff!important" onclick="abrirSenha('${u.uid}','${email.replaceAll("'","\\'")}')"><i class="bi bi-key"></i></button>
+            ${!adm?`
+            <button class="rdp-btn btn-xs ${ativo?"rdp-btn-muted":"rdp-btn-success"}" onclick="toggleAtivo('${u.uid}',${ativo})"><i class="bi bi-${ativo?"pause":"play"}"></i></button>
+            <button class="rdp-btn rdp-btn-danger btn-xs" onclick="excluirU('${u.uid}','${nome.replaceAll("'","\\'")}')"><i class="bi bi-trash"></i></button>`:""}
+          </div>
+        </td>
+      </tr>`;
     }).join("");
-  } catch(e) {
-    console.error(e);
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger" style="padding:20px">${traduzirErro(e)}</td></tr>`;
-  }
+  } catch(e) { console.error(e); tb.innerHTML=`<tr><td colspan="6" class="text-center" style="padding:28px;color:var(--red)">${trad(e)}</td></tr>`; }
 };
 
 window.criarUsuario = async function() {
-  limparMsg();
-  const nome  = document.getElementById("novoNome").value.trim();
-  const funcao= document.getElementById("novaFuncao").value.trim();
-  const email = document.getElementById("novoEmail").value.trim();
-  const senha = document.getElementById("novaSenhaU").value;
-  const role  = document.getElementById("novoRole").value;
-  if (!nome || !email || senha.length < 6) {
-    mostrarMsg("Preencha nome, e-mail e senha com mínimo 6 caracteres."); return;
-  }
+  clearMsg();
+  const nome=document.getElementById("novoNome").value.trim(), funcao=document.getElementById("novaFuncao").value.trim();
+  const email=document.getElementById("novoEmail").value.trim(), senha=document.getElementById("novaSenhaU").value;
+  const role=document.getElementById("novoRole").value;
+  if (!nome||!email||senha.length<6) { msg("Preencha nome, e-mail e senha (mín. 6 chars)."); return; }
   try {
-    const res  = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_CONFIG.apiKey}`,
-      { method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ email, password: senha, returnSecureToken: false }) });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    await setDoc(doc(db, "usuarios", data.localId), { nome, funcao, email, role, ativo: true, criado: new Date().toISOString() });
-    mostrarMsg(`✅ Usuário <strong>${esc(nome)}</strong> criado.`, "success");
-    ["novoNome","novaFuncao","novoEmail","novaSenhaU"].forEach(id => document.getElementById(id).value = "");
+    const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_CONFIG.apiKey}`,
+      {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password:senha,returnSecureToken:false})});
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    await setDoc(doc(db,"usuarios",d.localId),{nome,funcao,email,role,ativo:true,criado:new Date().toISOString()});
+    msg([`✅ Usuário <strong>${esc(nome)}</strong> criado.`,"success"]);
+    ["novoNome","novaFuncao","novoEmail","novaSenhaU"].forEach(id=>document.getElementById(id).value="");
     await carregarUsuarios();
-  } catch(e) { console.error(e); mostrarMsg(traduzirErro(e)); }
+  } catch(e) { console.error(e); msg(trad(e)); }
 };
 
-window.abrirModalEditar = function(uid) {
-  const u = usuariosCache.find(x => x.uid === uid);
-  if (!u) { mostrarMsg("Usuário não encontrado. Clique em Atualizar."); return; }
-  document.getElementById("editUid").value    = uid;
-  document.getElementById("editNome").value   = u.nome   || "";
-  document.getElementById("editFuncao").value = u.funcao || u["função"] || "";
-  document.getElementById("editEmail").value  = u.email  || "";
-  document.getElementById("editRole").value   = u.role   || "user";
-  document.getElementById("editAtivo").value  = u.ativo === true ? "true" : "false";
+window.abrirEditar = function(uid) {
+  const u=cache.find(x=>x.uid===uid); if (!u) return;
+  document.getElementById("editUid").value=uid;
+  document.getElementById("editNome").value=u.nome||"";
+  document.getElementById("editFuncao").value=u.funcao||u["função"]||"";
+  document.getElementById("editEmail").value=u.email||"";
+  document.getElementById("editRole").value=u.role||"user";
+  document.getElementById("editAtivo").value=u.ativo===true?"true":"false";
   M.Modal.getInstance(document.getElementById("modalEditarUsuario"))?.open();
 };
 
 window.salvarEdicaoUsuario = async function() {
-  const uid   = document.getElementById("editUid").value;
-  const nome  = document.getElementById("editNome").value.trim();
-  const funcao= document.getElementById("editFuncao").value.trim();
-  const role  = document.getElementById("editRole").value;
-  const ativo = document.getElementById("editAtivo").value === "true";
-  if (!uid || !nome) { mostrarMsg("Informe o nome completo."); return; }
+  const uid=document.getElementById("editUid").value;
+  const nome=document.getElementById("editNome").value.trim();
+  if (!uid||!nome) { msg("Informe o nome."); return; }
   try {
-    await updateDoc(doc(db, "usuarios", uid), { nome, funcao, role, ativo, atualizado: new Date().toISOString() });
+    await updateDoc(doc(db,"usuarios",uid),{nome,funcao:document.getElementById("editFuncao").value.trim(),role:document.getElementById("editRole").value,ativo:document.getElementById("editAtivo").value==="true",atualizado:new Date().toISOString()});
     M.Modal.getInstance(document.getElementById("modalEditarUsuario"))?.close();
-    mostrarMsg(`✅ Cadastro de <strong>${esc(nome)}</strong> atualizado.`, "success");
+    msg([`✅ Cadastro atualizado.`,"success"]);
     await carregarUsuarios();
-  } catch(e) { console.error(e); mostrarMsg(traduzirErro(e)); }
+  } catch(e) { console.error(e); msg(trad(e)); }
 };
 
-window.abrirModalSenha = function(uid, email) {
-  uidSenhaAlvo = uid; emailSenhaAlvo = email;
-  document.getElementById("senhaUEmail").textContent = email;
-  M.Modal.getInstance(document.getElementById("modalSenhaU"))?.open();
-};
+window.abrirSenha = function(uid, email) { uidSenha=uid; emailSenha=email; document.getElementById("senhaUEmail").textContent=email; M.Modal.getInstance(document.getElementById("modalSenhaU"))?.open(); };
 
 window.confirmarSenha = async function() {
-  if (!emailSenhaAlvo) return;
   try {
-    const res  = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${FIREBASE_CONFIG.apiKey}`,
-      { method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ requestType:"PASSWORD_RESET", email: emailSenhaAlvo }) });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
+    const r=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${FIREBASE_CONFIG.apiKey}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({requestType:"PASSWORD_RESET",email:emailSenha})});
+    const d=await r.json(); if (d.error) throw new Error(d.error.message);
     M.Modal.getInstance(document.getElementById("modalSenhaU"))?.close();
-    mostrarMsg(`✅ Link enviado para <strong>${esc(emailSenhaAlvo)}</strong>.`, "success");
-  } catch(e) { console.error(e); mostrarMsg(traduzirErro(e)); }
+    msg([`✅ Link enviado para <strong>${esc(emailSenha)}</strong>.`,"success"]);
+  } catch(e) { console.error(e); msg(trad(e)); }
 };
 
-window.toggleAtivo = async function(uid, ativoAtual) {
-  try { await updateDoc(doc(db, "usuarios", uid), { ativo: !ativoAtual }); await carregarUsuarios(); }
-  catch(e) { console.error(e); mostrarMsg(traduzirErro(e)); }
+window.toggleAtivo = async function(uid, ativo) {
+  try { await updateDoc(doc(db,"usuarios",uid),{ativo:!ativo}); await carregarUsuarios(); }
+  catch(e) { console.error(e); msg(trad(e)); }
 };
 
-window.excluirUsuario = async function(uid, nome) {
-  if (!confirm(`Excluir o usuário "${nome}"? Esta ação não pode ser desfeita.`)) return;
-  try { await deleteDoc(doc(db, "usuarios", uid)); await carregarUsuarios(); }
-  catch(e) { console.error(e); mostrarMsg(traduzirErro(e)); }
+window.excluirU = async function(uid, nome) {
+  if (!confirm(`Excluir "${nome}"?`)) return;
+  try { await deleteDoc(doc(db,"usuarios",uid)); await carregarUsuarios(); }
+  catch(e) { console.error(e); msg(trad(e)); }
 };
 </script>
 </body>

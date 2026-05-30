@@ -9,111 +9,104 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/jodit@4/es2021/jodit.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <script>(function(){const s=localStorage.getItem("rdp-theme")||"dark";document.documentElement.setAttribute("data-theme",s);})();</script>
+  <script>(function(){document.documentElement.setAttribute('data-theme',localStorage.getItem('rdp-theme')||'dark');})();</script>
 </head>
-<body class="rdp-body">
+<body>
 
-<!-- ═══ TOPBAR ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══ TOPBAR ═════════════════════════════════════════════════════════════ -->
 <nav class="rdp-topbar">
   <div class="rdp-topbar-inner">
+
     <a class="rdp-logo" href="app.html">
       <span class="material-icons">assignment</span>
-      <span>RDP</span>
+      RDP
     </a>
 
+    <div class="rdp-topbar-center">
+      <span id="previewNome">Relatório Diário de Programação</span>
+    </div>
+
     <div class="rdp-topbar-actions">
-      <span class="rdp-user-pill">
-        <span class="material-icons" style="font-size:16px">account_circle</span>
-        <span id="nomeUsuario">Carregando…</span>
+      <span class="rdp-user-chip">
+        <span class="material-icons">account_circle</span>
+        <span id="nomeUsuario">…</span>
       </span>
 
-      <button id="btnNovoRelatorio" class="rdp-btn rdp-btn-light"
-              onclick="novoRelatorio()" title="Novo relatório">
+      <button class="rdp-tb-btn" onclick="novoRelatorio()" title="Novo relatório">
         <span class="material-icons">note_add</span>
-        <span>Novo</span>
       </button>
 
-      <a id="btnAdminUsuarios" class="rdp-btn rdp-btn-warning d-none"
-         href="admin.html" title="Gerenciar usuários">
+      <a id="btnAdminUsuarios" class="rdp-tb-btn d-none" href="admin.html" title="Usuários">
         <span class="material-icons">group</span>
-        <span>Usuários</span>
       </a>
 
-      <button class="rdp-btn rdp-btn-light" onclick="abrirModalPerfil()"
-              title="Meu perfil">
+      <button class="rdp-tb-btn" onclick="abrirModalPerfil()" title="Meu perfil">
         <span class="material-icons">manage_accounts</span>
-        <span>Perfil</span>
       </button>
 
-      <button class="rdp-btn rdp-btn-light" onclick="rdpToggleTheme()"
-              title="Alternar tema">
-        <span class="material-icons" data-theme-icon>light_mode</span>
+      <button class="rdp-tb-btn" onclick="toggleTheme()" title="Alternar tema">
+        <span class="material-icons" id="themeIcon">light_mode</span>
       </button>
 
-      <button class="rdp-btn rdp-btn-danger" onclick="sair()">
+      <button class="rdp-tb-btn" onclick="sair()" title="Sair"
+              style="border-color:rgba(248,113,113,.4);color:#f87171!important">
         <span class="material-icons">logout</span>
-        <span>Sair</span>
       </button>
     </div>
   </div>
 </nav>
 
-<!-- ═══ SHELL ════════════════════════════════════════════════════════════════ -->
-<main class="rdp-shell" id="appContent" style="display:none">
+<!-- ═══ APP SHELL ══════════════════════════════════════════════════════════ -->
+<div class="rdp-app" id="appContent" style="display:none">
 
-  <!-- ── SIDEBAR: Clientes ─────────────────────────────────────────────────── -->
+  <!-- ── SIDEBAR: Clientes ──────────────────────────────────────────────── -->
   <aside class="rdp-sidebar">
-    <section class="rdp-panel rdp-panel-sticky">
-      <div class="rdp-panel-title">
-        <span class="material-icons">business</span>
-        <strong>Meus Clientes</strong>
+    <div class="rdp-sidebar-head">
+      <h3>Meus Clientes</h3>
+      <input class="rdp-sidebar-search" placeholder="Buscar cliente, código…"
+             oninput="filtrarClientes(this.value)">
+    </div>
+    <div class="rdp-sidebar-body">
+      <div id="listaClientes">
+        <p class="text-muted small text-center mt-2">Nenhum cliente salvo.</p>
       </div>
-      <div class="rdp-panel-body">
-        <div class="rdp-field" style="margin-bottom:12px">
-          <input class="form-control" placeholder="Buscar cliente, código ou obra…"
-                 oninput="filtrarClientes(this.value)">
-        </div>
-        <div id="listaClientes" class="rdp-client-list">
-          <p class="text-muted small text-center mt-2">Nenhum cliente salvo.</p>
-        </div>
-      </div>
-    </section>
+    </div>
   </aside>
 
-  <!-- ── WORKSPACE ─────────────────────────────────────────────────────────── -->
-  <section class="rdp-workspace">
+  <!-- ── MAIN ───────────────────────────────────────────────────────────── -->
+  <main class="rdp-main">
 
     <!-- CABEÇALHO -->
-    <section class="rdp-section">
-      <div class="rdp-section-title">
+    <div class="rdp-section">
+      <div class="rdp-section-label">
         <span class="material-icons">folder_open</span>
-        Cabeçalho do Projeto
+        <span>Cabeçalho do Projeto</span>
       </div>
-      <div class="rdp-panel">
-        <div class="rdp-panel-body">
-          <div class="rdp-form-grid rdp-grid-header">
+      <div class="rdp-card">
+        <div class="rdp-card-body">
+          <div class="rdp-grid rdp-g-12">
 
-            <div class="rdp-field rdp-field-logo">
+            <div class="rdp-field rdp-logo-field">
               <label>Logo do Cliente</label>
               <input type="file" id="inputLogo" accept="image/*"
                      class="form-control" onchange="previewLogo(this)">
               <img id="logoPreview" src="" class="rdp-logo-preview d-none" alt="Logo">
             </div>
 
-            <div class="rdp-field rdp-span-4">
+            <div class="rdp-field s4">
               <label>Cliente / Projeto</label>
               <input type="text" id="nomeCliente" class="form-control"
                      placeholder="Empresa XYZ / Projeto Alpha">
             </div>
-            <div class="rdp-field rdp-span-2">
+            <div class="rdp-field s2">
               <label>Código</label>
               <input type="text" id="codigo" class="form-control" placeholder="PRJXXXXX">
             </div>
-            <div class="rdp-field rdp-span-2">
+            <div class="rdp-field s2">
               <label>Data</label>
               <input type="text" id="data" class="form-control" placeholder="DD/MM/AAAA">
             </div>
-            <div class="rdp-field rdp-span-2">
+            <div class="rdp-field s2">
               <label>Sistema</label>
               <select id="sistema" class="browser-default form-select"
                       onchange="atualizarSistemaFotos()">
@@ -121,62 +114,55 @@
                 <option>SDAI</option><option>SECURITY</option>
               </select>
             </div>
-            <div class="rdp-field rdp-span-2">
+            <div class="rdp-field s2">
               <label>Seu nome</label>
               <input type="text" id="profArq" class="form-control"
-                     placeholder="Nome do profissional">
+                     placeholder="Nome no arquivo">
             </div>
 
-            <div class="rdp-field rdp-span-4">
+            <div class="rdp-field s4">
               <label>Contratante</label>
-              <input type="text" id="contratante" class="form-control"
-                     placeholder="Nome do contratante">
+              <input type="text" id="contratante" class="form-control">
             </div>
-            <div class="rdp-field rdp-span-4">
+            <div class="rdp-field s4">
               <label>Obra</label>
-              <input type="text" id="obra" class="form-control"
-                     placeholder="Nome da obra">
+              <input type="text" id="obra" class="form-control">
             </div>
-            <div class="rdp-field rdp-span-4">
+            <div class="rdp-field s4">
               <label>Endereço</label>
-              <input type="text" id="endereco" class="form-control"
-                     placeholder="Endereço da obra">
+              <input type="text" id="endereco" class="form-control">
             </div>
           </div>
 
           <div class="rdp-toolbar">
-            <div class="rdp-file-info">
-              <small id="previewNome">📄 Preencha os campos acima para ver o nome do arquivo</small>
-              <small id="clienteCarregadoInfo" style="margin-top:3px">
-                Nenhum cliente carregado.
-              </small>
+            <div class="rdp-filename">
+              <span class="label">Nome do arquivo</span>
+              <span id="clienteCarregadoInfo" style="font-size:.76rem;color:var(--muted)"></span>
             </div>
-            <div class="rdp-button-group">
+            <div class="rdp-btn-group">
               <button id="btnCriarCliente" class="rdp-btn rdp-btn-success"
                       onclick="criarNovoCliente()">
-                <span class="material-icons">add_circle</span>
-                Criar novo cliente
+                <span class="material-icons">add_circle</span>Criar cliente
               </button>
               <button id="btnAtualizarCliente" class="rdp-btn rdp-btn-primary"
                       onclick="atualizarClienteCarregado()" disabled>
-                <span class="material-icons">sync</span>
-                Atualizar cliente
+                <span class="material-icons">sync</span>Atualizar
               </button>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- RESUMO DO DIA -->
-    <section class="rdp-section">
-      <div class="rdp-section-title">
+    <div class="rdp-section">
+      <div class="rdp-section-label">
         <span class="material-icons">schedule</span>
-        Resumo do Dia
+        <span>Resumo do Dia</span>
       </div>
-      <div class="rdp-panel">
-        <div class="rdp-panel-body">
-          <div class="rdp-form-grid rdp-grid-resumo">
+      <div class="rdp-card">
+        <div class="rdp-card-body">
+          <div class="rdp-grid rdp-g-6">
             <div class="rdp-field">
               <label>Início Prev.</label>
               <input type="text" id="hIniPrev" class="form-control" value="08:00">
@@ -211,17 +197,17 @@
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- PROFISSIONAIS -->
-    <section class="rdp-section">
-      <div class="rdp-section-title">
+    <div class="rdp-section">
+      <div class="rdp-section-label">
         <span class="material-icons">groups</span>
-        Profissionais Envolvidos
+        <span>Profissionais Envolvidos</span>
       </div>
-      <div class="rdp-panel">
-        <div class="rdp-panel-body" id="listaProfissionais"></div>
-        <div class="rdp-panel-footer">
+      <div class="rdp-card">
+        <div class="rdp-card-body" id="listaProfissionais"></div>
+        <div class="rdp-card-footer">
           <button class="rdp-btn rdp-btn-primary" onclick="addProf()">
             <span class="material-icons">add</span>Adicionar
           </button>
@@ -230,17 +216,17 @@
           </button>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- ATIVIDADES -->
-    <section class="rdp-section">
-      <div class="rdp-section-title">
+    <div class="rdp-section">
+      <div class="rdp-section-label">
         <span class="material-icons">fact_check</span>
-        Atividades Realizadas
+        <span>Atividades Realizadas</span>
       </div>
-      <div class="rdp-panel">
-        <div class="rdp-panel-body" id="listaAtividades"></div>
-        <div class="rdp-panel-footer">
+      <div class="rdp-card">
+        <div class="rdp-card-body" id="listaAtividades"></div>
+        <div class="rdp-card-footer">
           <button class="rdp-btn rdp-btn-primary" onclick="addAtv()">
             <span class="material-icons">add</span>Atividade
           </button>
@@ -249,17 +235,17 @@
           </button>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- FOTOS -->
-    <section class="rdp-section">
-      <div class="rdp-section-title">
+    <div class="rdp-section">
+      <div class="rdp-section-label">
         <span class="material-icons">photo_camera</span>
-        Relatório Fotográfico
+        <span>Relatório Fotográfico</span>
       </div>
-      <div class="rdp-panel">
-        <div class="rdp-panel-body" id="listaFotos"></div>
-        <div class="rdp-panel-footer">
+      <div class="rdp-card">
+        <div class="rdp-card-body" id="listaFotos"></div>
+        <div class="rdp-card-footer">
           <button class="rdp-btn rdp-btn-success" onclick="uploadEmLote()">
             <span class="material-icons">collections</span>Upload em Lote
           </button>
@@ -271,81 +257,82 @@
           </button>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- DETALHAMENTO -->
-    <section class="rdp-section">
-      <div class="rdp-section-title">
+    <div class="rdp-section">
+      <div class="rdp-section-label">
         <span class="material-icons">article</span>
-        Detalhamento das Atividades
+        <span>Detalhamento das Atividades</span>
       </div>
-      <div class="rdp-panel">
-        <div class="rdp-panel-body">
-          <div class="rdp-info-box">
-            Editor com suporte a texto formatado, listas, tabelas, alinhamentos e links.
-            Cole do Word — parágrafos, listas e tabelas simples são preservados no DOCX.
+      <div class="rdp-card">
+        <div class="rdp-card-body">
+          <div class="rdp-info">
+            Editor com suporte a texto formatado, listas, tabelas e links.
+            Cole do Word — parágrafos e listas são preservados no DOCX.
           </div>
-          <textarea id="detalhamentoEditor" class="rdp-word-editor"></textarea>
-          <small class="rdp-hint">
-            Use a barra do editor para inserir tabelas. Ao colar do Word, o sistema tenta preservar a formatação.
-          </small>
+          <textarea id="detalhamentoEditor" class="rdp-editor"></textarea>
+          <span class="rdp-hint">
+            Use a barra do editor para inserir tabelas e formatação.
+          </span>
         </div>
       </div>
-    </section>
+    </div>
 
     <!-- AÇÃO FINAL -->
-    <div class="rdp-final-actions">
+    <div class="rdp-actions">
       <button id="btnDocx" class="rdp-btn rdp-btn-docx" onclick="gerarDOCX()">
         <span class="material-icons">description</span>
         Baixar DOCX
       </button>
     </div>
 
-  </section>
-</main>
+  </main>
+</div>
 
-<!-- ═══ MODAL: MEU PERFIL ═══════════════════════════════════════════════════ -->
+<!-- ═══ MODAL: Perfil ══════════════════════════════════════════════════════ -->
 <div id="modalPerfil" class="modal modal-fixed-footer app-modal">
   <div class="modal-content">
-    <h5 class="rdp-modal-title">
+    <div class="modal-title">
       <span class="material-icons">manage_accounts</span>
       Meu Perfil
-    </h5>
-    <div class="rdp-info-box">
-      Altere seus dados pessoais. Para trocar e-mail ou senha, informe a senha atual.
+    </div>
+    <div class="rdp-info" style="margin-bottom:20px">
+      Para alterar e-mail ou senha, informe a senha atual.
     </div>
     <input type="hidden" id="perfilHiddenMarker">
-    <div class="rdp-form-grid rdp-grid-2">
-      <div class="rdp-field rdp-field-full">
+    <div class="rdp-grid rdp-g-2" style="gap:18px">
+      <div class="rdp-field s12">
         <label>Nome completo</label>
-        <input type="text" id="perfilNome" class="form-control" placeholder="Seu nome completo">
+        <input type="text" id="perfilNome" class="form-control">
       </div>
-      <div class="rdp-field rdp-field-full">
+      <div class="rdp-field s12">
         <label>Função</label>
         <input type="text" id="perfilFuncao" class="form-control"
-               placeholder="Ex.: Programador, Técnico, Engenheiro">
+               placeholder="Ex.: Programador, Técnico">
       </div>
-      <div class="rdp-field rdp-field-full">
+      <div class="rdp-field s12">
         <label>E-mail</label>
-        <input type="email" id="perfilEmail" class="form-control" placeholder="seu@email.com">
+        <input type="email" id="perfilEmail" class="form-control">
       </div>
       <div class="rdp-field">
         <label>Senha atual</label>
         <input type="password" id="perfilSenhaAtual" class="form-control"
-               autocomplete="current-password" placeholder="Obrigatória para alterar e-mail/senha">
+               placeholder="Obrigatória para alterar">
       </div>
       <div class="rdp-field">
         <label>Nova senha</label>
         <input type="password" id="perfilNovaSenha" class="form-control"
-               autocomplete="new-password" placeholder="Opcional — mín. 6 caracteres">
+               placeholder="Opcional — mín. 6 chars">
       </div>
     </div>
-    <div id="msgPerfil" class="rdp-message-danger" style="display:none"></div>
+    <div id="msgPerfil" class="rdp-err" style="display:none"></div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="modal-close rdp-btn rdp-btn-muted">Cancelar</button>
-    <button id="btnSalvarPerfil" class="rdp-btn rdp-btn-primary" onclick="salvarMeuPerfil()">
-      <span class="material-icons">save</span>Salvar alterações
+    <button type="button" class="modal-close btn-flat">Cancelar</button>
+    <button id="btnSalvarPerfil" class="rdp-btn rdp-btn-primary"
+            onclick="salvarMeuPerfil()">
+      <span class="material-icons">save</span>Salvar
     </button>
   </div>
 </div>
@@ -356,30 +343,26 @@
 <script src="https://cdn.jsdelivr.net/npm/jodit@4/es2021/jodit.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script>
-  function rdpInitMaterialize() {
-    if (!window.M) return;
-    document.querySelectorAll(".modal").forEach(el => {
-      if (!M.Modal.getInstance(el)) M.Modal.init(el, { dismissible: true, opacity: 0.55 });
-    });
+  function toggleTheme() {
+    const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('rdp-theme', t);
+    document.getElementById('themeIcon').textContent = t==='dark' ? 'light_mode' : 'dark_mode';
   }
-  function rdpApplyThemeIcon() {
-    const t = document.documentElement.getAttribute("data-theme") || "dark";
-    document.querySelectorAll("[data-theme-icon]").forEach(el =>
-      el.textContent = t === "dark" ? "light_mode" : "dark_mode");
-    document.querySelectorAll("[data-theme-label]").forEach(el =>
-      el.textContent = t === "dark" ? "Modo claro" : "Modo escuro");
-  }
-  window.rdpToggleTheme = function() {
-    const atual = document.documentElement.getAttribute("data-theme") || "dark";
-    const prox  = atual === "dark" ? "light" : "dark";
-    localStorage.setItem("rdp-theme", prox);
-    document.documentElement.setAttribute("data-theme", prox);
-    rdpApplyThemeIcon();
-  };
-  document.addEventListener("DOMContentLoaded", () => {
-    rdpInitMaterialize();
-    rdpApplyThemeIcon();
+  window.rdpToggleTheme = toggleTheme;
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.M) {
+      document.querySelectorAll('.modal').forEach(el => {
+        if (!M.Modal.getInstance(el)) M.Modal.init(el, {dismissible:true, opacity:.55});
+      });
+    }
+    const t = document.documentElement.getAttribute('data-theme')||'dark';
+    document.getElementById('themeIcon').textContent = t==='dark' ? 'light_mode' : 'dark_mode';
   });
+  window.abrirModalPerfil = function() {
+    const m = document.getElementById('modalPerfil');
+    if (m && window.M) M.Modal.getInstance(m)?.open();
+  };
 </script>
 <script type="module" src="js/app.js"></script>
 </body>
