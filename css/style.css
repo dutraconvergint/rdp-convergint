@@ -2201,3 +2201,264 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
     height: 48px;
   }
 }
+
+
+/* ============================================================
+   CABEÇALHO / PROFISSIONAIS / ATIVIDADES COM MATERIALIZE INPUT-FIELD
+   Melhor aproveitamento horizontal e campos compactos.
+   ============================================================ */
+
+/* Cabeçalho com grid horizontal amplo */
+.rdp-cabecalho-content {
+  padding: 12px 14px 10px !important;
+  overflow: visible !important;
+}
+
+.rdp-cabecalho-grid {
+  display: grid;
+  grid-template-columns: 145px minmax(280px, 2.1fr) 120px 120px 130px minmax(170px, 1fr);
+  gap: 10px;
+  align-items: end;
+  width: 100%;
+}
+
+.rdp-logo-input-field {
+  grid-row: span 2;
+  height: auto !important;
+  align-self: start;
+}
+
+.rdp-head-cliente { grid-column: span 1; }
+.rdp-head-codigo { grid-column: span 1; }
+.rdp-head-data { grid-column: span 1; }
+.rdp-head-sistema { grid-column: span 1; }
+.rdp-head-prof { grid-column: span 1; }
+
+.rdp-head-contratante {
+  grid-column: 2 / span 2;
+}
+
+.rdp-head-obra {
+  grid-column: 4 / span 1;
+}
+
+.rdp-head-endereco {
+  grid-column: 5 / span 2;
+}
+
+/* File do logo com altura do padrão visual */
+.rdp-file-label {
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .25px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.rdp-file-material {
+  width: 100%;
+  height: 31px;
+  min-height: 31px;
+  margin: 0;
+  padding: 4px 6px;
+  color: var(--text-strong);
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: .76rem;
+  box-sizing: border-box;
+}
+
+.rdp-logo-preview {
+  max-height: 44px !important;
+  margin-top: 8px !important;
+}
+
+/* Reaproveita o mesmo estilo compacto do resumo para todos os input-fields do formulário */
+.rdp-cabecalho-grid .rdp-mi-field.input-field,
+.rdp-material-row .rdp-mi-field.input-field {
+  margin: 0 !important;
+  min-width: 0;
+  width: 100%;
+  height: 46px;
+  position: relative;
+}
+
+.rdp-cabecalho-grid .rdp-mi-field.input-field > label,
+.rdp-material-row .rdp-mi-field.input-field > label {
+  position: absolute !important;
+  top: -2px !important;
+  left: 0 !important;
+  transform: none !important;
+  color: var(--muted) !important;
+  font-size: .72rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .25px;
+  text-transform: uppercase;
+  line-height: 1 !important;
+  margin: 0 !important;
+  height: auto !important;
+  pointer-events: none;
+}
+
+.rdp-cabecalho-grid .rdp-mi-field.input-field input[type=text]:not(.browser-default),
+.rdp-cabecalho-grid .rdp-mi-field.input-field input.validate,
+.rdp-material-row .rdp-mi-field.input-field input[type=text]:not(.browser-default),
+.rdp-material-row .rdp-mi-field.input-field input.validate {
+  height: 31px !important;
+  min-height: 31px !important;
+  margin: 15px 0 0 0 !important;
+  padding: 0 8px !important;
+  color: var(--text-strong) !important;
+  background: var(--input) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  font-size: .82rem !important;
+  font-weight: 600 !important;
+  line-height: 31px !important;
+}
+
+.rdp-cabecalho-grid .rdp-mi-field.input-field input[type=text]:focus,
+.rdp-cabecalho-grid .rdp-mi-field.input-field input.validate:focus,
+.rdp-material-row .rdp-mi-field.input-field input[type=text]:focus,
+.rdp-material-row .rdp-mi-field.input-field input.validate:focus {
+  border-color: #29b6f6 !important;
+  box-shadow: 0 0 0 2px rgba(41,182,246,.14) !important;
+  background: var(--input-focus) !important;
+}
+
+/* Selects Materialize no cabeçalho/atividades */
+.rdp-cabecalho-grid .rdp-mi-select.input-field .select-wrapper,
+.rdp-material-row .rdp-mi-select.input-field .select-wrapper {
+  margin-top: 15px !important;
+  height: 31px !important;
+}
+
+.rdp-cabecalho-grid .rdp-mi-select.input-field .select-wrapper input.select-dropdown,
+.rdp-material-row .rdp-mi-select.input-field .select-wrapper input.select-dropdown {
+  height: 31px !important;
+  min-height: 31px !important;
+  margin: 0 !important;
+  padding: 0 26px 0 8px !important;
+  color: var(--text-strong) !important;
+  background: var(--input) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  font-size: .82rem !important;
+  font-weight: 600 !important;
+  line-height: 31px !important;
+}
+
+.rdp-cabecalho-grid .rdp-mi-select.input-field .select-wrapper .caret,
+.rdp-material-row .rdp-mi-select.input-field .select-wrapper .caret {
+  fill: var(--muted) !important;
+  right: 7px !important;
+  top: 4px !important;
+}
+
+/* Linhas dinâmicas em Materialize input-field */
+.rdp-material-row {
+  display: grid !important;
+  gap: 10px !important;
+  margin: 0 0 10px 0 !important;
+  padding: 10px 12px !important;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  align-items: end;
+}
+
+.rdp-prof-material-row {
+  grid-template-columns: minmax(260px, 2fr) minmax(190px, 1fr) minmax(190px, 1fr);
+}
+
+.rdp-atv-material-row {
+  grid-template-columns: 36px minmax(360px, 2.4fr) minmax(180px, 1fr) 130px 150px;
+}
+
+.rdp-atv-num {
+  height: 31px;
+  margin-top: 15px;
+  display: grid;
+  place-items: center;
+  color: var(--text-strong);
+  background: var(--panel-3);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+/* Menos espaço vertical nos cards dessas seções */
+#listaProfissionais.card-content,
+#listaAtividades.card-content,
+#listaProfissionais,
+#listaAtividades {
+  padding-top: 12px !important;
+}
+
+@media (max-width: 1450px) {
+  .rdp-cabecalho-grid {
+    grid-template-columns: 145px repeat(5, minmax(120px, 1fr));
+  }
+
+  .rdp-head-cliente {
+    grid-column: span 3;
+  }
+
+  .rdp-head-contratante {
+    grid-column: 2 / span 2;
+  }
+
+  .rdp-head-obra {
+    grid-column: span 2;
+  }
+
+  .rdp-head-endereco {
+    grid-column: 1 / -1;
+  }
+
+  .rdp-atv-material-row {
+    grid-template-columns: 36px minmax(280px, 2fr) minmax(160px, 1fr) 120px 140px;
+  }
+}
+
+@media (max-width: 1050px) {
+  .rdp-cabecalho-grid,
+  .rdp-prof-material-row,
+  .rdp-atv-material-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .rdp-logo-input-field,
+  .rdp-head-cliente,
+  .rdp-head-contratante,
+  .rdp-head-obra,
+  .rdp-head-endereco,
+  .rdp-atv-desc {
+    grid-column: 1 / -1 !important;
+  }
+
+  .rdp-atv-num {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 620px) {
+  .rdp-cabecalho-grid,
+  .rdp-prof-material-row,
+  .rdp-atv-material-row {
+    grid-template-columns: 1fr;
+  }
+
+  .rdp-atv-num {
+    grid-column: 1 / -1;
+  }
+}
