@@ -1,10 +1,11 @@
 // js/app.js
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut,
-         updatePassword, reauthenticateWithCredential, EmailAuthProvider }
+         updatePassword, updateEmail, updateProfile,
+         reauthenticateWithCredential, EmailAuthProvider }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc,
-         doc, query, where, getDoc }
+         doc, query, where, getDoc, updateDoc }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 import { FIREBASE_CONFIG } from "./config.js";
 import { gerarDOCX } from "./report.js";
@@ -71,6 +72,44 @@ onAuthStateChanged(auth, async user => {
 });
 
 window.sair = () => signOut(auth).then(() => location.href = "index.html");
+
+function preencherModalPerfil() {
+  if (!usuarioAtual || !perfilUsuario) return;
+  setValor("perfilNome", perfilUsuario.nome || usuarioAtual.displayName || "");
+  setValor("perfilFuncao", perfilUsuario.funcao || perfilUsuario.função || "");
+  setValor("perfilEmail", usuarioAtual.email || perfilUsuario.email || "");
+  setValor("perfilSenhaAtual", "");
+  setValor("perfilNovaSenha", "");
+  const msg = document.getElementById("msgPerfil");
+  if (msg) {
+    msg.textContent = "";
+    msg.style.display = "none";
+    msg.classList.remove("text-success");
+    msg.classList.add("text-danger");
+  }
+}
+
+document.getElementById("modalPerfil")?.addEventListener("show.bs.modal", preencherModalPerfil);
+
+function mostrarMsgPerfil(texto, tipo="erro") {
+  const msg = document.getElementById("msgPerfil");
+  if (!msg) return;
+  msg.textContent = texto;
+  msg.style.display = "block";
+  msg.classList.toggle("text-danger", tipo !== "ok");
+  msg.classList.toggle("text-success", tipo === "ok");
+}
+
+function traduzirErroPerfil(e) {
+  const code = e?.code || "";
+  if (code === "auth/wrong-password" || code === "auth/invalid-credential") return "Senha atual incorreta.";
+  if (code === "auth/requires-recent-login") return "Por segurança, informe a senha atual e tente novamente.";
+  if (code === "auth/email-already-in-use") return "Este e-mail já está em uso por outro usuário.";
+  if (code === "auth/invalid-email") return "E-mail inválido.";
+  if (code === "auth/weak-password") return "A nova senha é muito fraca. Use pelo menos 6 caracteres.";
+  if (code === "permission-denied") return "O Firestore bloqueou a alteração. Atualize as regras para permitir que o usuário edite nome, e-mail e função.";
+  return `${code || "erro"} - ${e?.message || "Não foi possível salvar o perfil."}`;
+}
 
 function dataAtualBR() {
   const hoje = new Date();
@@ -618,23 +657,82 @@ window.excluirCliente = async function(id) {
 };
 
 // ── Alterar senha ─────────────────────────────────────────────────────────────
-window.alterarSenha = async function() {
-  const atual = document.getElementById("senhaAtual").value;
-  const nova  = document.getElementById("novaSenha").value;
-  const msg   = document.getElementById("msgSenha");
-  msg.style.display = "none";
-  if (nova.length < 6) {
-    msg.textContent = "Senha deve ter ao menos 6 caracteres.";
-    msg.style.display = "block"; return;
+window.salvarMeuPerfil = async function() {
+  if (!usuarioAtual) return;
+
+  const btn = document.getElementById("btnSalvarPerfil");
+  const nome = (document.getElementById("perfilNome")?.value || "").trim();
+  const funcao = (document.getElementById("perfilFuncao")?.value || "").trim();
+  const emailNovo = (document.getElementById("perfilEmail")?.value || "").trim();
+  const senhaAtual = document.getElementById("perfilSenhaAtual")?.value || "";
+  const novaSenha = document.getElementById("perfilNovaSenha")?.value || "";
+  const emailAtual = usuarioAtual.email || "";
+
+  if (!nome) { mostrarMsgPerfil("Informe o nome completo."); return; }
+  if (!emailNovo) { mostrarMsgPerfil("Informe o e-mail."); return; }
+  if (novaSenha && novaSenha.length < 6) { mostrarMsgPerfil("A nova senha deve ter pelo menos 6 caracteres."); return; }
+
+  const vaiTrocarEmail = emailNovo.toLowerCase() !== emailAtual.toLowerCase();
+  const vaiTrocarSenha = !!novaSenha;
+
+  if ((vaiTrocarEmail || vaiTrocarSenha) && !senhaAtual) {
+    mostrarMsgPerfil("Informe a senha atual para alterar e-mail ou senha.");
+    return;
   }
+
+  const oldHtml = btn?.innerHTML;
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Salvando...`;
+  }
+
   try {
-    const cred = EmailAuthProvider.credential(usuarioAtual.email, atual);
-    await reauthenticateWithCredential(usuarioAtual, cred);
-    await updatePassword(usuarioAtual, nova);
-    bootstrap.Modal.getInstance(document.getElementById("modalSenha")).hide();
-    alert("✅ Senha alterada com sucesso!");
+    if (vaiTrocarEmail || vaiTrocarSenha) {
+      const cred = EmailAuthProvider.credential(emailAtual, senhaAtual);
+      await reauthenticateWithCredential(usuarioAtual, cred);
+    }
+
+    if (vaiTrocarEmail) {
+      await updateEmail(usuarioAtual, emailNovo);
+    }
+
+    if (vaiTrocarSenha) {
+      await updatePassword(usuarioAtual, novaSenha);
+    }
+
+    await updateProfile(usuarioAtual, { displayName: nome });
+
+    await updateDoc(doc(db, "usuarios", usuarioAtual.uid), {
+      nome,
+      funcao,
+      email: emailNovo
+    });
+
+    perfilUsuario = {
+      ...perfilUsuario,
+      nome,
+      funcao,
+      email: emailNovo
+    };
+
+    document.getElementById("nomeUsuario").textContent = nome || emailNovo;
+    aplicarUsuarioNoFormulario();
+    atualizarPreviewNome();
+
+    mostrarMsgPerfil("Perfil atualizado com sucesso.", "ok");
+
+    setTimeout(() => {
+      const modal = bootstrap.Modal.getInstance(document.getElementById("modalPerfil"));
+      modal?.hide();
+    }, 700);
+
   } catch(e) {
-    msg.textContent = "Senha atual incorreta.";
-    msg.style.display = "block";
+    console.error("ERRO AO SALVAR PERFIL:", e);
+    mostrarMsgPerfil(traduzirErroPerfil(e));
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = oldHtml;
+    }
   }
 };
