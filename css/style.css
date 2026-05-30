@@ -759,3 +759,173 @@ input[type="file"].form-control {
     padding-right: 14px !important;
   }
 }
+
+
+
+/* ============================================================
+   FIX FINAL - campos sem sobreposição e altura menor
+   ============================================================ */
+
+/* Reduz altura geral dos campos. A regra anterior estava deixando
+   os inputs altos demais e com muita área vertical. */
+.rdp-field input.form-control,
+.rdp-field select.form-select,
+.rdp-field select.browser-default,
+.rdp-field textarea.form-control,
+.rdp-card input.form-control,
+.rdp-card select.form-select,
+.rdp-card select.browser-default,
+.rdp-card textarea.form-control,
+input.form-control,
+select.form-select,
+select.browser-default,
+textarea.form-control {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 8px 12px !important;
+  line-height: 1.25 !important;
+  font-size: .86rem !important;
+}
+
+input[type="file"].form-control {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 6px 8px !important;
+}
+
+textarea.form-control {
+  height: auto !important;
+  min-height: 68px !important;
+  padding: 9px 12px !important;
+  line-height: 1.4 !important;
+}
+
+/* Garante que nenhum campo vaze por cima do outro. */
+.rdp-grid {
+  align-items: start !important;
+  grid-auto-flow: row !important;
+}
+
+.rdp-field {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+
+.rdp-field > * {
+  max-width: 100% !important;
+}
+
+.rdp-card,
+.rdp-card-body,
+.rdp-main {
+  min-width: 0 !important;
+}
+
+/* O campo de logo não deve forçar a altura das outras linhas. */
+.rdp-logo-field {
+  align-self: start !important;
+  grid-row: auto !important;
+}
+
+#logoPreview,
+.rdp-logo-preview {
+  max-height: 46px !important;
+}
+
+/* Cards dinâmicos com menos altura, mas sem compactar demais. */
+.prof-row,
+.atv-row,
+.foto-card {
+  padding: 12px !important;
+  margin-bottom: 9px !important;
+}
+
+/* Em telas médias, evita que campos espremidos comecem a se sobrepor. */
+@media (max-width: 1100px) {
+  .rdp-g-12 {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+
+  .rdp-g-6 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .c2 { grid-column: span 3 !important; }
+  .c3 { grid-column: span 3 !important; }
+  .c4 { grid-column: span 6 !important; }
+  .c6 { grid-column: span 6 !important; }
+  .c12 { grid-column: 1 / -1 !important; }
+  .rdp-logo-field { grid-column: span 6 !important; }
+}
+
+/* Em telas pequenas, cada campo ocupa uma linha inteira.
+   Isso resolve a caixa ficando por cima da outra no canto esquerdo. */
+@media (max-width: 760px) {
+  .rdp-g-12,
+  .rdp-g-6,
+  .rdp-g-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .c2,
+  .c3,
+  .c4,
+  .c6,
+  .c12,
+  .rdp-logo-field {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+
+  .rdp-card-body {
+    padding: 16px !important;
+  }
+
+  .rdp-grid {
+    gap: 14px !important;
+  }
+
+  .rdp-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .rdp-btn-group {
+    width: 100% !important;
+  }
+
+  .rdp-btn-group .rdp-btn {
+    flex: 1 1 100% !important;
+  }
+
+  .prof-row.row,
+  .atv-row.row,
+  .foto-card .row {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Em telas muito estreitas, compacta ainda mais os campos. */
+@media (max-width: 460px) {
+  .rdp-main {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .rdp-card-body {
+    padding: 14px !important;
+  }
+
+  .rdp-field input.form-control,
+  .rdp-field select.form-select,
+  .rdp-field select.browser-default,
+  input.form-control,
+  select.form-select,
+  select.browser-default {
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 7px 10px !important;
+  }
+}
