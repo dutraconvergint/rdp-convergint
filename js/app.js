@@ -35,6 +35,153 @@ function atualizarMensagemFotosVazia() {
   }
 }
 
+
+// ── Preview com zoom das fotos ────────────────────────────────────────────────
+// Mostra a imagem em tamanho original ao parar o mouse sobre a miniatura.
+// Use + / - ou a roda do mouse para aumentar/reduzir o zoom.
+let fotoZoomScale = 1;
+let fotoZoomHideTimer = null;
+
+function garantirViewerZoomFoto() {
+  let viewer = document.getElementById("fotoZoomViewer");
+  if (viewer) return viewer;
+
+  viewer = document.createElement("div");
+  viewer.id = "fotoZoomViewer";
+  viewer.className = "foto-zoom-viewer";
+  viewer.innerHTML = `
+    <div class="foto-zoom-topbar">
+      <div>
+        <strong><i class="bi bi-search"></i> Visualizar foto</strong>
+        <span id="fotoZoomInfo" class="foto-zoom-info"></span>
+      </div>
+      <div class="foto-zoom-actions">
+        <button type="button" class="btn btn-sm btn-outline-light" id="fotoZoomMenos" title="Diminuir zoom">−</button>
+        <button type="button" class="btn btn-sm btn-outline-light" id="fotoZoomReset" title="Voltar para 100%">100%</button>
+        <button type="button" class="btn btn-sm btn-outline-light" id="fotoZoomMais" title="Aumentar zoom">+</button>
+        <button type="button" class="btn btn-sm btn-outline-light" id="fotoZoomFechar" title="Fechar">×</button>
+      </div>
+    </div>
+    <div class="foto-zoom-ajuda">
+      Passe o mouse na miniatura para abrir. Use a roda do mouse ou os botões para ajustar o zoom.
+    </div>
+    <div class="foto-zoom-imgwrap">
+      <img id="fotoZoomImg" class="foto-zoom-img" alt="Preview da foto">
+    </div>
+  `;
+
+  document.body.appendChild(viewer);
+
+  const img = viewer.querySelector("#fotoZoomImg");
+  const aplicar = () => {
+    img.style.transform = `scale(${fotoZoomScale})`;
+    viewer.querySelector("#fotoZoomReset").textContent = `${Math.round(fotoZoomScale * 100)}%`;
+  };
+
+  viewer.querySelector("#fotoZoomMais").addEventListener("click", () => {
+    fotoZoomScale = Math.min(6, +(fotoZoomScale + 0.25).toFixed(2));
+    aplicar();
+  });
+
+  viewer.querySelector("#fotoZoomMenos").addEventListener("click", () => {
+    fotoZoomScale = Math.max(0.25, +(fotoZoomScale - 0.25).toFixed(2));
+    aplicar();
+  });
+
+  viewer.querySelector("#fotoZoomReset").addEventListener("click", () => {
+    fotoZoomScale = 1;
+    aplicar();
+  });
+
+  viewer.querySelector("#fotoZoomFechar").addEventListener("click", esconderZoomFoto);
+
+  viewer.addEventListener("mouseenter", () => {
+    if (fotoZoomHideTimer) clearTimeout(fotoZoomHideTimer);
+  });
+
+  viewer.addEventListener("mouseleave", () => {
+    agendarFechamentoZoomFoto();
+  });
+
+  viewer.addEventListener("wheel", (ev) => {
+    ev.preventDefault();
+    const delta = ev.deltaY < 0 ? 0.15 : -0.15;
+    fotoZoomScale = Math.max(0.25, Math.min(6, +(fotoZoomScale + delta).toFixed(2)));
+    aplicar();
+  }, { passive: false });
+
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") esconderZoomFoto();
+  });
+
+  return viewer;
+}
+
+function mostrarZoomFoto(src, titulo = "") {
+  if (!src) return;
+
+  const viewer = garantirViewerZoomFoto();
+  const img = viewer.querySelector("#fotoZoomImg");
+  const info = viewer.querySelector("#fotoZoomInfo");
+
+  if (fotoZoomHideTimer) clearTimeout(fotoZoomHideTimer);
+
+  fotoZoomScale = 1;
+  viewer.querySelector("#fotoZoomReset").textContent = "100%";
+  img.style.transform = "scale(1)";
+  img.src = src;
+  info.textContent = titulo ? ` — ${titulo}` : "";
+
+  img.onload = () => {
+    const w = img.naturalWidth || 0;
+    const h = img.naturalHeight || 0;
+    info.textContent = `${titulo ? " — " + titulo : ""}${w && h ? ` — original: ${w}×${h}px` : ""}`;
+  };
+
+  viewer.style.display = "block";
+  viewer.classList.add("show");
+}
+
+function esconderZoomFoto() {
+  const viewer = document.getElementById("fotoZoomViewer");
+  if (!viewer) return;
+  viewer.classList.remove("show");
+  viewer.style.display = "none";
+}
+
+function agendarFechamentoZoomFoto() {
+  if (fotoZoomHideTimer) clearTimeout(fotoZoomHideTimer);
+  fotoZoomHideTimer = setTimeout(esconderZoomFoto, 250);
+}
+
+// Delegação: funciona para fotos criadas individualmente, em lote ou carregadas depois.
+document.addEventListener("mouseover", (ev) => {
+  const thumb = ev.target.closest?.(".foto-thumb");
+  if (!thumb || thumb.classList.contains("d-none") || !thumb.src) return;
+
+  const card = thumb.closest(".foto-card");
+  const titulo = card?.querySelector("strong")?.textContent?.trim() || "Foto";
+  mostrarZoomFoto(thumb.src, titulo);
+});
+
+document.addEventListener("mouseout", (ev) => {
+  const thumb = ev.target.closest?.(".foto-thumb");
+  if (!thumb) return;
+
+  const viewer = document.getElementById("fotoZoomViewer");
+  if (viewer && viewer.contains(ev.relatedTarget)) return;
+  agendarFechamentoZoomFoto();
+});
+
+document.addEventListener("click", (ev) => {
+  const thumb = ev.target.closest?.(".foto-thumb");
+  if (!thumb || thumb.classList.contains("d-none") || !thumb.src) return;
+
+  const card = thumb.closest(".foto-card");
+  const titulo = card?.querySelector("strong")?.textContent?.trim() || "Foto";
+  mostrarZoomFoto(thumb.src, titulo);
+});
+
 // ── Auth guard ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
   try {
@@ -165,7 +312,7 @@ function atualizarEstadoBotoesCliente() {
 
 function marcarClienteCarregado(cliente) {
   clienteCarregadoId = cliente?.id || null;
-  clienteCarregadoKey = cliente?.clientKey || cliente?.id || null;
+  clienteCarregadoKey = cliente?.clientKey || null;
   atualizarEstadoBotoesCliente();
 }
 
@@ -391,7 +538,7 @@ window.addFoto = function(increment=true) {
         <label class="form-label small mb-1">Imagem</label>
         <input type="file" class="form-control form-control-sm" accept="image/*"
                onchange="carregarFoto(this,${idx})">
-        <img id="thumbFoto${idx}" src="" class="mt-1 rounded d-none foto-thumb">
+        <img id="thumbFoto${idx}" src="" class="mt-1 rounded d-none foto-thumb" title="Passe o mouse para ampliar. Clique para manter aberto.">
       </div>
     </div>`;
   listaFotos.appendChild(div);
@@ -690,6 +837,11 @@ window.atualizarClienteCarregado = async function() {
   try {
     const dadosBase = coletarDadosClienteBase();
 
+    if (!clienteCarregadoKey) {
+      alert("Este cliente foi salvo em uma versão antiga e ainda não possui chave única. Use Criar novo cliente para salvar no novo padrão Código + Sistema.");
+      return;
+    }
+
     if (dadosBase.clientKey !== clienteCarregadoKey) {
       alert(
         "Você alterou o Código do Projeto ou o Sistema.\n\n" +
@@ -762,7 +914,11 @@ function renderClientes(filtro="") {
   `).join("");
 }
 
-window.filtrarClientes = v => renderClientes(v);
+window.filtrarClientes = v => {
+  const lista = document.getElementById("listaClientes");
+  if (lista) lista.dataset.filtro = v || "";
+  renderClientes(v);
+};
 
 window.carregarClienteForm = function(id) {
   const c = clientes.find(x => x.id === id);
