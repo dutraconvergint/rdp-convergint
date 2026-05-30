@@ -2702,3 +2702,102 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
     grid-column: 1 / -1 !important;
   }
 }
+
+/* ============================================================
+   AJUSTE EXTRA - Upload da logo na segunda linha
+   Coloque este bloco no FINAL do style.css.
+   Ele sobrescreve os ajustes anteriores da logo.
+   ============================================================ */
+
+/* A área da logo continua na primeira coluna, mas ocupa as 2 linhas
+   do cabeçalho para permitir que o botão fique embaixo do texto. */
+.rdp-logo-input-field {
+  grid-column: 1 / span 1 !important;
+  grid-row: 1 / span 2 !important;
+
+  display: grid !important;
+  grid-template-columns: 46px minmax(0, 1fr) !important;
+  grid-template-rows: 14px 34px auto !important;
+
+  column-gap: 8px !important;
+  row-gap: 6px !important;
+
+  width: 100% !important;
+  max-width: var(--rdp-max-logo) !important;
+  min-height: 92px !important;
+
+  align-self: start !important;
+  align-items: start !important;
+  justify-items: start !important;
+  overflow: visible !important;
+}
+
+/* Texto "Logo do Cliente" fica na primeira linha */
+.rdp-logo-input-field .rdp-file-label {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 14px !important;
+}
+
+/* Botão com ícone do upload desce para a segunda linha */
+.rdp-logo-input-field .rdp-logo-upload-btn {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+
+  align-self: start !important;
+  justify-self: start !important;
+  margin: 0 !important;
+}
+
+/* Compatibilidade caso ainda esteja usando input file visível,
+   sem o botão .rdp-logo-upload-btn */
+.rdp-logo-input-field .rdp-file-material:not(.rdp-file-material-hidden) {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+/* Preview da logo fica ao lado do botão, na segunda linha */
+.rdp-logo-input-field .rdp-logo-preview,
+.rdp-logo-input-field #logoPreview {
+  grid-column: 2 !important;
+  grid-row: 2 / span 2 !important;
+
+  align-self: start !important;
+  justify-self: start !important;
+
+  max-width: 120px !important;
+  max-height: 60px !important;
+  margin: 0 !important;
+}
+
+/* Mantém escondido o input real quando você usa botão com ícone */
+.rdp-logo-input-field .rdp-file-material-hidden {
+  position: absolute !important;
+  width: 0.1px !important;
+  height: 0.1px !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  z-index: -1 !important;
+}
+
+/* Em telas menores a logo ocupa a largura inteira */
+@media (max-width: 900px) {
+  .rdp-logo-input-field {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .rdp-logo-input-field {
+    grid-template-columns: 46px minmax(0, 1fr) !important;
+    min-height: 92px !important;
+  }
+}
