@@ -1888,3 +1888,33 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
   object-fit: contain !important; background: #fff; border-radius: 3px;
   padding: 1px; margin-bottom: 3px; display: block;
 }
+
+/* ── Materialize input-field: subtle background on focus ──────── */
+.input-field > input:not(.browser-default):focus,
+.input-field > textarea.materialize-textarea:focus {
+  background: color-mix(in srgb, var(--blue) 6%, transparent) !important;
+  border-radius: 4px 4px 0 0 !important;
+  padding: 0 6px !important;
+}
+
+/* Keep un-focused fields clean (no background) */
+.input-field > input:not(.browser-default),
+.input-field > textarea.materialize-textarea {
+  padding: 0 2px !important;
+}
+
+/* Compact row spacing inside cards */
+.rdp-card .card-content .row { margin-bottom: 0 !important; }
+.rdp-card .card-content .input-field { margin-top: 1rem !important; margin-bottom: .25rem !important; }
+.rdp-card .card-content .input-field input,
+.rdp-card .card-content .input-field .select-wrapper input.select-dropdown {
+  margin-bottom: 4px !important;
+}
+
+/* card-action compact */
+.card-action.rdp-action-row {
+  padding: 10px 20px !important;
+  display: flex; gap: 8px; flex-wrap: wrap;
+  border-top: 1px solid var(--border) !important;
+}
+.card-action.rdp-action-row a { margin: 0 !important; }
