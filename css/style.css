@@ -2558,7 +2558,7 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
 .rdp-head-obra {
   width: 100% !important;
   max-width: var(--rdp-max-obra) !important;
-  grid-column: 3 / span 2 !important;
+  grid-column: 2 / span 2 !important;
 }
 
 .rdp-head-endereco {
