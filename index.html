@@ -4,141 +4,517 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RDP – Login</title>
+
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
-  <script>(function(){document.documentElement.setAttribute('data-theme',localStorage.getItem('rdp-theme')||'dark');})();</script>
+
+  <style>
+    :root {
+      --nav: #052b57;
+      --bg1: #030b14;
+      --bg2: #071c32;
+      --card: #0b1727;
+      --card2: #0f2136;
+      --border: #25405c;
+      --text: #e8f1ff;
+      --muted: #91a8c4;
+      --primary: #1e88e5;
+      --cyan: #00acc1;
+      --danger: #ef5350;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      margin: 0;
+      font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 12% 10%, rgba(30,136,229,.22), transparent 34%),
+        radial-gradient(circle at 88% 18%, rgba(0,172,193,.15), transparent 30%),
+        linear-gradient(135deg, var(--bg1), var(--bg2) 56%, #030b14);
+    }
+
+    nav.rdp-login-nav {
+      background: var(--nav);
+      height: 58px;
+      line-height: 58px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.35);
+    }
+
+    .nav-wrapper {
+      width: min(1180px, calc(100% - 24px));
+      margin: 0 auto;
+    }
+
+    .brand-logo {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 8px;
+      height: 58px;
+      font-weight: 800;
+      font-size: 1.3rem !important;
+    }
+
+    .brand-logo i.material-icons {
+      height: 58px;
+      line-height: 58px;
+      font-size: 30px;
+    }
+
+    .login-page {
+      min-height: calc(100vh - 58px);
+      display: grid;
+      place-items: center;
+      padding: 28px 16px;
+    }
+
+    .login-shell {
+      width: min(1120px, 100%);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 430px;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .login-hero {
+      min-height: 520px;
+      padding: 44px;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(13,71,161,.92), rgba(0,131,143,.78)),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      box-shadow: 0 22px 70px rgba(0,0,0,.35);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .login-hero::after {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      border-radius: 999px;
+      right: -160px;
+      bottom: -140px;
+      background: rgba(255,255,255,.10);
+    }
+
+    .hero-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 22px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.24);
+    }
+
+    .hero-icon i { font-size: 42px; }
+
+    .login-hero h1 {
+      margin: 28px 0 14px;
+      font-size: clamp(2rem, 4vw, 3.6rem);
+      line-height: 1.03;
+      font-weight: 900;
+      letter-spacing: -1.4px;
+    }
+
+    .login-hero p {
+      max-width: 620px;
+      color: rgba(255,255,255,.84);
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.16);
+      font-size: .86rem;
+      font-weight: 700;
+    }
+
+    .hero-badge i { font-size: 18px; }
+
+    .login-card {
+      padding: 34px;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid var(--border);
+      box-shadow: 0 22px 70px rgba(0,0,0,.38);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .login-title i {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--cyan));
+      font-size: 29px;
+    }
+
+    .login-title h2 {
+      margin: 0;
+      font-size: 1.55rem;
+      font-weight: 900;
+    }
+
+    .login-title span {
+      display: block;
+      color: var(--muted);
+      margin-top: 2px;
+      font-size: .88rem;
+    }
+
+    .rdp-field {
+      margin-bottom: 16px;
+    }
+
+    .rdp-field label {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .45px;
+      position: static !important;
+      transform: none !important;
+    }
+
+    .rdp-input-wrap {
+      position: relative;
+    }
+
+    .rdp-input-wrap i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 21px;
+      pointer-events: none;
+    }
+
+    input.rdp-input {
+      width: 100% !important;
+      height: 44px !important;
+      min-height: 44px !important;
+      margin: 0 !important;
+      padding: 9px 12px 9px 42px !important;
+      color: #fff !important;
+      background: #081321 !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 12px !important;
+      outline: none !important;
+      box-shadow: none !important;
+      font-size: .95rem !important;
+      box-sizing: border-box !important;
+    }
+
+    input.rdp-input:focus {
+      border-color: #29b6f6 !important;
+      box-shadow: 0 0 0 3px rgba(41,182,246,.16) !important;
+      background: #0b1a2d !important;
+    }
+
+    .rdp-btn-login {
+      width: 100%;
+      height: 44px;
+      margin-top: 8px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--cyan));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: none;
+    }
+
+    .rdp-btn-login:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
+
+    #msgErro {
+      display: none;
+      margin-bottom: 16px;
+      padding: 11px 13px;
+      border-radius: 12px;
+      color: #ffcdd2;
+      background: rgba(239,83,80,.12);
+      border: 1px solid rgba(239,83,80,.30);
+      font-size: .9rem;
+      line-height: 1.45;
+    }
+
+    .login-help {
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: 12px;
+      color: var(--muted);
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      font-size: .82rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 940px) {
+      .login-shell {
+        grid-template-columns: 1fr;
+        max-width: 460px;
+      }
+
+      .login-hero {
+        min-height: auto;
+        padding: 28px;
+      }
+
+      .login-card {
+        padding: 28px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .brand-logo { font-size: 1.1rem !important; }
+      .login-page { padding: 18px 10px; }
+      .login-card { padding: 22px; }
+      .login-hero { display: none; }
+    }
+  </style>
 </head>
-<body class="login-page">
 
-  <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
-    <span class="material-icons" id="themeIcon">light_mode</span>
-  </button>
-
-  <div class="login-wrap">
-
-    <!-- Hero -->
-    <div class="login-hero hide-on-med-and-down">
-      <div class="login-icon"><span class="material-icons">assignment</span></div>
-      <h1>Relatório Diário<br>de Programação</h1>
-      <p>Plataforma web da Convergint para geração padronizada de relatórios. Preencha, assine e baixe o DOCX em minutos.</p>
-      <div class="login-features">
-        <div class="login-feature">
-          <div class="login-feature-icon"><span class="material-icons">description</span></div>
-          <span>Template DOCX oficial preenchido automaticamente</span>
-        </div>
-        <div class="login-feature">
-          <div class="login-feature-icon"><span class="material-icons">photo_camera</span></div>
-          <span>Relatório fotográfico com upload em lote</span>
-        </div>
-        <div class="login-feature">
-          <div class="login-feature-icon"><span class="material-icons">business</span></div>
-          <span>Clientes salvos por usuário — sem redigitar</span>
-        </div>
-        <div class="login-feature">
-          <div class="login-feature-icon"><span class="material-icons">security</span></div>
-          <span>Acesso restrito por convite do administrador</span>
-        </div>
-      </div>
+<body>
+  <nav class="rdp-login-nav">
+    <div class="nav-wrapper">
+      <a href="index.html" class="brand-logo">
+        <i class="material-icons">assignment</i>
+        RDP
+      </a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="#!" title="Acesso restrito"><i class="material-icons">lock</i></a></li>
+      </ul>
     </div>
+  </nav>
 
-    <!-- Formulário -->
-    <div class="login-form">
-      <div>
-        <h2>Entrar</h2>
-        <p class="sub">Acesse com seu e-mail e senha</p>
+  <main class="login-page">
+    <section class="login-shell">
+      <div class="login-hero">
+        <div>
+          <div class="hero-icon"><i class="material-icons">description</i></div>
+          <h1>Relatório Diário de Programação</h1>
+          <p>
+            Plataforma web para preenchimento, organização e geração padronizada de RDP em DOCX.
+            O acesso é restrito a usuários cadastrados e ativos pelo administrador.
+          </p>
+        </div>
+
+        <div class="hero-badges">
+          <span class="hero-badge"><i class="material-icons">verified_user</i> Login seguro</span>
+          <span class="hero-badge"><i class="material-icons">cloud_done</i> Firebase</span>
+          <span class="hero-badge"><i class="material-icons">article</i> DOCX</span>
+        </div>
       </div>
 
-      <div id="msgErro" class="login-err" style="display:none"></div>
+      <div class="login-card">
+        <div class="login-title">
+          <i class="material-icons">account_circle</i>
+          <div>
+            <h2>Entrar no sistema</h2>
+            <span>Use seu e-mail e senha cadastrados</span>
+          </div>
+        </div>
 
-      <div class="login-field">
-        <label for="email">E-mail</label>
-        <input type="email" id="email" class="form-control"
-               placeholder="seu@email.com" autocomplete="username" autofocus>
+        <div id="msgErro"></div>
+
+        <div class="rdp-field">
+          <label for="email">E-mail</label>
+          <div class="rdp-input-wrap">
+            <i class="material-icons">mail</i>
+            <input id="email" class="rdp-input" type="email" autocomplete="username" placeholder="seu@email.com" autofocus>
+          </div>
+        </div>
+
+        <div class="rdp-field">
+          <label for="senha">Senha</label>
+          <div class="rdp-input-wrap">
+            <i class="material-icons">key</i>
+            <input id="senha" class="rdp-input" type="password" autocomplete="current-password" placeholder="••••••••"
+                   onkeydown="if(event.key === 'Enter') entrar()">
+          </div>
+        </div>
+
+        <button id="btnEntrar" class="rdp-btn-login" onclick="entrar()">
+          <i class="material-icons">login</i>
+          Entrar
+        </button>
+
+        <div class="login-help">
+          Para acessar, solicite previamente o cadastro ao administrador da aplicação.
+          Usuários inativos não conseguem entrar.
+        </div>
       </div>
+    </section>
+  </main>
 
-      <div class="login-field">
-        <label for="senha">Senha</label>
-        <input type="password" id="senha" class="form-control"
-               placeholder="••••••••" autocomplete="current-password"
-               onkeydown="if(event.key==='Enter') entrar()">
-      </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+    import { FIREBASE_CONFIG } from "./js/config.js";
 
-      <button id="btnEntrar" class="login-btn" onclick="entrar()">
-        <span class="material-icons" style="font-size:19px">login</span>
-        Entrar
-      </button>
+    const app = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-      <p class="login-footer">Solicite acesso ao administrador do sistema</p>
-    </div>
-  </div>
+    const emailEl = document.getElementById("email");
+    const senhaEl = document.getElementById("senha");
+    const msg = document.getElementById("msgErro");
+    const btn = document.getElementById("btnEntrar");
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-<script>
-  function toggleTheme() {
-    const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem('rdp-theme', t);
-    document.getElementById('themeIcon').textContent = t === 'dark' ? 'light_mode' : 'dark_mode';
-  }
-  document.addEventListener('DOMContentLoaded', () => {
-    const t = document.documentElement.getAttribute('data-theme') || 'dark';
-    document.getElementById('themeIcon').textContent = t === 'dark' ? 'light_mode' : 'dark_mode';
-  });
-</script>
-<script type="module">
-  import { initializeApp }                       from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword,
-           onAuthStateChanged, signOut }         from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc }           from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-  import { FIREBASE_CONFIG }                     from "./js/config.js";
+    function mostrarErro(texto) {
+      msg.innerHTML = texto;
+      msg.style.display = "block";
+    }
 
-  const auth = getAuth(initializeApp(FIREBASE_CONFIG));
-  const db   = getFirestore();
-  const btn  = document.getElementById("btnEntrar");
-  const msg  = document.getElementById("msgErro");
+    function limparErro() {
+      msg.innerHTML = "";
+      msg.style.display = "none";
+    }
 
-  const erro = t => { msg.textContent = t; msg.style.display = "block"; };
-  const limpar = () => { msg.style.display = "none"; };
+    function setLoading(v) {
+      btn.disabled = v;
+      btn.innerHTML = v
+        ? `<span class="spinner-border spinner-border-sm"></span> Entrando...`
+        : `<i class="material-icons">login</i> Entrar`;
+    }
 
-  function setLoad(v) {
-    btn.disabled = v;
-    btn.innerHTML = v
-      ? `<span class="preloader-wrapper active" style="width:17px;height:17px"><span class="spinner-layer spinner-white-only"><span class="circle-clipper left"><span class="circle"></span></span><span class="gap-patch"><span class="circle"></span></span><span class="circle-clipper right"><span class="circle"></span></span></span></span> Entrando…`
-      : `<span class="material-icons" style="font-size:19px">login</span> Entrar`;
-  }
+    function traduzirErro(e) {
+      const code = e?.code || "";
 
-  async function ir(user) {
-    const s = await getDoc(doc(db, "usuarios", user.uid));
-    if (!s.exists() || s.data().ativo !== true) { await signOut(auth); throw {code:"app/blocked"}; }
-    location.href = "app.html";
-  }
+      if (code === "auth/invalid-credential") return "E-mail ou senha incorretos, ou usuário não existe no Firebase Authentication.";
+      if (code === "auth/user-not-found") return "Usuário não existe no Firebase Authentication.";
+      if (code === "auth/wrong-password") return "Senha incorreta.";
+      if (code === "auth/invalid-email") return "E-mail inválido.";
+      if (code === "auth/missing-password") return "Digite a senha.";
+      if (code === "auth/operation-not-allowed") return "Login por e-mail/senha não está habilitado no Firebase.";
+      if (code === "permission-denied") return "Login autenticou, mas o Firestore bloqueou a leitura do usuário. Verifique regras e cadastro.";
+      if (code === "app/usuario-sem-perfil") return "Usuário existe no Authentication, mas não existe na coleção usuarios do Firestore.";
+      if (code === "app/usuario-desativado") return "Usuário desativado. Contate o administrador.";
 
-  onAuthStateChanged(auth, async u => {
-    if (!u) return;
-    try { setLoad(true); await ir(u); } catch(e) { erro(trad(e)); setLoad(false); }
-  });
+      return `${code || "erro"} - ${e?.message || "Erro ao fazer login."}`;
+    }
 
-  function trad(e) {
-    const c = e?.code||"";
-    if (c==="auth/invalid-credential")  return "E-mail ou senha incorretos.";
-    if (c==="auth/network-request-failed") return "Sem conexão. Verifique sua internet.";
-    if (c==="app/blocked") return "Usuário desativado. Contate o administrador.";
-    if (c==="permission-denied") return "Erro de permissão no Firestore. Verifique as regras.";
-    return e?.message || "Erro ao fazer login.";
-  }
+    async function validarPerfil(user) {
+      const snap = await getDoc(doc(db, "usuarios", user.uid));
 
-  window.entrar = async function() {
-    limpar();
-    const e = document.getElementById("email").value.trim();
-    const s = document.getElementById("senha").value;
-    if (!e) { erro("Digite o e-mail."); return; }
-    if (!s) { erro("Digite a senha."); return; }
-    setLoad(true);
-    try { await ir((await signInWithEmailAndPassword(auth, e, s)).user); }
-    catch(err) { erro(trad(err)); setLoad(false); }
-  };
-</script>
+      if (!snap.exists()) {
+        await signOut(auth);
+        throw { code: "app/usuario-sem-perfil" };
+      }
+
+      const perfil = snap.data() || {};
+
+      if (perfil.ativo !== true) {
+        await signOut(auth);
+        throw { code: "app/usuario-desativado" };
+      }
+
+      return perfil;
+    }
+
+    async function irParaApp(user) {
+      await validarPerfil(user);
+      location.replace("app.html");
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
+
+      try {
+        await irParaApp(user);
+      } catch (e) {
+        console.error("ERRO AO VALIDAR USUÁRIO LOGADO:", e);
+        mostrarErro(traduzirErro(e));
+      }
+    });
+
+    window.entrar = async function() {
+      limparErro();
+
+      const email = emailEl.value.trim();
+      const senha = senhaEl.value;
+
+      if (!email) {
+        mostrarErro("Digite o e-mail.");
+        emailEl.focus();
+        return;
+      }
+
+      if (!senha) {
+        mostrarErro("Digite a senha.");
+        senhaEl.focus();
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, senha);
+        await irParaApp(cred.user);
+      } catch (e) {
+        console.error("ERRO LOGIN:", e);
+        mostrarErro(traduzirErro(e));
+      } finally {
+        setLoading(false);
+      }
+    };
+  </script>
 </body>
 </html>
