@@ -16,47 +16,62 @@
 <body>
 
 <!-- ═══ TOPBAR ═════════════════════════════════════════════════════════════ -->
-<nav class="rdp-topbar">
-  <div class="rdp-topbar-inner">
 
-    <a class="rdp-logo" href="app.html">
-      <span class="material-icons">assignment</span>
+<nav class="rdp-material-nav">
+  <div class="nav-wrapper">
+    <a href="app.html" class="brand-logo">
+      <i class="material-icons">assignment</i>
       RDP
     </a>
 
-    <div class="rdp-topbar-center">
-      <span id="previewNome">Relatório Diário de Programação</span>
-    </div>
+    <ul class="right hide-on-med-and-down">
+      <li>
+        <a href="#!" onclick="document.querySelector('.rdp-sidebar-search, input[oninput*=filtrarClientes]')?.focus(); return false;" title="Buscar clientes">
+          <i class="material-icons">search</i>
+        </a>
+      </li>
+      <li>
+        <a href="#!" onclick="novoRelatorio(); return false;" title="Novo relatório">
+          <i class="material-icons">note_add</i>
+        </a>
+      </li>
+      <li>
+        <a id="btnAdminUsuarios" class="hide" href="admin.html" title="Cadastro de usuários">
+          <i class="material-icons">group</i>
+        </a>
+      </li>
+      <li>
+        <a href="#!" onclick="abrirModalPerfil(); return false;" title="Meu perfil">
+          <i class="material-icons">account_circle</i>
+        </a>
+      </li>
+      <li>
+        <a href="#!" onclick="rdpToggleTheme(); return false;" title="Alternar claro/escuro">
+          <i class="material-icons" data-theme-icon>light_mode</i>
+        </a>
+      </li>
+      <li>
+        <a href="#!" onclick="sair(); return false;" title="Sair">
+          <i class="material-icons">logout</i>
+        </a>
+      </li>
+    </ul>
 
-    <div class="rdp-topbar-actions">
-      <span class="rdp-user-chip">
-        <span class="material-icons">account_circle</span>
-        <span id="nomeUsuario">…</span>
-      </span>
-
-      <button class="rdp-tb-btn" onclick="novoRelatorio()" title="Novo relatório">
-        <span class="material-icons">note_add</span>
-      </button>
-
-      <a id="btnAdminUsuarios" class="rdp-tb-btn d-none" href="admin.html" title="Usuários">
-        <span class="material-icons">group</span>
-      </a>
-
-      <button class="rdp-tb-btn" onclick="abrirModalPerfil()" title="Meu perfil">
-        <span class="material-icons">manage_accounts</span>
-      </button>
-
-      <button class="rdp-tb-btn" onclick="toggleTheme()" title="Alternar tema">
-        <span class="material-icons" id="themeIcon">light_mode</span>
-      </button>
-
-      <button class="rdp-tb-btn" onclick="sair()" title="Sair"
-              style="border-color:rgba(248,113,113,.4);color:#f87171!important">
-        <span class="material-icons">logout</span>
-      </button>
-    </div>
+    <a href="#" data-target="rdp-mobile-menu" class="sidenav-trigger right">
+      <i class="material-icons">more_vert</i>
+    </a>
   </div>
 </nav>
+
+<ul class="sidenav" id="rdp-mobile-menu">
+  <li><a href="app.html"><i class="material-icons">assignment</i>RDP</a></li>
+  <li><a href="#!" onclick="document.querySelector('.rdp-sidebar-search, input[oninput*=filtrarClientes]')?.focus(); M.Sidenav.getInstance(document.getElementById('rdp-mobile-menu'))?.close(); return false;"><i class="material-icons">search</i>Buscar clientes</a></li>
+  <li><a href="#!" onclick="novoRelatorio(); M.Sidenav.getInstance(document.getElementById('rdp-mobile-menu'))?.close(); return false;"><i class="material-icons">note_add</i>Novo relatório</a></li>
+  <li><a id="btnAdminUsuariosMobile" class="hide" href="admin.html"><i class="material-icons">group</i>Usuários</a></li>
+  <li><a href="#!" onclick="abrirModalPerfil(); M.Sidenav.getInstance(document.getElementById('rdp-mobile-menu'))?.close(); return false;"><i class="material-icons">account_circle</i>Meu perfil</a></li>
+  <li><a href="#!" onclick="rdpToggleTheme(); return false;"><i class="material-icons" data-theme-icon>light_mode</i>Alternar tema</a></li>
+  <li><a href="#!" onclick="sair(); return false;"><i class="material-icons">logout</i>Sair</a></li>
+</ul>
 
 <!-- ═══ APP SHELL ══════════════════════════════════════════════════════════ -->
 <div class="rdp-app" id="appContent" style="display:none">
