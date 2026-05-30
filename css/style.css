@@ -2515,7 +2515,7 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
 
   /* ===== CABEÇALHO DO PROJETO - LARGURAS ===== */
   --rdp-logo-col: 140px;
-  --rdp-cliente-col: minmax(360px, 2.6fr);
+  --rdp-cliente-col: minmax(300px, 2.6fr);
   --rdp-codigo-col: 115px;
   --rdp-data-col: 120px;
   --rdp-sistema-col: 130px;
