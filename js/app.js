@@ -41,6 +41,8 @@ function atualizarMensagemFotosVazia() {
 // Use + / - ou a roda do mouse para aumentar/reduzir o zoom.
 let fotoZoomScale = 1;
 let fotoZoomHideTimer = null;
+let fotoZoomOpenTimer = null;
+const FOTO_ZOOM_DELAY_MS = 3000;
 
 function garantirViewerZoomFoto() {
   let viewer = document.getElementById("fotoZoomViewer");
@@ -63,7 +65,7 @@ function garantirViewerZoomFoto() {
       </div>
     </div>
     <div class="foto-zoom-ajuda">
-      Passe o mouse na miniatura para abrir. Use a roda do mouse ou os botões para ajustar o zoom.
+      Passe o mouse por 3 segundos na miniatura para abrir. Use a roda do mouse ou os botões para ajustar o zoom.
     </div>
     <div class="foto-zoom-imgwrap">
       <img id="fotoZoomImg" class="foto-zoom-img" alt="Preview da foto">
@@ -124,6 +126,7 @@ function mostrarZoomFoto(src, titulo = "") {
   const img = viewer.querySelector("#fotoZoomImg");
   const info = viewer.querySelector("#fotoZoomInfo");
 
+  if (fotoZoomOpenTimer) clearTimeout(fotoZoomOpenTimer);
   if (fotoZoomHideTimer) clearTimeout(fotoZoomHideTimer);
 
   fotoZoomScale = 1;
@@ -143,6 +146,7 @@ function mostrarZoomFoto(src, titulo = "") {
 }
 
 function esconderZoomFoto() {
+  if (fotoZoomOpenTimer) clearTimeout(fotoZoomOpenTimer);
   const viewer = document.getElementById("fotoZoomViewer");
   if (!viewer) return;
   viewer.classList.remove("show");
@@ -155,18 +159,31 @@ function agendarFechamentoZoomFoto() {
 }
 
 // Delegação: funciona para fotos criadas individualmente, em lote ou carregadas depois.
+// No hover, espera 3 segundos antes de abrir o zoom para não atrapalhar a organização das fotos.
 document.addEventListener("mouseover", (ev) => {
   const thumb = ev.target.closest?.(".foto-thumb");
   if (!thumb || thumb.classList.contains("d-none") || !thumb.src) return;
 
+  if (fotoZoomOpenTimer) clearTimeout(fotoZoomOpenTimer);
+  if (fotoZoomHideTimer) clearTimeout(fotoZoomHideTimer);
+
+  const src = thumb.src;
   const card = thumb.closest(".foto-card");
   const titulo = card?.querySelector("strong")?.textContent?.trim() || "Foto";
-  mostrarZoomFoto(thumb.src, titulo);
+
+  fotoZoomOpenTimer = setTimeout(() => {
+    // Só abre se o mouse ainda estiver em cima da mesma miniatura.
+    if (thumb.matches(":hover")) {
+      mostrarZoomFoto(src, titulo);
+    }
+  }, FOTO_ZOOM_DELAY_MS);
 });
 
 document.addEventListener("mouseout", (ev) => {
   const thumb = ev.target.closest?.(".foto-thumb");
   if (!thumb) return;
+
+  if (fotoZoomOpenTimer) clearTimeout(fotoZoomOpenTimer);
 
   const viewer = document.getElementById("fotoZoomViewer");
   if (viewer && viewer.contains(ev.relatedTarget)) return;
@@ -176,6 +193,8 @@ document.addEventListener("mouseout", (ev) => {
 document.addEventListener("click", (ev) => {
   const thumb = ev.target.closest?.(".foto-thumb");
   if (!thumb || thumb.classList.contains("d-none") || !thumb.src) return;
+
+  if (fotoZoomOpenTimer) clearTimeout(fotoZoomOpenTimer);
 
   const card = thumb.closest(".foto-card");
   const titulo = card?.querySelector("strong")?.textContent?.trim() || "Foto";
