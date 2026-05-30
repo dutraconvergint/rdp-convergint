@@ -132,66 +132,79 @@ html[data-bs-theme="dark"] body {
 
 
 
-/* ===== Editor online estilo Word para Detalhamento (CKEditor) ===== */
-.ck-editor {
+
+
+/* ===== Editor online estilo Word para Detalhamento (Jodit) ===== */
+.rdp-word-editor {
+  min-height: 420px;
+}
+
+.jodit-container,
+.jodit-workplace,
+.jodit-wysiwyg {
   color: #111827 !important;
 }
 
-.ck-editor__top,
-.ck-toolbar {
-  border-radius: 8px 8px 0 0 !important;
+.jodit-container {
+  border-radius: 8px !important;
+  overflow: hidden;
+  border-color: #374151 !important;
 }
 
-.ck-editor__main > .ck-editor__editable {
-  min-height: 420px;
-  max-height: 70vh;
-  overflow-y: auto;
+.jodit-toolbar__box,
+.jodit-status-bar {
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+.jodit-workplace {
+  background: #ffffff !important;
+}
+
+.jodit-wysiwyg {
+  min-height: 420px !important;
   background: #ffffff !important;
   color: #111827 !important;
-  border-radius: 0 0 8px 8px !important;
   padding: 28px 36px !important;
-  font-family: Arial, "Segoe UI", sans-serif;
-  font-size: 12pt;
-  line-height: 1.45;
+  font-family: Arial, "Segoe UI", sans-serif !important;
+  font-size: 12pt !important;
+  line-height: 1.45 !important;
 }
 
-.ck-content p,
-.ck-content ul,
-.ck-content ol {
+.jodit-wysiwyg p,
+.jodit-wysiwyg ul,
+.jodit-wysiwyg ol {
   margin-bottom: 8px;
 }
 
-.ck-content h2,
-.ck-content h3,
-.ck-content h4 {
+.jodit-wysiwyg h1,
+.jodit-wysiwyg h2,
+.jodit-wysiwyg h3,
+.jodit-wysiwyg h4 {
   margin: 12px 0 8px;
 }
 
-.ck-content table {
+.jodit-wysiwyg table {
   border-collapse: collapse;
   width: 100%;
   margin: 10px 0;
 }
 
-.ck-content table td,
-.ck-content table th {
+.jodit-wysiwyg table td,
+.jodit-wysiwyg table th {
   border: 1px solid #9ca3af;
   padding: 6px 8px;
   color: #111827;
 }
 
-.ck-content table th {
+.jodit-wysiwyg table th {
   background: #e5e7eb;
   font-weight: 700;
 }
 
-.rdp-word-editor {
-  min-height: 420px;
-}
-
 @media (max-width: 768px) {
-  .ck-editor__main > .ck-editor__editable {
-    min-height: 300px;
+  .jodit-wysiwyg {
+    min-height: 300px !important;
     padding: 18px !important;
   }
 }
