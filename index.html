@@ -7,229 +7,168 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <script>
-    (function() {
-      const saved = localStorage.getItem('rdp-theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', saved);
-    })();
-  </script>
-
+  <script>(function(){const s=localStorage.getItem('rdp-theme')||'dark';document.documentElement.setAttribute('data-theme',s);})();</script>
 </head>
 <body class="login-page">
-  <button class="btn-floating waves-effect waves-light rdp-theme-float" onclick="rdpToggleTheme()" title="Alternar tema">
+
+  <!-- Botão de tema flutuante -->
+  <button class="btn-floating waves-effect waves-light rdp-theme-float"
+          onclick="rdpToggleTheme()" title="Alternar tema">
     <i class="material-icons" data-theme-icon>light_mode</i>
   </button>
 
   <main class="login-shell">
+
+    <!-- Lado esquerdo: hero -->
     <section class="login-hero hide-on-med-and-down">
       <div class="login-badge"><i class="material-icons">assignment</i></div>
       <h1>RDP Web</h1>
-      <p>Relatório Diário de Programação com autenticação, clientes salvos, editor avançado e geração de DOCX padronizado.</p>
-      <div class="login-feature"><i class="material-icons">security</i><span>Acesso restrito a usuários cadastrados e ativos.</span></div>
-      <div class="login-feature"><i class="material-icons">description</i><span>Modelo de relatório baseado em template DOCX.</span></div>
-      <div class="login-feature"><i class="material-icons">dark_mode</i><span>Interface moderna com modo claro e escuro.</span></div>
+      <p>Relatório Diário de Programação — geração de DOCX padronizado, clientes salvos e autenticação por usuário.</p>
+      <div class="login-feature">
+        <i class="material-icons">security</i>
+        <span>Acesso restrito a usuários cadastrados e ativos.</span>
+      </div>
+      <div class="login-feature">
+        <i class="material-icons">description</i>
+        <span>Template DOCX oficial da Convergint preenchido automaticamente.</span>
+      </div>
+      <div class="login-feature">
+        <i class="material-icons">photo_camera</i>
+        <span>Relatório fotográfico com upload em lote e reordenação.</span>
+      </div>
+      <div class="login-feature">
+        <i class="material-icons">dark_mode</i>
+        <span>Interface com modo claro e escuro.</span>
+      </div>
     </section>
 
-    <section class="login-card z-depth-3">
-      <div class="center-align mb-4">
+    <!-- Lado direito: formulário -->
+    <section class="login-card">
+      <div class="text-center">
         <div class="login-logo"><i class="material-icons">assignment</i></div>
+      </div>
+
+      <div class="text-center" style="margin-top:4px">
         <h4>Entrar no RDP</h4>
-        <p class="muted-text">Solicite seu cadastro ao administrador antes do primeiro acesso.</p>
+        <p class="muted-text">Solicite seu acesso ao administrador.</p>
       </div>
 
       <div id="msgErro" class="rdp-alert danger" style="display:none"></div>
 
       <div class="input-field-modern">
         <label for="email">E-mail</label>
-        <input type="email" id="email" class="form-control" placeholder="seu@email.com" autocomplete="username" autofocus>
+        <input type="email" id="email" class="form-control"
+               placeholder="seu@email.com" autocomplete="username" autofocus>
       </div>
 
       <div class="input-field-modern">
         <label for="senha">Senha</label>
-        <input type="password" id="senha" class="form-control" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key === 'Enter') entrar()">
+        <input type="password" id="senha" class="form-control"
+               placeholder="••••••••" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') entrar()">
       </div>
 
-      <button id="btnEntrar" class="btn-large waves-effect waves-light w-100 rdp-primary" onclick="entrar()">
+      <button id="btnEntrar" class="btn-large waves-effect waves-light rdp-primary"
+              onclick="entrar()">
         <i class="material-icons left">login</i>Entrar
       </button>
 
-      <p class="small-help">Página de login oficial: <br><strong>dutraconvergint.github.io/rdp-convergint</strong></p>
+      <p class="small-help" style="margin-top:4px">
+        <strong>dutraconvergint.github.io</strong>
+      </p>
     </section>
+
   </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script>
-  function rdpInitMaterialize() {
-    if (!window.M) return;
-    M.AutoInit();
-    document.querySelectorAll('.modal').forEach(el => {
-      if (!M.Modal.getInstance(el)) M.Modal.init(el, { dismissible: true, opacity: 0.55 });
-    });
-    document.querySelectorAll('.tooltipped').forEach(el => {
-      if (!M.Tooltip.getInstance(el)) M.Tooltip.init(el);
-    });
-  }
   function rdpApplyThemeIcon() {
     const t = document.documentElement.getAttribute('data-theme') || 'dark';
-    document.querySelectorAll('[data-theme-icon]').forEach(el => el.textContent = t === 'dark' ? 'light_mode' : 'dark_mode');
-    document.querySelectorAll('[data-theme-label]').forEach(el => el.textContent = t === 'dark' ? 'Modo claro' : 'Modo escuro');
+    document.querySelectorAll('[data-theme-icon]').forEach(el =>
+      el.textContent = t === 'dark' ? 'light_mode' : 'dark_mode');
   }
   window.rdpToggleTheme = function() {
     const atual = document.documentElement.getAttribute('data-theme') || 'dark';
-    const prox = atual === 'dark' ? 'light' : 'dark';
+    const prox  = atual === 'dark' ? 'light' : 'dark';
     localStorage.setItem('rdp-theme', prox);
     document.documentElement.setAttribute('data-theme', prox);
     rdpApplyThemeIcon();
   };
-  document.addEventListener('DOMContentLoaded', () => { rdpInitMaterialize(); rdpApplyThemeIcon(); });
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.M) M.AutoInit();
+    rdpApplyThemeIcon();
+  });
 </script>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { initializeApp }                          from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword,
+           onAuthStateChanged, signOut }            from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc }              from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+  import { FIREBASE_CONFIG }                        from "./js/config.js";
 
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+  const app  = initializeApp(FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const emailEl = document.getElementById("email");
+  const senhaEl = document.getElementById("senha");
+  const msg     = document.getElementById("msgErro");
+  const btn     = document.getElementById("btnEntrar");
 
-    import {
-      getFirestore,
-      doc,
-      getDoc
-    } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+  function mostrarErro(t) { msg.innerHTML = t; msg.style.display = "block"; }
+  function limparErro()   { msg.textContent = ""; msg.style.display = "none"; }
 
-    import { FIREBASE_CONFIG } from "./js/config.js";
+  function setCarregando(s) {
+    btn.disabled = s;
+    btn.innerHTML = s
+      ? `<span class="preloader-wrapper active" style="width:18px;height:18px;margin-right:8px"><span class="spinner-layer spinner-white-only"><span class="circle-clipper left"><span class="circle"></span></span><span class="gap-patch"><span class="circle"></span></span><span class="circle-clipper right"><span class="circle"></span></span></span></span>Entrando...`
+      : `<i class="material-icons left">login</i>Entrar`;
+  }
 
-    const app = initializeApp(FIREBASE_CONFIG);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  async function buscarPerfil(user) {
+    const snap = await getDoc(doc(db, "usuarios", user.uid));
+    if (!snap.exists())          { await signOut(auth); throw { code: "app/sem-perfil" }; }
+    if (snap.data().ativo !== true) { await signOut(auth); throw { code: "app/desativado" }; }
+    return snap.data();
+  }
 
-    const emailEl = document.getElementById("email");
-    const senhaEl = document.getElementById("senha");
-    const msg = document.getElementById("msgErro");
-    const btn = document.getElementById("btnEntrar");
+  async function redirecionar(user) {
+    const p = await buscarPerfil(user);
+    location.href = "app.html";
+  }
 
-    function mostrarErro(texto) {
-      msg.innerHTML = texto;
-      msg.style.display = "block";
-    }
+  onAuthStateChanged(auth, async user => {
+    if (!user) return;
+    try { setCarregando(true); await redirecionar(user); }
+    catch(e) { mostrarErro(traduzirErro(e)); setCarregando(false); }
+  });
 
-    function limparErro() {
-      msg.textContent = "";
-      msg.style.display = "none";
-    }
+  function traduzirErro(e) {
+    const c = e?.code || "";
+    if (c === "auth/invalid-credential") return "E-mail ou senha incorretos.";
+    if (c === "auth/user-not-found")     return "Usuário não encontrado.";
+    if (c === "auth/wrong-password")     return "Senha incorreta.";
+    if (c === "auth/invalid-email")      return "E-mail inválido.";
+    if (c === "auth/missing-password")   return "Digite a senha.";
+    if (c === "auth/network-request-failed") return "Falha de conexão.";
+    if (c === "app/sem-perfil")  return "Usuário não cadastrado no sistema. Contate o administrador.";
+    if (c === "app/desativado")  return "Usuário desativado. Contate o administrador.";
+    if (c === "permission-denied") return "Permissão negada pelo Firestore. Verifique as regras.";
+    return `Erro: ${e?.message || "desconhecido"}`;
+  }
 
-    function setCarregando(status) {
-      btn.disabled = status;
-      btn.innerHTML = status
-        ? `<span class="preloader-wrapper active tiny-spinner"><span class="spinner-layer spinner-blue-only"><span class="circle-clipper left"><span class="circle"></span></span><span class="gap-patch"><span class="circle"></span></span><span class="circle-clipper right"><span class="circle"></span></span></span></span> Entrando...`
-        : `<i class="material-icons left">login</i>Entrar`;
-    }
-
-    async function buscarPerfilUsuario(user) {
-      const ref = doc(db, "usuarios", user.uid);
-      const snap = await getDoc(ref);
-
-      if (!snap.exists()) {
-        await signOut(auth);
-        throw {
-          code: "app/usuario-sem-perfil",
-          message: "Usuário autenticado, mas não existe cadastro dele na coleção usuarios."
-        };
-      }
-
-      const dados = snap.data();
-
-      if (dados.ativo !== true) {
-        await signOut(auth);
-        throw {
-          code: "app/usuario-desativado",
-          message: "Usuário sem permissão ou desativado. Verifique se ativo é boolean true."
-        };
-      }
-
-      return dados;
-    }
-
-    async function redirecionarUsuario(user) {
-      await buscarPerfilUsuario(user);
-      location.href = "app.html";
-    }
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) return;
-
-      try {
-        setCarregando(true);
-        await redirecionarUsuario(user);
-      } catch (e) {
-        console.error("ERRO AO VALIDAR USUÁRIO LOGADO:", e);
-        mostrarErro(traduzirErro(e));
-        setCarregando(false);
-      }
-    });
-
-    function traduzirErro(e) {
-      const code = e?.code || "";
-      const message = e?.message || "";
-
-      if (code === "auth/invalid-credential") {
-        return "E-mail ou senha incorretos, ou o usuário não existe no Firebase Authentication.";
-      }
-
-      if (code === "auth/user-not-found") return "Usuário não existe no Firebase Authentication.";
-      if (code === "auth/wrong-password") return "Senha incorreta.";
-      if (code === "auth/invalid-email") return "E-mail inválido.";
-      if (code === "auth/missing-password") return "Digite a senha.";
-      if (code === "auth/operation-not-allowed") return "Login por e-mail/senha não está habilitado no Firebase Authentication.";
-      if (code === "auth/network-request-failed") return "Falha de rede ao conectar no Firebase.";
-
-      if (code === "permission-denied") {
-        return "Login autenticou, mas o Firestore bloqueou a leitura do usuário. Verifique as regras e o documento usuarios/UID.";
-      }
-
-      if (code === "app/usuario-sem-perfil") {
-        return "Usuário existe no Authentication, mas não existe na coleção <strong>usuarios</strong> do Firestore com o mesmo UID.";
-      }
-
-      if (code === "app/usuario-desativado") {
-        return "Usuário desativado ou campo <strong>ativo</strong> não está como boolean <strong>true</strong>.";
-      }
-
-      return `${code || "erro"} - ${message || "Erro desconhecido ao fazer login."}`;
-    }
-
-    window.entrar = async function() {
-      limparErro();
-
-      const email = emailEl.value.trim();
-      const senha = senhaEl.value;
-
-      if (!email) {
-        mostrarErro("Digite o e-mail.");
-        emailEl.focus();
-        return;
-      }
-
-      if (!senha) {
-        mostrarErro("Digite a senha.");
-        senhaEl.focus();
-        return;
-      }
-
-      setCarregando(true);
-
-      try {
-        const cred = await signInWithEmailAndPassword(auth, email, senha);
-        await redirecionarUsuario(cred.user);
-      } catch (e) {
-        console.error("ERRO LOGIN:", e.code, e.message, e);
-        mostrarErro(traduzirErro(e));
-        setCarregando(false);
-      }
-    };
-  </script>
+  window.entrar = async function() {
+    limparErro();
+    const email = emailEl.value.trim();
+    const senha = senhaEl.value;
+    if (!email) { mostrarErro("Digite o e-mail."); emailEl.focus(); return; }
+    if (!senha) { mostrarErro("Digite a senha."); senhaEl.focus(); return; }
+    setCarregando(true);
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, senha);
+      await redirecionar(cred.user);
+    } catch(e) { mostrarErro(traduzirErro(e)); setCarregando(false); }
+  };
+</script>
 </body>
 </html>
