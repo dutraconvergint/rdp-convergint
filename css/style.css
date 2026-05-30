@@ -215,3 +215,124 @@ html[data-bs-theme="dark"] body {
   box-shadow: 0 0 0 1px rgba(96,165,250,.35) inset;
   background: rgba(96,165,250,.08);
 }
+
+
+/* ===== Preview/Zoom das miniaturas de fotos ===== */
+.foto-thumb {
+  cursor: zoom-in !important;
+  border: 1px solid #475569;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.foto-thumb:hover {
+  transform: scale(1.04);
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, .22);
+}
+
+.foto-zoom-viewer {
+  position: fixed;
+  top: 72px;
+  right: 22px;
+  z-index: 99999;
+  display: none;
+  width: min(1100px, calc(100vw - 44px));
+  max-height: calc(100vh - 96px);
+  background: #0b1220;
+  color: #f8fafc;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .65);
+  overflow: hidden;
+}
+
+.foto-zoom-viewer.show {
+  display: block;
+}
+
+.foto-zoom-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #10233b;
+  border-bottom: 1px solid #334155;
+}
+
+.foto-zoom-info {
+  font-size: .78rem;
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+.foto-zoom-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.foto-zoom-actions .btn {
+  min-width: 38px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.foto-zoom-ajuda {
+  padding: 6px 12px;
+  font-size: .78rem;
+  color: #cbd5e1;
+  background: #111827;
+  border-bottom: 1px solid #263244;
+}
+
+.foto-zoom-imgwrap {
+  width: 100%;
+  height: min(720px, calc(100vh - 190px));
+  overflow: auto;
+  background:
+    linear-gradient(45deg, #111827 25%, transparent 25%),
+    linear-gradient(-45deg, #111827 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #111827 75%),
+    linear-gradient(-45deg, transparent 75%, #111827 75%);
+  background-color: #0f172a;
+  background-size: 22px 22px;
+  background-position: 0 0, 0 11px, 11px -11px, -11px 0px;
+  padding: 18px;
+}
+
+.foto-zoom-img {
+  display: block;
+  max-width: none !important;
+  max-height: none !important;
+  width: auto !important;
+  height: auto !important;
+  transform-origin: top left;
+  transition: transform .12s ease;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.35);
+}
+
+@media (max-width: 768px) {
+  .foto-zoom-viewer {
+    top: 58px;
+    right: 8px;
+    left: 8px;
+    width: auto;
+  }
+
+  .foto-zoom-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .foto-zoom-actions {
+    justify-content: flex-end;
+  }
+
+  .foto-zoom-imgwrap {
+    height: calc(100vh - 210px);
+  }
+}
