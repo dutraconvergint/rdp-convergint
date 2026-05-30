@@ -1,34 +1,37 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-bs-theme="dark">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>RDP – Admin</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-</head>
-<body class="app-dark">
+  <script>
+    (function() {
+      const saved = localStorage.getItem('rdp-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
 
-<nav class="navbar sticky-top shadow-sm" style="background:#1a3a5c">
-  <div class="container-fluid">
-    <a class="navbar-brand text-white fw-bold" href="app.html">
-      <i class="bi bi-file-earmark-text"></i> RDP
-    </a>
-    <div class="d-flex align-items-center gap-3">
-      <span class="text-white small"><i class="bi bi-shield-check"></i> Administrador</span>
-      <a class="btn btn-sm btn-outline-light" href="app.html">
-        <i class="bi bi-house"></i> Início
-      </a>
-      <button class="btn btn-sm btn-outline-light" onclick="sair()">
-        <i class="bi bi-box-arrow-right"></i> Sair
-      </button>
-    </div>
+</head>
+<body>
+
+<nav class="rdp-nav z-depth-2">
+  <div class="nav-wrapper rdp-nav-wrap">
+    <a class="brand-logo rdp-brand" href="app.html"><i class="material-icons left">assignment</i>RDP</a>
+    <ul class="right rdp-nav-actions">
+      <li><span class="rdp-user-chip"><i class="material-icons tiny">verified_user</i> Administrador</span></li>
+      <li><a class="btn-small waves-effect waves-light rdp-btn ghost" href="app.html"><i class="material-icons left">home</i>Início</a></li>
+      <li><button class="btn-small waves-effect waves-light rdp-btn ghost" onclick="rdpToggleTheme()"><i class="material-icons left" data-theme-icon>light_mode</i><span data-theme-label>Modo claro</span></button></li>
+      <li><button class="btn-small waves-effect waves-light red darken-2" onclick="sair()"><i class="material-icons left">logout</i>Sair</button></li>
+    </ul>
   </div>
 </nav>
 
-<div class="container-fluid py-3 px-4" id="adminContent" style="display:none">
-  <h5 class="mb-3"><i class="bi bi-people"></i> Gerenciamento de Usuários</h5>
+<div class="container-fluid rdp-page" id="adminContent" style="display:none">
+  <h4 class="page-title"><i class="material-icons left">groups</i> Gerenciamento de Usuários</h4>
 
   <div id="msgGlobal" class="alert d-none"></div>
 
@@ -37,7 +40,7 @@
     <div class="col-lg-4">
       <div class="card shadow-sm">
         <div class="card-header sec-hdr">
-          <i class="bi bi-person-plus"></i> Novo Usuário
+          <i class="material-icons left">person_add</i> Novo Usuário
         </div>
         <div class="card-body">
           <div class="mb-2">
@@ -58,13 +61,13 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Perfil</label>
-            <select id="novoRole" class="form-select form-select-sm">
+            <select id="novoRole" class="browser-default form-select form-select-sm">
               <option value="user">Usuário</option>
               <option value="admin">Administrador</option>
             </select>
           </div>
           <button class="btn btn-primary btn-sm w-100" onclick="criarUsuario()">
-            <i class="bi bi-plus-circle"></i> Criar Usuário
+            <i class="material-icons left">add_circle</i> Criar Usuário
           </button>
         </div>
       </div>
@@ -73,9 +76,9 @@
     <div class="col-lg-8">
       <div class="card shadow-sm">
         <div class="card-header sec-hdr d-flex justify-content-between align-items-center">
-          <span><i class="bi bi-list-ul"></i> Usuários Cadastrados</span>
+          <span><i class="material-icons left">format_list_bulleted</i> Usuários Cadastrados</span>
           <button class="btn btn-sm btn-outline-light" onclick="carregarUsuarios()">
-            <i class="bi bi-arrow-clockwise"></i> Atualizar
+            <i class="material-icons left">refresh</i> Atualizar
           </button>
         </div>
         <div class="card-body p-0">
@@ -105,14 +108,9 @@
   </div>
 </div>
 
-<div class="modal fade" id="modalEditarUsuario" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h6 class="modal-title"><i class="bi bi-pencil-square"></i> Editar usuário</h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
+<div id="modalEditarUsuario" class="modal modal-fixed-footer app-modal">
+  <div class="modal-content">
+    <h5><i class="material-icons left">edit</i> Editar usuário</h5>
         <input type="hidden" id="editUid">
         <div class="mb-2">
           <label class="form-label">Nome completo</label>
@@ -130,50 +128,67 @@
         <div class="row g-2">
           <div class="col-md-6">
             <label class="form-label">Perfil</label>
-            <select id="editRole" class="form-select form-select-sm">
+            <select id="editRole" class="browser-default form-select form-select-sm">
               <option value="user">Usuário</option>
               <option value="admin">Administrador</option>
             </select>
           </div>
           <div class="col-md-6">
             <label class="form-label">Status</label>
-            <select id="editAtivo" class="form-select form-select-sm">
+            <select id="editAtivo" class="browser-default form-select form-select-sm">
               <option value="true">Ativo</option>
               <option value="false">Inativo</option>
             </select>
           </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-primary btn-sm" onclick="salvarEdicaoUsuario()">Salvar alterações</button>
-      </div>
-    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="modal-close btn-flat">Cancelar</button>
+    <button class="btn waves-effect waves-light" onclick="salvarEdicaoUsuario()"><i class="material-icons left">save</i>Salvar alterações</button>
   </div>
 </div>
 
-<div class="modal fade" id="modalSenhaU" tabindex="-1">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h6 class="modal-title">Redefinir senha</h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
+<div id="modalSenhaU" class="modal app-modal small-modal">
+  <div class="modal-content">
+    <h5><i class="material-icons left">lock_reset</i> Redefinir senha</h5>
         <p class="small text-muted mb-2">
           Será enviado um link de redefinição para:<br>
           <strong id="senhaUEmail"></strong>
         </p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-        <button class="btn btn-warning btn-sm" onclick="confirmarSenha()">Enviar link</button>
-      </div>
-    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="modal-close btn-flat">Cancelar</button>
+    <button class="btn amber darken-2 waves-effect waves-light" onclick="confirmarSenha()"><i class="material-icons left">send</i>Enviar link</button>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+  function rdpInitMaterialize() {
+    if (!window.M) return;
+    M.AutoInit();
+    document.querySelectorAll('.modal').forEach(el => {
+      if (!M.Modal.getInstance(el)) M.Modal.init(el, { dismissible: true, opacity: 0.55 });
+    });
+    document.querySelectorAll('.tooltipped').forEach(el => {
+      if (!M.Tooltip.getInstance(el)) M.Tooltip.init(el);
+    });
+  }
+  function rdpApplyThemeIcon() {
+    const t = document.documentElement.getAttribute('data-theme') || 'dark';
+    document.querySelectorAll('[data-theme-icon]').forEach(el => el.textContent = t === 'dark' ? 'light_mode' : 'dark_mode');
+    document.querySelectorAll('[data-theme-label]').forEach(el => el.textContent = t === 'dark' ? 'Modo claro' : 'Modo escuro');
+  }
+  window.rdpToggleTheme = function() {
+    const atual = document.documentElement.getAttribute('data-theme') || 'dark';
+    const prox = atual === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('rdp-theme', prox);
+    document.documentElement.setAttribute('data-theme', prox);
+    rdpApplyThemeIcon();
+  };
+  document.addEventListener('DOMContentLoaded', () => { rdpInitMaterialize(); rdpApplyThemeIcon(); });
+</script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
@@ -440,7 +455,7 @@ window.abrirModalEditar = function(uid) {
   document.getElementById("editRole").value = u.role || "user";
   document.getElementById("editAtivo").value = u.ativo === true ? "true" : "false";
 
-  new bootstrap.Modal(document.getElementById("modalEditarUsuario")).show();
+  M.Modal.getInstance(document.getElementById("modalEditarUsuario"))?.open();
 };
 
 window.salvarEdicaoUsuario = async function() {
@@ -466,7 +481,7 @@ window.salvarEdicaoUsuario = async function() {
       atualizado: new Date().toISOString()
     });
 
-    bootstrap.Modal.getInstance(document.getElementById("modalEditarUsuario")).hide();
+    M.Modal.getInstance(document.getElementById("modalEditarUsuario"))?.close();
     mostrarMsg(`✅ Cadastro de <strong>${escaparHtml(nome)}</strong> atualizado.`, "success");
     await carregarUsuarios();
   } catch (e) {
@@ -479,7 +494,7 @@ window.abrirModalSenha = function(uid, email) {
   uidSenhaAlvo = uid;
   emailSenhaAlvo = email;
   document.getElementById("senhaUEmail").textContent = email;
-  new bootstrap.Modal(document.getElementById("modalSenhaU")).show();
+  M.Modal.getInstance(document.getElementById("modalSenhaU"))?.open();
 };
 
 window.confirmarSenha = async function() {
@@ -498,7 +513,7 @@ window.confirmarSenha = async function() {
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
 
-    bootstrap.Modal.getInstance(document.getElementById("modalSenhaU")).hide();
+    M.Modal.getInstance(document.getElementById("modalSenhaU"))?.close();
     mostrarMsg(`✅ Link de redefinição enviado para <strong>${escaparHtml(emailSenhaAlvo)}</strong>.`, "success");
   } catch (e) {
     console.error("ERRO AO ENVIAR LINK DE SENHA:", e);
