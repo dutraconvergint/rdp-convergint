@@ -114,11 +114,21 @@
             </div>
           </div>
           <!-- Preview nome do arquivo -->
-          <div class="mt-2 d-flex justify-content-between align-items-center">
-            <small class="text-muted" id="previewNome">📄 Preencha os campos acima</small>
-            <button class="btn btn-sm btn-outline-primary" onclick="salvarCliente()">
-              <i class="bi bi-floppy"></i> Salvar Cliente
-            </button>
+          <div class="mt-2 d-flex justify-content-between align-items-center gap-2 flex-wrap">
+            <div>
+              <small class="text-muted d-block" id="previewNome">📄 Preencha os campos acima</small>
+              <small class="text-muted d-block" id="clienteCarregadoInfo">
+                Nenhum cliente carregado. Use Criar novo cliente para salvar este cadastro.
+              </small>
+            </div>
+            <div class="d-flex gap-2 flex-wrap justify-content-end">
+              <button id="btnCriarCliente" class="btn btn-sm btn-outline-success" onclick="criarNovoCliente()">
+                <i class="bi bi-plus-circle"></i> Criar novo cliente
+              </button>
+              <button id="btnAtualizarCliente" class="btn btn-sm btn-outline-primary" onclick="atualizarClienteCarregado()" disabled>
+                <i class="bi bi-arrow-repeat"></i> Atualizar cliente carregado
+              </button>
+            </div>
           </div>
         </div>
       </div>
