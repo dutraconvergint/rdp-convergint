@@ -45,6 +45,10 @@
             <input type="text" id="novoNome" class="form-control form-control-sm" placeholder="Maria Oliveira">
           </div>
           <div class="mb-2">
+            <label class="form-label">Função</label>
+            <input type="text" id="novaFuncao" class="form-control form-control-sm" placeholder="Técnico de Automação">
+          </div>
+          <div class="mb-2">
             <label class="form-label">E-mail</label>
             <input type="email" id="novoEmail" class="form-control form-control-sm" placeholder="maria@empresa.com">
           </div>
@@ -79,6 +83,7 @@
             <thead class="table-light">
               <tr>
                 <th>Nome</th>
+                <th>Função</th>
                 <th>E-mail</th>
                 <th>Perfil</th>
                 <th>Status</th>
@@ -87,7 +92,7 @@
             </thead>
             <tbody id="tbodyUsuarios">
               <tr>
-                <td colspan="5" class="text-center text-muted py-3">
+                <td colspan="6" class="text-center text-muted py-3">
                   <div class="spinner-border spinner-border-sm"></div> Carregando…
                 </td>
               </tr>
@@ -97,6 +102,53 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-pencil-square"></i> Editar usuário</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editUid">
+        <div class="mb-2">
+          <label class="form-label">Nome completo</label>
+          <input type="text" id="editNome" class="form-control form-control-sm">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Função</label>
+          <input type="text" id="editFuncao" class="form-control form-control-sm" placeholder="Técnico de Automação">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">E-mail</label>
+          <input type="email" id="editEmail" class="form-control form-control-sm" readonly>
+          <small class="text-muted">O e-mail de login pertence ao Firebase Authentication. Nesta tela ele fica somente leitura para evitar inconsistência.</small>
+        </div>
+        <div class="row g-2">
+          <div class="col-md-6">
+            <label class="form-label">Perfil</label>
+            <select id="editRole" class="form-select form-select-sm">
+              <option value="user">Usuário</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Status</label>
+            <select id="editAtivo" class="form-select form-select-sm">
+              <option value="true">Ativo</option>
+              <option value="false">Inativo</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="salvarEdicaoUsuario()">Salvar alterações</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -144,6 +196,7 @@ const db = getFirestore(app);
 let usuarioAtual = null;
 let uidSenhaAlvo = null;
 let emailSenhaAlvo = null;
+let usuariosCache = [];
 
 function mostrarMsg(texto, tipo = "danger") {
   const msg = document.getElementById("msgGlobal");
@@ -234,7 +287,7 @@ window.carregarUsuarios = async function() {
 
   tbody.innerHTML = `
     <tr>
-      <td colspan="5" class="text-center text-muted py-3">
+      <td colspan="6" class="text-center text-muted py-3">
         <div class="spinner-border spinner-border-sm"></div> Carregando…
       </td>
     </tr>
@@ -244,11 +297,12 @@ window.carregarUsuarios = async function() {
     limparMsg();
 
     const snap = await getDocs(collection(db, "usuarios"));
+    usuariosCache = snap.docs.map((d) => ({ uid: d.id, ...d.data() }));
 
-    if (snap.empty) {
+    if (!usuariosCache.length) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5" class="text-center text-muted py-3">
+          <td colspan="6" class="text-center text-muted py-3">
             Nenhum usuário cadastrado.
           </td>
         </tr>
@@ -256,9 +310,9 @@ window.carregarUsuarios = async function() {
       return;
     }
 
-    tbody.innerHTML = snap.docs.map((d) => {
-      const u = d.data();
+    tbody.innerHTML = usuariosCache.map((u) => {
       const nome = escaparHtml(u.nome || "");
+      const funcao = escaparHtml(u.funcao || u["função"] || "");
       const email = escaparHtml(u.email || "");
       const role = escaparHtml(u.role || "user");
       const ativo = u.ativo === true;
@@ -267,6 +321,7 @@ window.carregarUsuarios = async function() {
       return `
         <tr class="${ativo ? "" : "table-secondary"}">
           <td>${nome}</td>
+          <td>${funcao || '<span class="text-muted">—</span>'}</td>
           <td><code style="font-size:.82rem">${email}</code></td>
           <td>
             <span class="badge ${ehAdmin ? "bg-danger" : "bg-primary"}">
@@ -279,23 +334,29 @@ window.carregarUsuarios = async function() {
             </span>
           </td>
           <td>
-            <div class="d-flex gap-1">
+            <div class="d-flex gap-1 flex-wrap">
+              <button class="btn btn-xs btn-outline-info"
+                      style="font-size:.75rem;padding:2px 7px"
+                      onclick="abrirModalEditar('${u.uid}')" title="Editar cadastro">
+                <i class="bi bi-pencil"></i>
+              </button>
+
               <button class="btn btn-xs btn-outline-warning"
                       style="font-size:.75rem;padding:2px 7px"
-                      onclick="abrirModalSenha('${d.id}', '${email.replaceAll("'", "\\'")}')">
+                      onclick="abrirModalSenha('${u.uid}', '${email.replaceAll("'", "\\'")}')" title="Enviar link de senha">
                 <i class="bi bi-key"></i>
               </button>
 
               ${!ehAdmin ? `
                 <button class="btn btn-xs ${ativo ? "btn-outline-secondary" : "btn-outline-success"}"
                         style="font-size:.75rem;padding:2px 7px"
-                        onclick="toggleAtivo('${d.id}', ${ativo})">
+                        onclick="toggleAtivo('${u.uid}', ${ativo})" title="Ativar/Inativar">
                   <i class="bi bi-${ativo ? "pause" : "play"}"></i>
                 </button>
 
                 <button class="btn btn-xs btn-outline-danger"
                         style="font-size:.75rem;padding:2px 7px"
-                        onclick="excluirUsuario('${d.id}', '${nome.replaceAll("'", "\\'")}')">
+                        onclick="excluirUsuario('${u.uid}', '${nome.replaceAll("'", "\\'")}')" title="Excluir documento do usuário">
                   <i class="bi bi-trash"></i>
                 </button>
               ` : ""}
@@ -309,7 +370,7 @@ window.carregarUsuarios = async function() {
     console.error("ERRO AO CARREGAR USUÁRIOS:", e.code, e.message, e);
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="text-center text-danger py-3">
+        <td colspan="6" class="text-center text-danger py-3">
           ${traduzirErro(e)}
         </td>
       </tr>
@@ -321,6 +382,7 @@ window.criarUsuario = async function() {
   limparMsg();
 
   const nome = document.getElementById("novoNome").value.trim();
+  const funcao = document.getElementById("novaFuncao").value.trim();
   const email = document.getElementById("novoEmail").value.trim();
   const senha = document.getElementById("novaSenhaU").value;
   const role = document.getElementById("novoRole").value;
@@ -345,6 +407,7 @@ window.criarUsuario = async function() {
 
     await setDoc(doc(db, "usuarios", data.localId), {
       nome,
+      funcao,
       email,
       role,
       ativo: true,
@@ -353,11 +416,61 @@ window.criarUsuario = async function() {
 
     mostrarMsg(`✅ Usuário <strong>${escaparHtml(nome)}</strong> criado com sucesso.`, "success");
     document.getElementById("novoNome").value = "";
+    document.getElementById("novaFuncao").value = "";
     document.getElementById("novoEmail").value = "";
     document.getElementById("novaSenhaU").value = "";
     await carregarUsuarios();
   } catch (e) {
     console.error("ERRO AO CRIAR USUÁRIO:", e);
+    mostrarMsg(traduzirErro(e));
+  }
+};
+
+window.abrirModalEditar = function(uid) {
+  const u = usuariosCache.find(x => x.uid === uid);
+  if (!u) {
+    mostrarMsg("Usuário não encontrado na lista. Clique em Atualizar e tente novamente.");
+    return;
+  }
+
+  document.getElementById("editUid").value = uid;
+  document.getElementById("editNome").value = u.nome || "";
+  document.getElementById("editFuncao").value = u.funcao || u["função"] || "";
+  document.getElementById("editEmail").value = u.email || "";
+  document.getElementById("editRole").value = u.role || "user";
+  document.getElementById("editAtivo").value = u.ativo === true ? "true" : "false";
+
+  new bootstrap.Modal(document.getElementById("modalEditarUsuario")).show();
+};
+
+window.salvarEdicaoUsuario = async function() {
+  const uid = document.getElementById("editUid").value;
+  if (!uid) return;
+
+  const nome = document.getElementById("editNome").value.trim();
+  const funcao = document.getElementById("editFuncao").value.trim();
+  const role = document.getElementById("editRole").value;
+  const ativo = document.getElementById("editAtivo").value === "true";
+
+  if (!nome) {
+    mostrarMsg("Informe o nome completo do usuário.");
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "usuarios", uid), {
+      nome,
+      funcao,
+      role,
+      ativo,
+      atualizado: new Date().toISOString()
+    });
+
+    bootstrap.Modal.getInstance(document.getElementById("modalEditarUsuario")).hide();
+    mostrarMsg(`✅ Cadastro de <strong>${escaparHtml(nome)}</strong> atualizado.`, "success");
+    await carregarUsuarios();
+  } catch (e) {
+    console.error("ERRO AO EDITAR USUÁRIO:", e);
     mostrarMsg(traduzirErro(e));
   }
 };

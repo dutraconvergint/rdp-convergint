@@ -192,9 +192,8 @@
     }
 
     async function redirecionarUsuario(user) {
-      const perfil = await buscarPerfilUsuario(user);
-      const role = perfil.role || "user";
-      location.href = role === "admin" ? "admin.html" : "app.html";
+      await buscarPerfilUsuario(user);
+      location.href = "app.html";
     }
 
     onAuthStateChanged(auth, async (user) => {
