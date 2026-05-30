@@ -2476,15 +2476,15 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
   --rdp-head-gap-y: 20px;
 
   /* 1ª linha */
-  --rdp-max-logo: 130px;
-  --rdp-max-cliente: 520px;
-  --rdp-max-codigo: 115px;
-  --rdp-max-data: 120px;
-  --rdp-max-sistema: 130px;
-  --rdp-max-profissional: 230px;
+  --rdp-max-logo: 200px;
+  --rdp-max-cliente: 400px;
+  --rdp-max-codigo: 160px;
+  --rdp-max-data: 140px;
+  --rdp-max-sistema: 150px;
+  --rdp-max-profissional: 250px;
 
   /* 2ª linha */
-  --rdp-max-contratante: 260px;
+  --rdp-max-contratante: 400px;
   --rdp-max-obra: 390px;
   --rdp-max-endereco: 820px;
 
@@ -2495,12 +2495,12 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
 /* Cabeçalho: usa 6 colunas e aproveita melhor a linha */
 .rdp-cabecalho-grid {
   grid-template-columns:
-    minmax(92px, var(--rdp-max-logo))
-    minmax(260px, var(--rdp-max-cliente))
-    minmax(90px, var(--rdp-max-codigo))
+    minmax(100px, var(--rdp-max-logo))
+    minmax(350px, var(--rdp-max-cliente))
+    minmax(120px, var(--rdp-max-codigo))
     minmax(100px, var(--rdp-max-data))
     minmax(105px, var(--rdp-max-sistema))
-    minmax(160px, var(--rdp-max-profissional)) !important;
+    minmax(100px, var(--rdp-max-profissional)) !important;
 
   column-gap: var(--rdp-head-gap-x) !important;
   row-gap: var(--rdp-head-gap-y) !important;
@@ -2549,11 +2549,6 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
    Contratante começa na coluna 2.
    Obra fica logo ao lado do contratante.
    Endereço ocupa todo o restante da horizontal. */
-.rdp-head-contratante {
-  width: 100% !important;
-  max-width: var(--rdp-max-contratante) !important;
-  grid-column: 2 / span 1 !important;
-}
 
 .rdp-head-obra {
   width: 100% !important;
@@ -2561,10 +2556,17 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
   grid-column: 3 / span 2 !important;
 }
 
+.rdp-head-contratante {
+  width: 100% !important;
+  max-width: var(--rdp-max-contratante) !important;
+  grid-column: 2 / span 1 !important;
+}
+
+
 .rdp-head-endereco {
   width: 100% !important;
   max-width: var(--rdp-max-endereco) !important;
-  grid-column: 5 / span 2 !important;
+  grid-column: 5 / span 5 !important;
 }
 
 /* Upload do logo: esconde o texto do input file e mostra apenas botão com ícone */
