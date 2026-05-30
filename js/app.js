@@ -27,6 +27,13 @@ const fotosImgs = {};  // idx → dataURL
 let detalhamentoEditor = null;
 let detalhamentoEditorReady = null;
 
+function mostrarAppContentCorretamente() {
+  const el = document.getElementById("appContent");
+  if (!el) return;
+  el.style.display = "grid";
+}
+
+
 function atualizarMensagemFotosVazia() {
   const lista = document.getElementById("listaFotos");
   if (!lista) return;
@@ -224,7 +231,7 @@ onAuthStateChanged(auth, async user => {
       document.getElementById("btnAdminUsuarios")?.classList.remove("d-none");
     }
 
-    document.getElementById("appContent").style.display = "block";
+    mostrarAppContentCorretamente();
 
     if (!appInicializado) {
       initForm();
