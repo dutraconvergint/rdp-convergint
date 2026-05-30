@@ -4,8 +4,8 @@ import { getAuth, onAuthStateChanged, signOut,
          updatePassword, updateEmail, updateProfile,
          reauthenticateWithCredential, EmailAuthProvider }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc,
-         doc, query, where, getDoc, updateDoc }
+import { getFirestore, collection, getDocs, deleteDoc,
+         doc, query, where, getDoc, setDoc, updateDoc }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 import { FIREBASE_CONFIG } from "./config.js";
 import { gerarDOCX } from "./report.js";
@@ -19,6 +19,8 @@ let usuarioAtual = null;
 let perfilUsuario = null;
 let appInicializado = false;
 let clientes = [];
+let clienteCarregadoId = null;
+let clienteCarregadoKey = null;
 let nProfs = 2, nAtv = 3, nFotos = 0;
 let ultimoSistemaGlobal = "AV";
 const fotosImgs = {};  // idx → dataURL
@@ -124,6 +126,49 @@ function setValor(id, valor) {
   if (el) el.value = valor ?? "";
 }
 
+function normalizarCodigoProjeto(codigo) {
+  return String(codigo || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^A-Z0-9_-]/g, "");
+}
+
+function montarClientKey(uid, codigo, sistema) {
+  const codigoKey = normalizarCodigoProjeto(codigo);
+  const sis = String(sistema || "AV").trim().toUpperCase();
+  return `${uid}_${codigoKey}_${sis}`;
+}
+
+function atualizarEstadoBotoesCliente() {
+  const btnAtualizar = document.getElementById("btnAtualizarCliente");
+  const info = document.getElementById("clienteCarregadoInfo");
+
+  if (btnAtualizar) {
+    btnAtualizar.disabled = !clienteCarregadoId;
+  }
+
+  if (info) {
+    if (clienteCarregadoId) {
+      info.textContent = "Cliente carregado: você pode atualizar os dados desse cadastro.";
+      info.classList.remove("text-muted");
+      info.classList.add("text-info");
+    } else {
+      info.textContent = "Nenhum cliente carregado. Use Criar novo cliente para salvar este cadastro.";
+      info.classList.remove("text-info");
+      info.classList.add("text-muted");
+    }
+  }
+}
+
+function marcarClienteCarregado(cliente) {
+  clienteCarregadoId = cliente?.id || null;
+  clienteCarregadoKey = cliente?.clientKey || cliente?.id || null;
+  atualizarEstadoBotoesCliente();
+}
+
 function aplicarUsuarioNoFormulario() {
   const nome = perfilUsuario?.nome || usuarioAtual?.displayName || "";
   const funcao = perfilUsuario?.funcao || perfilUsuario?.função || "";
@@ -201,6 +246,7 @@ window.novoRelatorio = function(confirmar = true) {
   for (let i = 0; i < nAtv; i++) addAtv(false);
 
   ultimoSistemaGlobal = "AV";
+  marcarClienteCarregado(null);
   aplicarUsuarioNoFormulario();
   atualizarPreviewNome();
 };
@@ -573,27 +619,107 @@ window.gerarDOCX = async function() {
 };
 
 // ── Clientes ──────────────────────────────────────────────────────────────────
-window.salvarCliente = async function() {
-  if (!usuarioAtual) return;
-  const nomeCliente = document.getElementById("nomeCliente")?.value?.trim();
-  if (!nomeCliente) { alert("Informe o nome do cliente antes de salvar."); return; }
-
+function coletarDadosClienteBase() {
+  const nomeCliente = document.getElementById("nomeCliente")?.value?.trim() || "";
+  const codigo = document.getElementById("codigo")?.value?.trim() || "";
+  const sistema = document.getElementById("sistema")?.value || "AV";
+  const codigoKey = normalizarCodigoProjeto(codigo);
   const logo = document.getElementById("logoPreview")?.src || "";
-  const dados = {
-    userId:      usuarioAtual.uid,
+
+  if (!nomeCliente) throw new Error("Informe o nome do cliente antes de salvar.");
+  if (!codigo) throw new Error("Informe o código do projeto antes de salvar.");
+  if (!codigoKey) throw new Error("O código do projeto precisa ter letras ou números.");
+
+  const clientKey = montarClientKey(usuarioAtual.uid, codigo, sistema);
+
+  return {
+    userId: usuarioAtual.uid,
+    clientKey,
+    codigoKey,
     nomeCliente,
-    codigo:      document.getElementById("codigo")?.value?.trim()      || "",
+    codigo,
+    sistema,
     contratante: document.getElementById("contratante")?.value?.trim() || "",
     obra:        document.getElementById("obra")?.value?.trim()        || "",
     endereco:    document.getElementById("endereco")?.value?.trim()    || "",
     logo:        logo.startsWith("data:") ? logo : "",
-    criado:      new Date().toISOString(),
   };
+}
 
-  await addDoc(collection(db, "clientes"), dados);
-  await carregarClientes();
-  alert("✅ Cliente salvo!");
+window.criarNovoCliente = async function() {
+  if (!usuarioAtual) return;
+
+  try {
+    const dadosBase = coletarDadosClienteBase();
+    const ref = doc(db, "clientes", dadosBase.clientKey);
+    const jaExiste = await getDoc(ref);
+
+    if (jaExiste.exists()) {
+      alert(
+        "Já existe um cliente salvo com este mesmo Código de Projeto e Sistema.\n\n" +
+        "Código: " + dadosBase.codigo + "\n" +
+        "Sistema: " + dadosBase.sistema + "\n\n" +
+        "Carregue esse cliente e use o botão Atualizar dados do cliente carregado."
+      );
+      return;
+    }
+
+    const dados = {
+      ...dadosBase,
+      criado: new Date().toISOString(),
+      atualizado: new Date().toISOString(),
+    };
+
+    await setDoc(ref, dados);
+    marcarClienteCarregado({ id: dadosBase.clientKey, ...dados });
+    await carregarClientes();
+    alert("✅ Novo cliente criado!");
+  } catch (e) {
+    console.error("ERRO AO CRIAR CLIENTE:", e);
+    alert(e.message || "Erro ao criar cliente.");
+  }
 };
+
+window.atualizarClienteCarregado = async function() {
+  if (!usuarioAtual) return;
+  if (!clienteCarregadoId) {
+    alert("Nenhum cliente carregado. Clique em Carregar em um cliente salvo ou use Criar novo cliente.");
+    return;
+  }
+
+  try {
+    const dadosBase = coletarDadosClienteBase();
+
+    if (dadosBase.clientKey !== clienteCarregadoKey) {
+      alert(
+        "Você alterou o Código do Projeto ou o Sistema.\n\n" +
+        "Como Código + Sistema formam a chave única do cliente, use Criar novo cliente para salvar essa nova combinação."
+      );
+      return;
+    }
+
+    const ref = doc(db, "clientes", clienteCarregadoId);
+    const dados = {
+      ...dadosBase,
+      atualizado: new Date().toISOString(),
+    };
+
+    await updateDoc(ref, dados);
+    await carregarClientes();
+    marcarClienteCarregado({ id: clienteCarregadoId, ...dados });
+    alert("✅ Dados do cliente carregado atualizados!");
+  } catch (e) {
+    console.error("ERRO AO ATUALIZAR CLIENTE:", e);
+    if (e.code === "permission-denied") {
+      alert("O Firestore bloqueou a atualização. Publique as regras atualizadas que acompanham este pacote.");
+    } else {
+      alert(e.message || "Erro ao atualizar cliente.");
+    }
+  }
+};
+
+// Compatibilidade com botão antigo, se existir em cache.
+window.salvarCliente = window.criarNovoCliente;
 
 async function carregarClientes() {
   if (!usuarioAtual) return;
@@ -605,8 +731,9 @@ async function carregarClientes() {
 
 function renderClientes(filtro="") {
   const lista = document.getElementById("listaClientes");
+  const termo = filtro.toLowerCase();
   const filtrados = filtro
-    ? clientes.filter(c => (c.nomeCliente+c.obra+c.codigo).toLowerCase().includes(filtro.toLowerCase()))
+    ? clientes.filter(c => `${c.nomeCliente || ""} ${c.obra || ""} ${c.codigo || ""} ${c.sistema || ""}`.toLowerCase().includes(termo))
     : clientes;
 
   if (!filtrados.length) {
@@ -615,10 +742,12 @@ function renderClientes(filtro="") {
   }
 
   lista.innerHTML = filtrados.map(c => `
-    <div class="border rounded p-2 mb-1 cliente-item">
+    <div class="border rounded p-2 mb-1 cliente-item ${c.id === clienteCarregadoId ? "cliente-carregado" : ""}">
       ${c.logo ? `<img src="${c.logo}" height="24" class="mb-1 d-block rounded">` : ""}
-      <div class="fw-semibold" style="font-size:.84rem">${c.nomeCliente}</div>
-      <small class="text-muted">${c.codigo}${c.obra ? " · "+c.obra : ""}</small>
+      <div class="fw-semibold" style="font-size:.84rem">${c.nomeCliente || "Sem nome"}</div>
+      <small class="text-muted d-block">
+        ${c.codigo || "Sem código"} · ${c.sistema || "Sem sistema"}${c.obra ? " · "+c.obra : ""}
+      </small>
       <div class="d-flex gap-1 mt-1">
         <button class="btn btn-xs btn-outline-primary" style="font-size:.75rem;padding:2px 6px"
                 onclick="carregarClienteForm('${c.id}')">
@@ -638,21 +767,32 @@ window.filtrarClientes = v => renderClientes(v);
 window.carregarClienteForm = function(id) {
   const c = clientes.find(x => x.id === id);
   if (!c) return;
-  document.getElementById("nomeCliente").value  = c.nomeCliente || "";
-  document.getElementById("codigo").value       = c.codigo      || "";
-  document.getElementById("contratante").value  = c.contratante || "";
-  document.getElementById("obra").value         = c.obra        || "";
-  document.getElementById("endereco").value     = c.endereco    || "";
+  setValor("nomeCliente", c.nomeCliente || "");
+  setValor("codigo",      c.codigo      || "");
+  setValor("sistema",     c.sistema     || "AV");
+  setValor("contratante", c.contratante || "");
+  setValor("obra",        c.obra        || "");
+  setValor("endereco",    c.endereco    || "");
+
   if (c.logo) {
     const img = document.getElementById("logoPreview");
-    img.src = c.logo; img.classList.remove("d-none");
+    img.src = c.logo;
+    img.classList.remove("d-none");
+  } else {
+    limparLogo();
   }
+
+  ultimoSistemaGlobal = c.sistema || "AV";
+  atualizarSistemaFotos();
   atualizarPreviewNome();
+  marcarClienteCarregado(c);
+  renderClientes(document.querySelector('#listaClientes')?.dataset?.filtro || "");
 };
 
 window.excluirCliente = async function(id) {
   if (!confirm("Excluir cliente?")) return;
   await deleteDoc(doc(db, "clientes", id));
+  if (clienteCarregadoId === id) marcarClienteCarregado(null);
   await carregarClientes();
 };
 
