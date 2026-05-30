@@ -2827,3 +2827,359 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
    Lista de clientes maior:
    --sidebar-w: 320px;
    ============================================================ */
+
+/* ============================================================
+   CONTROLE DE LARGURA MÁXIMA HORIZONTAL EM PX
+   Cole este bloco no FINAL do style.css.
+   Aqui você controla a largura máxima horizontal dos campos.
+   ============================================================ */
+
+:root {
+  /* ===== COMPORTAMENTO GERAL ===== */
+  --rdp-field-justify: start;              /* start | center | end | stretch */
+  --rdp-grid-col-gap: 10px;
+  --rdp-grid-row-gap: 22px;
+
+  /* ===== CABEÇALHO DO PROJETO - LARGURA MÁXIMA EM PX ===== */
+  --rdp-max-logo: 140px;
+  --rdp-max-cliente: 520px;
+  --rdp-max-codigo: 115px;
+  --rdp-max-data: 120px;
+  --rdp-max-sistema: 130px;
+  --rdp-max-profissional: 230px;
+  --rdp-max-contratante: 260px;
+  --rdp-max-obra: 260px;
+  --rdp-max-endereco: 720px;
+
+  /* ===== RESUMO DO DIA - LARGURA MÁXIMA EM PX ===== */
+  --rdp-max-hora: 110px;
+  --rdp-max-produtividade: 180px;
+  --rdp-max-clima: 170px;
+
+  /* ===== PROFISSIONAIS ENVOLVIDOS - LARGURA MÁXIMA EM PX ===== */
+  --rdp-max-prof-nome: 420px;
+  --rdp-max-prof-empresa: 220px;
+  --rdp-max-prof-funcao: 320px;
+
+  /* ===== ATIVIDADES REALIZADAS - LARGURA MÁXIMA EM PX ===== */
+  --rdp-max-atv-num: 36px;
+  --rdp-max-atv-desc: 620px;
+  --rdp-max-atv-ambiente: 260px;
+  --rdp-max-atv-criticidade: 150px;
+  --rdp-max-atv-status: 170px;
+
+  /* ===== FOTOS - LARGURA MÁXIMA EM PX ===== */
+  --rdp-max-foto-sistema: 150px;
+  --rdp-max-foto-ambiente: 260px;
+  --rdp-max-foto-desc: 420px;
+  --rdp-max-foto-imagem: 360px;
+}
+
+/* ============================================================
+   APLICAÇÃO NO CABEÇALHO DO PROJETO
+   ============================================================ */
+
+/* A grade agora usa colunas com teto horizontal em px */
+.rdp-cabecalho-grid {
+  grid-template-columns:
+    minmax(90px, var(--rdp-max-logo))
+    minmax(220px, var(--rdp-max-cliente))
+    minmax(80px, var(--rdp-max-codigo))
+    minmax(90px, var(--rdp-max-data))
+    minmax(95px, var(--rdp-max-sistema))
+    minmax(150px, var(--rdp-max-profissional)) !important;
+
+  column-gap: var(--rdp-grid-col-gap) !important;
+  row-gap: var(--rdp-grid-row-gap) !important;
+  justify-content: start !important;
+}
+
+/* Garante que cada campo respeite o máximo definido */
+.rdp-logo-input-field {
+  width: 100% !important;
+  max-width: var(--rdp-max-logo) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-head-cliente {
+  width: 100% !important;
+  max-width: var(--rdp-max-cliente) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-head-codigo {
+  width: 100% !important;
+  max-width: var(--rdp-max-codigo) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-head-data {
+  width: 100% !important;
+  max-width: var(--rdp-max-data) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-head-sistema {
+  width: 100% !important;
+  max-width: var(--rdp-max-sistema) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-head-prof {
+  width: 100% !important;
+  max-width: var(--rdp-max-profissional) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-head-contratante {
+  grid-column: 2 / span 1 !important;
+  width: 100% !important;
+  max-width: var(--rdp-max-contratante) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-head-obra {
+  grid-column: 3 / span 1 !important;
+  width: 100% !important;
+  max-width: var(--rdp-max-obra) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-head-endereco {
+  grid-column: 4 / span 3 !important;
+  width: 100% !important;
+  max-width: var(--rdp-max-endereco) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+/* Os inputs internos sempre ocupam o tamanho permitido pelo campo pai */
+.rdp-cabecalho-grid .rdp-mi-field input,
+.rdp-cabecalho-grid .rdp-mi-field .select-wrapper,
+.rdp-cabecalho-grid .rdp-mi-field .select-wrapper input.select-dropdown,
+.rdp-file-material {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ============================================================
+   APLICAÇÃO NO RESUMO DO DIA
+   ============================================================ */
+
+.rdp-resumo-materialize-row {
+  grid-template-columns:
+    minmax(80px, var(--rdp-max-hora))
+    minmax(80px, var(--rdp-max-hora))
+    minmax(80px, var(--rdp-max-hora))
+    minmax(80px, var(--rdp-max-hora))
+    minmax(130px, var(--rdp-max-produtividade))
+    minmax(120px, var(--rdp-max-clima)) !important;
+
+  column-gap: var(--rdp-grid-col-gap) !important;
+  justify-content: start !important;
+}
+
+.rdp-resumo-materialize-row .rdp-mi-field:nth-child(1),
+.rdp-resumo-materialize-row .rdp-mi-field:nth-child(2),
+.rdp-resumo-materialize-row .rdp-mi-field:nth-child(3),
+.rdp-resumo-materialize-row .rdp-mi-field:nth-child(4) {
+  width: 100% !important;
+  max-width: var(--rdp-max-hora) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-resumo-materialize-row .rdp-mi-field:nth-child(5) {
+  width: 100% !important;
+  max-width: var(--rdp-max-produtividade) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-resumo-materialize-row .rdp-mi-field:nth-child(6) {
+  width: 100% !important;
+  max-width: var(--rdp-max-clima) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+/* ============================================================
+   APLICAÇÃO EM PROFISSIONAIS ENVOLVIDOS
+   ============================================================ */
+
+.rdp-prof-material-row {
+  grid-template-columns:
+    minmax(180px, var(--rdp-max-prof-nome))
+    minmax(130px, var(--rdp-max-prof-empresa))
+    minmax(160px, var(--rdp-max-prof-funcao)) !important;
+
+  column-gap: var(--rdp-grid-col-gap) !important;
+  justify-content: start !important;
+}
+
+.rdp-prof-material-row .rdp-mi-field:nth-child(1) {
+  width: 100% !important;
+  max-width: var(--rdp-max-prof-nome) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-prof-material-row .rdp-mi-field:nth-child(2) {
+  width: 100% !important;
+  max-width: var(--rdp-max-prof-empresa) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-prof-material-row .rdp-mi-field:nth-child(3) {
+  width: 100% !important;
+  max-width: var(--rdp-max-prof-funcao) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+/* ============================================================
+   APLICAÇÃO EM ATIVIDADES REALIZADAS
+   ============================================================ */
+
+.rdp-atv-material-row {
+  grid-template-columns:
+    var(--rdp-max-atv-num)
+    minmax(220px, var(--rdp-max-atv-desc))
+    minmax(130px, var(--rdp-max-atv-ambiente))
+    minmax(100px, var(--rdp-max-atv-criticidade))
+    minmax(120px, var(--rdp-max-atv-status)) !important;
+
+  column-gap: var(--rdp-grid-col-gap) !important;
+  justify-content: start !important;
+}
+
+.rdp-atv-num {
+  width: var(--rdp-max-atv-num) !important;
+  max-width: var(--rdp-max-atv-num) !important;
+}
+
+.rdp-atv-desc {
+  width: 100% !important;
+  max-width: var(--rdp-max-atv-desc) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-atv-amb {
+  width: 100% !important;
+  max-width: var(--rdp-max-atv-ambiente) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-atv-crit {
+  width: 100% !important;
+  max-width: var(--rdp-max-atv-criticidade) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.rdp-atv-status {
+  width: 100% !important;
+  max-width: var(--rdp-max-atv-status) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+/* ============================================================
+   APLICAÇÃO EM FOTOS
+   ============================================================ */
+
+.foto-card .row {
+  grid-template-columns:
+    minmax(100px, var(--rdp-max-foto-sistema))
+    minmax(150px, var(--rdp-max-foto-ambiente))
+    minmax(180px, var(--rdp-max-foto-desc))
+    minmax(220px, var(--rdp-max-foto-imagem)) !important;
+
+  column-gap: var(--rdp-grid-col-gap) !important;
+  justify-content: start !important;
+}
+
+.foto-card .row > div:nth-child(1) {
+  width: 100% !important;
+  max-width: var(--rdp-max-foto-sistema) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.foto-card .row > div:nth-child(2) {
+  width: 100% !important;
+  max-width: var(--rdp-max-foto-ambiente) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.foto-card .row > div:nth-child(3) {
+  width: 100% !important;
+  max-width: var(--rdp-max-foto-desc) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+.foto-card .row > div:nth-child(4) {
+  width: 100% !important;
+  max-width: var(--rdp-max-foto-imagem) !important;
+  justify-self: var(--rdp-field-justify) !important;
+}
+
+/* ============================================================
+   RESPONSIVO
+   Em telas menores os campos voltam a ocupar a largura total.
+   ============================================================ */
+
+@media (max-width: 1050px) {
+  .rdp-cabecalho-grid,
+  .rdp-resumo-materialize-row,
+  .rdp-prof-material-row,
+  .rdp-atv-material-row,
+  .foto-card .row {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .rdp-logo-input-field,
+  .rdp-head-cliente,
+  .rdp-head-contratante,
+  .rdp-head-obra,
+  .rdp-head-endereco,
+  .rdp-atv-desc,
+  .foto-card .row > div:nth-child(3),
+  .foto-card .row > div:nth-child(4) {
+    grid-column: 1 / -1 !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .rdp-cabecalho-grid,
+  .rdp-resumo-materialize-row,
+  .rdp-prof-material-row,
+  .rdp-atv-material-row,
+  .foto-card .row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rdp-cabecalho-grid > *,
+  .rdp-resumo-materialize-row > *,
+  .rdp-prof-material-row > *,
+  .rdp-atv-material-row > *,
+  .foto-card .row > * {
+    grid-column: 1 / -1 !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ============================================================
+   EXEMPLOS DE USO
+   Altere apenas os valores no :root acima.
+
+   Código menor:
+   --rdp-max-codigo: 85px;
+
+   Contratante menor:
+   --rdp-max-contratante: 180px;
+
+   Endereço maior:
+   --rdp-max-endereco: 900px;
+
+   Descrição da atividade maior:
+   --rdp-max-atv-desc: 760px;
+
+   Profissional - função maior:
+   --rdp-max-prof-funcao: 420px;
+
+   Campos centralizados:
+   --rdp-field-justify: center;
+   ============================================================ */
