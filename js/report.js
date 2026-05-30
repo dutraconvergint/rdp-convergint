@@ -420,13 +420,6 @@ function normalizarTemplateZip(zip) {
     // Detalhamento será substituído por OOXML rico depois do Docxtemplater.
     xml = xml.replace(/<w:t([^>]*)>\{detalhamento\}<\/w:t>/g, '<w:t$1>{detalhamento_token}</w:t>');
 
-    // Insere um token de quebra de página antes de cada tabela de fotos.
-    // O token fica vazio normalmente, mas antes da foto 7, 13, 19... vira uma quebra real.
-    if (nome === "word/document.xml" && xml.includes("{#fotoPares}") && !xml.includes("{page_break_token}")) {
-      const pbPar = '<w:p><w:r><w:t>{page_break_token}</w:t></w:r></w:p>';
-      xml = xml.replace(/(<w:p[^>]*>[\s\S]*?<w:t>\{#fotoPares\}<\/w:t>[\s\S]*?<\/w:p>)(<w:tbl>)/, '$1' + pbPar + '$2');
-    }
-
     zip.file(nome, xml);
   });
 }
@@ -452,18 +445,17 @@ function montarParesFotosDocx(fotos, imagens) {
     const dir = lista[i + 1] || null;
 
     const esqToken = esq.img ? `__RDPIMG_ESQ_${i}__` : "";
-    if (esq.img) imagens.push({ token: esqToken, dataUrl: esq.img, maxWpt: 265, maxHpt: 170, name: `Foto ${esq.num || i + 1}` });
+    if (esq.img) imagens.push({ token: esqToken, dataUrl: esq.img, maxWpt: 252, maxHpt: 150, name: `Foto ${esq.num || i + 1}` });
 
     let dirToken = "";
     if (dir && dir.img) {
       dirToken = `__RDPIMG_DIR_${i + 1}__`;
-      imagens.push({ token: dirToken, dataUrl: dir.img, maxWpt: 265, maxHpt: 170, name: `Foto ${dir.num || i + 2}` });
+      imagens.push({ token: dirToken, dataUrl: dir.img, maxWpt: 252, maxHpt: 150, name: `Foto ${dir.num || i + 2}` });
     }
 
-    const pageBreakToken = i > 0 && i % 6 === 0 ? `__RDP_PAGE_BREAK_${i}__` : "";
-
+    // Mantém a continuidade das tabelas de fotos: não força quebra na foto 7/13/19.
     pares.push({
-      page_break_token: pageBreakToken,
+      page_break_token: "",
       esq_num:  esq.num  ? String(esq.num) : String(i + 1),
       esq_sis:  esq.sis  || "",
       esq_amb:  esq.amb  || "",
@@ -539,7 +531,7 @@ function buildTagsDocx(d) {
     tags[`foto_${i}_desc`] = f.desc || "";
     const token = f.img ? `__RDPIMG_FIXA_${i}__` : "";
     tags[`foto_${i}_img_token`] = token;
-    if (f.img) imagens.push({ token, dataUrl: f.img, maxWpt: 265, maxHpt: 170, name: `Foto ${i + 1}` });
+    if (f.img) imagens.push({ token, dataUrl: f.img, maxWpt: 252, maxHpt: 150, name: `Foto ${i + 1}` });
   }
 
   tags.fotoPares = montarParesFotosDocx(d.fotos || [], imagens);
@@ -555,7 +547,7 @@ async function prepararImagens(imagens) {
     if (!info || !item.token) continue;
 
     const dim = await obterDimensoesImagem(item.dataUrl);
-    const tam = ajustarTamanho(dim, item.maxWpt || 265, item.maxHpt || 170);
+    const tam = ajustarTamanho(dim, item.maxWpt || 252, item.maxHpt || 150);
 
     saida.push({
       ...item,

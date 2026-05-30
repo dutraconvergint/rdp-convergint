@@ -278,58 +278,78 @@ function inicializarEditorDetalhamento() {
   const editorEl = document.getElementById("detalhamentoEditor");
   if (!editorEl) return Promise.resolve(null);
 
-  if (!window.ClassicEditor) {
-    console.warn("CKEditor não carregou. Usando textarea simples.");
+  if (!window.Jodit) {
+    console.warn("Jodit não carregou. Usando textarea simples.");
     editorEl.classList.add("form-control");
     return Promise.resolve(null);
   }
 
-  detalhamentoEditorReady = window.ClassicEditor
-    .create(editorEl, {
-      placeholder: "Digite ou cole aqui o detalhamento das atividades...",
-      toolbar: {
-        items: [
-          "heading", "|",
-          "bold", "italic", "underline", "strikethrough", "link", "|",
-          "bulletedList", "numberedList", "outdent", "indent", "|",
-          "alignment", "insertTable", "blockQuote", "|",
-          "undo", "redo"
-        ],
-        shouldNotGroupWhenFull: true
+  detalhamentoEditorReady = Promise.resolve().then(() => {
+    detalhamentoEditor = window.Jodit.make(editorEl, {
+      language: "pt_br",
+      height: 520,
+      minHeight: 360,
+      iframe: false,
+      enter: "P",
+      spellcheck: true,
+      askBeforePasteHTML: false,
+      askBeforePasteFromWord: false,
+      defaultActionOnPaste: "insert_as_html",
+      cleanHTML: {
+        removeEmptyElements: false,
+        fillEmptyParagraph: false
       },
-      table: {
-        contentToolbar: [
-          "tableColumn", "tableRow", "mergeTableCells",
-          "tableProperties", "tableCellProperties"
-        ]
+      uploader: { insertImageAsBase64URI: true },
+      placeholder: "Digite ou cole aqui o detalhamento das atividades...",
+      buttons: [
+        "source", "|",
+        "paragraph", "fontsize", "brush", "bold", "italic", "underline", "strikethrough", "|",
+        "ul", "ol", "outdent", "indent", "align", "|",
+        "table", "link", "hr", "|",
+        "copyformat", "eraser", "undo", "redo", "fullsize"
+      ],
+      buttonsMD: [
+        "paragraph", "bold", "italic", "underline", "|", "ul", "ol", "table", "link", "|", "undo", "redo", "fullsize"
+      ],
+      buttonsSM: [
+        "bold", "italic", "underline", "|", "ul", "ol", "table", "|", "undo", "redo", "fullsize"
+      ],
+      controls: {
+        paragraph: {
+          list: {
+            p: "Parágrafo",
+            h1: "Título 1",
+            h2: "Título 2",
+            h3: "Título 3",
+            h4: "Título 4"
+          }
+        }
       }
-    })
-    .then(editor => {
-      detalhamentoEditor = editor;
-      return editor;
-    })
-    .catch(err => {
-      console.error("Erro ao iniciar CKEditor:", err);
-      editorEl.classList.add("form-control");
-      return null;
     });
+    return detalhamentoEditor;
+  }).catch(err => {
+    console.error("Erro ao iniciar Jodit:", err);
+    editorEl.classList.add("form-control");
+    return null;
+  });
 
   return detalhamentoEditorReady;
 }
 
 function obterDetalhamentoHtml() {
   if (detalhamentoEditor) {
-    const html = detalhamentoEditor.getData() || "";
-    return html.trim() === "<p>&nbsp;</p>" ? "" : html;
+    const html = detalhamentoEditor.value || "";
+    return html.trim() === "<p><br></p>" || html.trim() === "<p>&nbsp;</p>" ? "" : html;
   }
   const el = document.getElementById("detalhamentoEditor");
   return el?.value || el?.innerHTML || "";
 }
 
 function obterDetalhamentoTexto() {
-  if (detalhamentoEditor) {
+  const html = obterDetalhamentoHtml();
+  if (html) {
     const tmp = document.createElement("div");
-    tmp.innerHTML = detalhamentoEditor.getData() || "";
+    tmp.innerHTML = html;
     return (tmp.innerText || "").trim();
   }
   const el = document.getElementById("detalhamentoEditor");
