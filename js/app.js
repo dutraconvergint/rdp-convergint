@@ -15,6 +15,8 @@ const db   = getFirestore(app);
 const ABREV = {AV:"AV", BMS:"BMS", SDAI:"SDAI", SECURITY:"SEG"};
 
 let usuarioAtual = null;
+let perfilUsuario = null;
+let appInicializado = false;
 let clientes = [];
 let nProfs = 2, nAtv = 3, nFotos = 0;
 let ultimoSistemaGlobal = "AV";
@@ -45,9 +47,21 @@ onAuthStateChanged(auth, async user => {
     }
 
     usuarioAtual = user;
-    document.getElementById("nomeUsuario").textContent = snap.data()?.nome || user.email;
+    perfilUsuario = snap.data() || {};
+
+    document.getElementById("nomeUsuario").textContent = perfilUsuario.nome || user.email;
+
+    if ((perfilUsuario.role || "user") === "admin") {
+      document.getElementById("btnAdminUsuarios")?.classList.remove("d-none");
+    }
+
     document.getElementById("appContent").style.display = "block";
-    initForm();
+
+    if (!appInicializado) {
+      initForm();
+      appInicializado = true;
+    }
+
     carregarClientes();
   } catch (e) {
     console.error("Falha na validação do login:", e);
@@ -58,18 +72,110 @@ onAuthStateChanged(auth, async user => {
 
 window.sair = () => signOut(auth).then(() => location.href = "index.html");
 
+function dataAtualBR() {
+  const hoje = new Date();
+  const dd = String(hoje.getDate()).padStart(2, "0");
+  const mm = String(hoje.getMonth() + 1).padStart(2, "0");
+  const yyyy = hoje.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+function setValor(id, valor) {
+  const el = document.getElementById(id);
+  if (el) el.value = valor ?? "";
+}
+
+function aplicarUsuarioNoFormulario() {
+  const nome = perfilUsuario?.nome || usuarioAtual?.displayName || "";
+  const funcao = perfilUsuario?.funcao || perfilUsuario?.função || "";
+
+  setValor("profArq", nome);
+
+  const primeiraLinha = document.querySelector(".prof-row");
+  if (primeiraLinha) {
+    const nomeEl = primeiraLinha.querySelector('[data-field="nome"]');
+    const empresaEl = primeiraLinha.querySelector('[data-field="empresa"]');
+    const funcaoEl = primeiraLinha.querySelector('[data-field="funcao"]');
+
+    if (nomeEl) nomeEl.value = nome;
+    if (empresaEl && !empresaEl.value) empresaEl.value = "Convergint";
+    if (funcaoEl) funcaoEl.value = funcao;
+  }
+}
+
+function limparFotos() {
+  Object.keys(fotosImgs).forEach(k => delete fotosImgs[k]);
+  const lista = document.getElementById("listaFotos");
+  if (lista) lista.innerHTML = "";
+  nFotos = 0;
+  atualizarMensagemFotosVazia();
+}
+
+function limparLogo() {
+  const input = document.getElementById("inputLogo");
+  if (input) input.value = "";
+  const img = document.getElementById("logoPreview");
+  if (img) {
+    img.src = "";
+    img.classList.add("d-none");
+  }
+}
+
+function limparEditorDetalhamento() {
+  if (detalhamentoEditor) {
+    detalhamentoEditor.value = "";
+    return;
+  }
+  const el = document.getElementById("detalhamentoEditor");
+  if (el) el.value = "";
+}
+
+window.novoRelatorio = function(confirmar = true) {
+  if (confirmar && !confirm("Limpar a tela e iniciar um novo relatório com os valores padrões?")) return;
+
+  ["listaProfissionais", "listaAtividades"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = "";
+  });
+
+  limparFotos();
+  limparLogo();
+  limparEditorDetalhamento();
+
+  setValor("nomeCliente", "");
+  setValor("codigo", "");
+  setValor("data", dataAtualBR());
+  setValor("sistema", "AV");
+  setValor("contratante", "");
+  setValor("obra", "");
+  setValor("endereco", "");
+  setValor("hIniPrev", "08:00");
+  setValor("hIniReal", "08:00");
+  setValor("hFimPrev", "17:00");
+  setValor("hFimReal", "17:00");
+  setValor("produtividade", "Produtivo");
+  setValor("clima", "Bom");
+
+  nProfs = 2;
+  nAtv = 3;
+  for (let i = 0; i < nProfs; i++) addProf(false);
+  for (let i = 0; i < nAtv; i++) addAtv(false);
+
+  ultimoSistemaGlobal = "AV";
+  aplicarUsuarioNoFormulario();
+  atualizarPreviewNome();
+};
+
 // ── Init form ─────────────────────────────────────────────────────────────────
 function initForm() {
-  for (let i = 0; i < nProfs; i++) addProf(false);
-  for (let i = 0; i < nAtv;   i++) addAtv(false);
-  ultimoSistemaGlobal = document.getElementById("sistema")?.value || "AV";
-  for (let i = 0; i < nFotos; i++) addFoto(false);
-  atualizarMensagemFotosVazia();
-  atualizarPreviewNome();
-  ["codigo","data","sistema","profArq"].forEach(id =>
-    document.getElementById(id)?.addEventListener("input", atualizarPreviewNome));
-  document.getElementById("sistema")?.addEventListener("change", atualizarSistemaFotos);
   inicializarEditorDetalhamento();
+
+  ["codigo", "data", "sistema", "profArq"].forEach(id =>
+    document.getElementById(id)?.addEventListener("input", atualizarPreviewNome));
+
+  document.getElementById("sistema")?.addEventListener("change", atualizarSistemaFotos);
+
+  novoRelatorio(false);
 }
 
 function atualizarPreviewNome() {

@@ -311,7 +311,9 @@ function obterDimensoesImagem(dataUrl) {
 function ajustarTamanho(dim, maxWpt, maxHpt) {
   if (!dim || !dim.width || !dim.height) return { wpt: maxWpt, hpt: maxHpt };
 
-  const escala = Math.min(maxWpt / dim.width, maxHpt / dim.height, 1);
+  // A imagem se ajusta ao espaço padrão da tabela sem alterar o tamanho da célula.
+  // Permite ampliar imagens pequenas, respeitando o limite máximo do espaço.
+  const escala = Math.min(maxWpt / dim.width, maxHpt / dim.height);
   return {
     wpt: Math.max(1, Math.round(dim.width * escala)),
     hpt: Math.max(1, Math.round(dim.height * escala)),
@@ -682,7 +684,9 @@ function inlineRuns(node, fmt = {}) {
 }
 
 function paragraphXml(runs, opts = {}) {
-  const jc = opts.align ? `<w:jc w:val="${escapeXmlAttr(opts.align)}"/>` : "";
+  const alignMap = { justify: "both", center: "center", right: "right", left: "left" };
+  const alignVal = opts.align ? (alignMap[String(opts.align).toLowerCase()] || "left") : "";
+  const jc = alignVal ? `<w:jc w:val="${escapeXmlAttr(alignVal)}"/>` : "";
   const indent = opts.indent ? `<w:ind w:left="${opts.indent}"/>` : "";
   const pPr = `<w:pPr><w:spacing w:after="80" w:line="276" w:lineRule="auto"/>${indent}${jc}</w:pPr>`;
   return `<w:p>${pPr}${runs || runXml(" ")}</w:p>`;
@@ -746,11 +750,11 @@ function tableXml(table) {
   const maxCols = Math.max(1, ...rows.map(countCols));
   const colWidth = Math.floor(9000 / maxCols);
   const grid = Array.from({ length: maxCols }).map(() => `<w:gridCol w:w="${colWidth}"/>`).join("");
-  const tblPr = `<w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders><w:top w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:left w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:bottom w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:right w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:insideH w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:insideV w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/></w:tblBorders><w:tblCellMar><w:top w:w="80" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr>`;
+  const tblPr = `<w:tblPr><w:tblW w:w="9000" w:type="dxa"/><w:tblLayout w:type="fixed"/><w:tblBorders><w:top w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:left w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:bottom w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:right w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:insideH w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/><w:insideV w:val="single" w:sz="6" w:space="0" w:color="9CA3AF"/></w:tblBorders><w:tblCellMar><w:top w:w="80" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr>`;
   const trs = rows.map((row, rIdx) => {
     const cells = Array.from(row.children || []).filter(c => /^(td|th)$/i.test(c.tagName || ""));
     const isHeader = rIdx === 0 && cells.some(c => (c.tagName || "").toLowerCase() === "th");
-    const trPr = isHeader ? '<w:trPr><w:tblHeader/></w:trPr>' : '';
+    const trPr = isHeader ? '<w:trPr><w:tblHeader w:val="true"/></w:trPr>' : '';
     return `<w:tr>${trPr}${cells.map(c => tableCellXml(c, colWidth, isHeader)).join("")}</w:tr>`;
   }).join("");
   return `<w:tbl>${tblPr}<w:tblGrid>${grid}</w:tblGrid>${trs}</w:tbl>`;
