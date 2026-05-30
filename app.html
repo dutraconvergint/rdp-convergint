@@ -70,84 +70,77 @@
   <main class="rdp-main">
 
     <!-- ── CABEÇALHO ─────────────────────────────────────────────────── -->
-    <div class="rdp-section">
+    <div class="rdp-section rdp-section-cabecalho">
       <div class="rdp-section-label">
         <span class="material-icons">folder_open</span>
         <span>Cabeçalho do Projeto</span>
       </div>
-      <div class="card rdp-card">
-        <div class="card-content">
 
-          <!-- Linha 1: Logo + campos principais -->
-          <div class="row" style="margin-bottom:0;align-items:flex-end">
+      <div class="card rdp-card rdp-cabecalho-card">
+        <div class="card-content rdp-cabecalho-content">
 
-            <!-- Logo -->
-            <div class="col s12 m2" style="padding-bottom:4px">
-              <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:6px">Logo</div>
-              <input type="file" id="inputLogo" accept="image/*" onchange="previewLogo(this)"
-                     style="width:100%;background:var(--input);border:1px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--text);font-size:.8rem;height:40px;cursor:pointer;outline:none">
+          <div class="rdp-cabecalho-grid">
+
+            <div class="input-field rdp-mi-field rdp-logo-input-field">
+              <div class="rdp-file-label">Logo do Cliente</div>
+              <input type="file" id="inputLogo" accept="image/*" onchange="previewLogo(this)" class="rdp-file-material">
               <img id="logoPreview" src="" class="rdp-logo-preview d-none" alt="Logo">
             </div>
 
-            <!-- Cliente/Projeto -->
-            <div class="input-field col s12 m4" style="margin-top:0">
-              <input type="text" id="nomeCliente" placeholder=" ">
+            <div class="input-field rdp-mi-field rdp-head-cliente">
+              <input id="nomeCliente" type="text" class="validate" placeholder=" ">
               <label for="nomeCliente">Cliente / Projeto</label>
             </div>
 
-            <!-- Código -->
-            <div class="input-field col s6 m2" style="margin-top:0">
-              <input type="text" id="codigo" placeholder=" ">
+            <div class="input-field rdp-mi-field rdp-head-codigo">
+              <input id="codigo" type="text" class="validate" placeholder=" ">
               <label for="codigo">Código</label>
             </div>
 
-            <!-- Data -->
-            <div class="input-field col s6 m2" style="margin-top:0">
-              <input type="text" id="data" placeholder="DD/MM/AAAA">
+            <div class="input-field rdp-mi-field rdp-head-data">
+              <input id="data" type="text" class="validate" placeholder="DD/MM/AAAA">
               <label for="data">Data</label>
             </div>
 
-            <!-- Sistema -->
-            <div class="input-field col s6 m1" style="margin-top:0">
+            <div class="input-field rdp-mi-field rdp-mi-select rdp-head-sistema">
               <select id="sistema" onchange="atualizarSistemaFotos()">
                 <option value="AV">AV</option>
                 <option value="BMS">BMS</option>
                 <option value="SDAI">SDAI</option>
                 <option value="SECURITY">SECURITY</option>
               </select>
-              <label>Sistema</label>
+              <label for="sistema">Sistema</label>
             </div>
 
-            <!-- Nome do profissional (arquivo) -->
-            <div class="input-field col s6 m1" style="margin-top:0">
-              <input type="text" id="profArq" placeholder=" ">
+            <div class="input-field rdp-mi-field rdp-head-prof">
+              <input id="profArq" type="text" class="validate" placeholder=" ">
               <label for="profArq">Seu nome</label>
             </div>
-          </div>
 
-          <!-- Linha 2: Contratante / Obra / Endereço -->
-          <div class="row" style="margin-bottom:0;align-items:flex-end">
-            <div class="input-field col s12 m3" style="margin-top:0">
-              <input type="text" id="contratante" placeholder=" ">
+            <div class="input-field rdp-mi-field rdp-head-contratante">
+              <input id="contratante" type="text" class="validate" placeholder=" ">
               <label for="contratante">Contratante</label>
             </div>
-            <div class="input-field col s12 m3" style="margin-top:0">
-              <input type="text" id="obra" placeholder=" ">
+
+            <div class="input-field rdp-mi-field rdp-head-obra">
+              <input id="obra" type="text" class="validate" placeholder=" ">
               <label for="obra">Obra</label>
             </div>
-            <div class="input-field col s12 m6" style="margin-top:0">
-              <input type="text" id="endereco" placeholder=" ">
+
+            <div class="input-field rdp-mi-field rdp-head-endereco">
+              <input id="endereco" type="text" class="validate" placeholder=" ">
               <label for="endereco">Endereço</label>
             </div>
+
           </div>
 
-          <!-- Toolbar -->
-          <div class="rdp-toolbar" style="margin-top:8px;padding-top:14px">
+          <div class="rdp-toolbar">
             <div class="rdp-filename">
               <span class="label">Nome do arquivo</span>
-              <span id="previewNome" style="display:block;font-size:.74rem;font-family:monospace;color:var(--muted);word-break:break-all">📄 Preencha os campos acima</span>
-              <span id="clienteCarregadoInfo" style="font-size:.74rem;color:var(--muted)"></span>
+              <span id="previewNome">📄 Preencha os campos acima</span>
+              <span id="clienteCarregadoInfo" style="font-size:.76rem;color:var(--muted)"></span>
             </div>
+
             <div class="rdp-btn-group">
               <button id="btnCriarCliente" class="rdp-btn rdp-btn-success" onclick="criarNovoCliente()">
                 <span class="material-icons">add_circle</span>Criar cliente
@@ -157,6 +150,7 @@
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>
