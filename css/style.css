@@ -1284,3 +1284,303 @@ body.rdp-resizing {
     width: 100% !important;
   }
 }
+
+
+/* ============================================================
+   AJUSTES FINAIS: tema, inputs, clientes e ícones Google
+   ============================================================ */
+
+/* Dark mais escuro e Light menos branco */
+html[data-theme="dark"] {
+  --bg: #020811;
+  --panel: #061120;
+  --panel-2: #091728;
+  --panel-3: #0d2036;
+  --input: #081525;
+  --input-focus: #0d2137;
+  --border: #1d334c;
+  --border-2: #2e4f70;
+  --text: #dce8f7;
+  --text-strong: #ffffff;
+  --muted: #8199b5;
+  --shadow: 0 18px 44px rgba(0,0,0,.42);
+}
+
+html[data-theme="light"] {
+  --bg: #d2dfeb;
+  --panel: #e8eff6;
+  --panel-2: #dce7f1;
+  --panel-3: #d1dfeb;
+  --input: #f2f6fa;
+  --input-focus: #ffffff;
+  --border: #adbfce;
+  --border-2: #879fb6;
+  --text: #263747;
+  --text-strong: #0a1726;
+  --muted: #4f657b;
+  --shadow: 0 14px 32px rgba(28,47,70,.16);
+}
+
+/* Barra superior sempre azul escuro, em qualquer tema */
+.rdp-topbar {
+  background: #062b58 !important;
+  border-bottom: 1px solid rgba(255,255,255,.12) !important;
+  box-shadow: 0 3px 20px rgba(0,0,0,.24) !important;
+}
+
+/* Biblioteca Google Icons / Material Symbols em todas as telas */
+.material-icons,
+.material-symbols-rounded,
+.rdp-btn .material-icons,
+.rdp-tb-btn .material-icons,
+.rdp-section-label .material-icons,
+.rdp-logo .material-icons,
+.cliente-actions .material-icons,
+.foto-actions .material-icons {
+  font-family: 'Material Icons' !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  direction: ltr !important;
+  -webkit-font-feature-settings: 'liga' !important;
+  font-feature-settings: 'liga' !important;
+  -webkit-font-smoothing: antialiased !important;
+}
+
+/* Linha inferior/borda dos campos sem corte: altura equilibrada + respiro inferior */
+.rdp-field {
+  padding-bottom: 4px !important;
+  overflow: visible !important;
+}
+
+.rdp-grid {
+  gap: 15px 14px !important;
+  overflow: visible !important;
+}
+
+.rdp-card,
+.rdp-card-body,
+.rdp-main {
+  overflow: visible !important;
+}
+
+.form-control,
+.form-select,
+select.browser-default,
+input.form-control,
+textarea.form-control,
+input[type="text"].form-control,
+input[type="email"].form-control,
+input[type="password"].form-control {
+  height: 37px !important;
+  min-height: 37px !important;
+  padding: 7px 11px !important;
+  line-height: 1.28 !important;
+  font-size: .86rem !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.04) !important;
+  margin-bottom: 1px !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+select.browser-default:focus,
+textarea.form-control:focus {
+  border-color: #29b6f6 !important;
+  box-shadow:
+    inset 0 -1px 0 rgba(255,255,255,.06),
+    0 0 0 2px rgba(41,182,246,.16) !important;
+}
+
+textarea.form-control {
+  height: auto !important;
+  min-height: 58px !important;
+}
+
+/* Busca de clientes com a mesma proporção dos outros campos */
+.rdp-sidebar-search {
+  height: 37px !important;
+  min-height: 37px !important;
+  padding: 7px 11px !important;
+  font-size: .86rem !important;
+  margin-bottom: 0 !important;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.04) !important;
+}
+
+/* Cards de cliente mais compactos e com sistema visível */
+.rdp-client-list {
+  gap: 8px !important;
+  padding: 10px !important;
+}
+
+.cliente-item {
+  padding: 9px 10px !important;
+  border-radius: 11px !important;
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.cliente-item-main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.cliente-logo {
+  width: 42px !important;
+  height: 28px !important;
+  max-width: 42px !important;
+  max-height: 28px !important;
+  object-fit: contain !important;
+  background: #fff;
+  border-radius: 7px;
+  padding: 2px;
+  border: 1px solid var(--border);
+}
+
+.cliente-info {
+  min-width: 0;
+}
+
+.cliente-nome {
+  color: var(--text-strong);
+  font-size: .81rem;
+  font-weight: 800;
+  line-height: 1.18;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cliente-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: .72rem;
+  line-height: 1.1;
+}
+
+.cliente-codigo,
+.cliente-sistema,
+.cliente-obra {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  padding: 2px 6px;
+  border-radius: 7px;
+  background: var(--panel-3);
+  border: 1px solid var(--border);
+  max-width: 100%;
+}
+
+.cliente-sistema {
+  color: #e0f7fa;
+  background: color-mix(in srgb, var(--cyan) 34%, var(--panel-3));
+  border-color: color-mix(in srgb, var(--cyan) 55%, var(--border));
+  font-weight: 800;
+}
+
+html[data-theme="light"] .cliente-sistema {
+  color: #034752;
+}
+
+.cliente-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.cliente-btn {
+  height: 30px !important;
+  min-height: 30px !important;
+  min-width: 92px !important;
+  padding: 0 10px !important;
+  font-size: .75rem !important;
+}
+
+.cliente-btn-icon {
+  height: 30px !important;
+  min-height: 30px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  padding: 0 !important;
+}
+
+.cliente-btn .material-icons,
+.cliente-btn-icon .material-icons {
+  font-size: 17px !important;
+}
+
+/* Botões dos rodapés organizados e alinhados */
+.rdp-card-footer,
+.rdp-action-row {
+  padding: 12px 20px !important;
+  border-top: 1px solid var(--border) !important;
+  background: var(--panel-2) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.rdp-card-footer .rdp-btn-group,
+.rdp-action-row .rdp-btn-group {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+/* Resizer mais discreto e coerente com a barra lateral */
+.rdp-resizer {
+  background: #051626 !important;
+  border-left: 1px solid var(--border) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+html[data-theme="light"] .rdp-resizer {
+  background: #c4d3e2 !important;
+}
+
+.rdp-resizer:hover,
+.rdp-resizing .rdp-resizer {
+  background: #0a3f76 !important;
+}
+
+/* Ícones antigos Bootstrap, caso algum fique em cache, não devem quebrar layout */
+.bi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* Responsivo dos cards de cliente */
+@media (max-width: 1180px) {
+  .cliente-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 620px) {
+  .cliente-actions {
+    flex-direction: column;
+  }
+
+  .cliente-btn,
+  .cliente-btn-icon {
+    width: 100% !important;
+  }
+}
