@@ -257,7 +257,13 @@ function preencherModalPerfil() {
   }
 }
 
-document.getElementById("modalPerfil")?.addEventListener("show.bs.modal", preencherModalPerfil);
+window.abrirModalPerfil = function() {
+  preencherModalPerfil();
+  const el = document.getElementById("modalPerfil");
+  if (!el || !window.M) return;
+  const inst = M.Modal.getInstance(el) || M.Modal.init(el, { dismissible: true, opacity: 0.55 });
+  inst.open();
+};
 
 function mostrarMsgPerfil(texto, tipo="erro") {
   const msg = document.getElementById("msgPerfil");
@@ -499,12 +505,12 @@ window.addAtv = function(increment=true) {
              data-atv="${idx}" data-field="amb">
     </div>
     <div class="col-md-2">
-      <select class="form-select form-select-sm" data-atv="${idx}" data-field="crit">
+      <select class="browser-default form-select form-select-sm" data-atv="${idx}" data-field="crit">
         <option>Alta</option><option>Média</option><option>Baixa</option>
       </select>
     </div>
     <div class="col-md-2">
-      <select class="form-select form-select-sm" data-atv="${idx}" data-field="status">
+      <select class="browser-default form-select form-select-sm" data-atv="${idx}" data-field="status">
         <option>Concluído</option><option>Em andamento</option>
         <option>Pendente</option><option>Parcial</option><option>N/A</option>
       </select>
@@ -703,7 +709,7 @@ window.addFoto = function(increment=true) {
     <div class="row g-2 align-items-start">
       <div class="col-md-2">
         <label class="form-label small mb-1">Sistema</label>
-        <select class="form-select form-select-sm foto-sis" data-foto="${idx}"
+        <select class="browser-default form-select form-select-sm foto-sis" data-foto="${idx}"
                 onchange="this.dataset.manual='true'">
           ${["AV","BMS","SDAI","SECURITY"].map(s =>
             `<option${s===sis?" selected":""}>${s}</option>`).join("")}
@@ -1164,7 +1170,7 @@ window.salvarMeuPerfil = async function() {
   const oldHtml = btn?.innerHTML;
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Salvando...`;
+    btn.innerHTML = `<span class="preloader-wrapper active tiny-spinner"></span> Salvando...`;
   }
 
   try {
@@ -1203,8 +1209,9 @@ window.salvarMeuPerfil = async function() {
     mostrarMsgPerfil("Perfil atualizado com sucesso.", "ok");
 
     setTimeout(() => {
-      const modal = bootstrap.Modal.getInstance(document.getElementById("modalPerfil"));
-      modal?.hide();
+      const el = document.getElementById("modalPerfil");
+      const modal = window.M && el ? M.Modal.getInstance(el) : null;
+      modal?.close();
     }, 700);
 
   } catch(e) {
@@ -1217,3 +1224,18 @@ window.salvarMeuPerfil = async function() {
     }
   }
 };
+
+
+// ── Inicialização Materialize após carregamentos dinâmicos ───────────────────
+function rdpRefreshMaterialize() {
+  try {
+    if (!window.M) return;
+    M.updateTextFields?.();
+    document.querySelectorAll('.modal').forEach(el => {
+      if (!M.Modal.getInstance(el)) M.Modal.init(el, { dismissible: true, opacity: 0.55 });
+    });
+  } catch (e) {
+    console.warn('Materialize refresh:', e);
+  }
+}
+document.addEventListener('DOMContentLoaded', rdpRefreshMaterialize);
