@@ -208,6 +208,52 @@ document.addEventListener("click", (ev) => {
   mostrarZoomFoto(thumb.src, titulo);
 });
 
+
+// ── Redimensionamento da lista de clientes ───────────────────────────────────
+function initSidebarResizer() {
+  const app = document.getElementById("appContent");
+  const resizer = document.getElementById("rdpSidebarResizer");
+  if (!app || !resizer || resizer.dataset.ready === "true") return;
+
+  resizer.dataset.ready = "true";
+
+  const saved = Number(localStorage.getItem("rdp-sidebar-width") || 330);
+  if (saved >= 260 && saved <= 620) {
+    document.documentElement.style.setProperty("--sidebar-w", `${saved}px`);
+  }
+
+  let dragging = false;
+
+  const setWidth = (clientX) => {
+    const rect = app.getBoundingClientRect();
+    const width = Math.max(260, Math.min(620, clientX - rect.left));
+    document.documentElement.style.setProperty("--sidebar-w", `${width}px`);
+    localStorage.setItem("rdp-sidebar-width", String(Math.round(width)));
+  };
+
+  resizer.addEventListener("mousedown", (ev) => {
+    dragging = true;
+    document.body.classList.add("rdp-resizing");
+    ev.preventDefault();
+  });
+
+  window.addEventListener("mousemove", (ev) => {
+    if (!dragging) return;
+    setWidth(ev.clientX);
+  });
+
+  window.addEventListener("mouseup", () => {
+    if (!dragging) return;
+    dragging = false;
+    document.body.classList.remove("rdp-resizing");
+  });
+
+  resizer.addEventListener("dblclick", () => {
+    document.documentElement.style.setProperty("--sidebar-w", "330px");
+    localStorage.setItem("rdp-sidebar-width", "330");
+  });
+}
+
 // ── Auth guard ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
   try {
@@ -232,6 +278,7 @@ onAuthStateChanged(auth, async user => {
     }
 
     mostrarAppContentCorretamente();
+  initSidebarResizer();
 
     if (!appInicializado) {
       initForm();
@@ -748,6 +795,20 @@ window.remFoto = function() {
   if (cards.length <= 0) return;
   excluirFoto(cards.length - 1);
 };
+
+window.removerTodasFotos = function() {
+  const qtd = document.querySelectorAll(".foto-card").length;
+  if (!qtd) {
+    alert("Não há fotos para remover.");
+    return;
+  }
+
+  if (!confirm(`Remover todas as ${qtd} foto(s) do relatório?`)) return;
+
+  limparFotos();
+  renumerarFotos();
+};
+
 
 window.carregarFoto = function(input, idx) {
   if (!input.files[0]) return;
