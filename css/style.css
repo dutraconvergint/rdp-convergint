@@ -1142,3 +1142,145 @@ code {
     min-height: 54px !important;
   }
 }
+
+
+/* ============================================================
+   AJUSTES SOLICITADOS - Layout, tema, botões e divisor
+   ============================================================ */
+
+/* Tema escuro mais profundo, próximo ao tom anterior */
+html[data-theme="dark"] {
+  --bg: #030b14;
+  --panel: #081321;
+  --panel-2: #0b1829;
+  --panel-3: #102238;
+  --input: #0b1727;
+  --input-focus: #0f2136;
+  --border: #21364f;
+  --border-2: #315271;
+  --text: #dce8f6;
+  --text-strong: #ffffff;
+  --muted: #8098b4;
+  --shadow: 0 16px 40px rgba(0,0,0,.36);
+}
+
+/* Tema claro menos estourado/branco */
+html[data-theme="light"] {
+  --bg: #d8e4ef;
+  --panel: #edf3f8;
+  --panel-2: #e3ecf5;
+  --panel-3: #d9e5f0;
+  --input: #f4f7fa;
+  --input-focus: #ffffff;
+  --border: #b7c8da;
+  --border-2: #8ea7bf;
+  --text: #27384a;
+  --text-strong: #0d1b2a;
+  --muted: #526b83;
+  --shadow: 0 14px 32px rgba(33,56,82,.15);
+}
+
+/* A sidebar agora tem uma coluna divisora redimensionável */
+.rdp-app {
+  grid-template-columns: var(--sidebar-w) 8px minmax(0, 1fr) !important;
+}
+
+.rdp-resizer {
+  width: 8px;
+  cursor: col-resize;
+  background:
+    linear-gradient(180deg, transparent, color-mix(in srgb, var(--border-2) 70%, transparent), transparent);
+  border-right: 1px solid var(--border);
+  border-left: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  position: sticky;
+  top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  z-index: 20;
+}
+
+.rdp-resizer:hover,
+.rdp-resizing .rdp-resizer {
+  background: linear-gradient(180deg, transparent, rgba(41,182,246,.55), transparent);
+}
+
+body.rdp-resizing {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+.rdp-sidebar {
+  min-width: 0 !important;
+}
+
+/* Busca de clientes proporcional ao restante dos inputs */
+.rdp-sidebar-search {
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 7px 11px !important;
+  font-size: .86rem !important;
+  line-height: 1.25 !important;
+  border-radius: var(--radius) !important;
+}
+
+/* Botões dos rodapés alinhados igual aos botões de cliente */
+.rdp-card-footer,
+.rdp-action-row {
+  padding: 12px 20px !important;
+  border-top: 1px solid var(--border);
+  background: var(--panel-2);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+}
+
+.rdp-card-footer .rdp-btn-group,
+.rdp-action-row .rdp-btn-group {
+  justify-content: flex-end !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+/* Endereço fica visualmente mais comprido e sem quebra ruim */
+#endereco {
+  min-width: 100% !important;
+}
+
+/* Botões com largura mínima mais consistente */
+.rdp-btn {
+  min-width: 112px !important;
+}
+
+.rdp-tb-btn {
+  min-width: 34px !important;
+}
+
+/* Ajuste de responsividade com a coluna divisora */
+@media (max-width: 1180px) {
+  .rdp-app {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rdp-resizer {
+    display: none !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .rdp-card-footer,
+  .rdp-action-row {
+    justify-content: stretch !important;
+  }
+
+  .rdp-card-footer .rdp-btn-group,
+  .rdp-action-row .rdp-btn-group {
+    width: 100% !important;
+  }
+
+  .rdp-card-footer .rdp-btn,
+  .rdp-action-row .rdp-btn {
+    width: 100% !important;
+  }
+}
