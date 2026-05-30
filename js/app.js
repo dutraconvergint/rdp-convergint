@@ -501,6 +501,155 @@ window.remAtv = function() {
 };
 
 // ── Fotos ─────────────────────────────────────────────────────────────────────
+
+function reconstruirMapaFotosPelaTela() {
+  const novo = {};
+  document.querySelectorAll(".foto-card").forEach((card, i) => {
+    const oldIdx = Number(card.dataset.idx);
+    const thumb = card.querySelector(".foto-thumb");
+    const thumbSrc = thumb && !thumb.classList.contains("d-none") && thumb.src ? thumb.src : "";
+    const oldSrc = Number.isFinite(oldIdx) ? (fotosImgs[oldIdx] || "") : "";
+    const src = thumbSrc || oldSrc;
+    if (src && src.startsWith("data:image/")) novo[i] = src;
+  });
+
+  Object.keys(fotosImgs).forEach(k => delete fotosImgs[k]);
+  Object.assign(fotosImgs, novo);
+}
+
+function ativarDragFoto(card) {
+  if (!card || card.dataset.dragReady === "true") return;
+  card.dataset.dragReady = "true";
+  card.setAttribute("draggable", "true");
+
+  card.addEventListener("dragstart", (ev) => {
+    card.classList.add("dragging");
+    ev.dataTransfer.effectAllowed = "move";
+    ev.dataTransfer.setData("text/plain", card.dataset.idx || "");
+  });
+
+  card.addEventListener("dragend", () => {
+    card.classList.remove("dragging");
+    document.querySelectorAll(".foto-card.drag-over").forEach(c => c.classList.remove("drag-over"));
+    renumerarFotos();
+  });
+
+  card.addEventListener("dragover", (ev) => {
+    ev.preventDefault();
+    const dragging = document.querySelector(".foto-card.dragging");
+    if (!dragging || dragging === card) return;
+    card.classList.add("drag-over");
+    ev.dataTransfer.dropEffect = "move";
+  });
+
+  card.addEventListener("dragleave", () => {
+    card.classList.remove("drag-over");
+  });
+
+  card.addEventListener("drop", (ev) => {
+    ev.preventDefault();
+    card.classList.remove("drag-over");
+    const dragging = document.querySelector(".foto-card.dragging");
+    if (!dragging || dragging === card) return;
+
+    const lista = document.getElementById("listaFotos");
+    const cards = Array.from(lista.querySelectorAll(".foto-card"));
+    const from = cards.indexOf(dragging);
+    const to = cards.indexOf(card);
+
+    if (from < to) {
+      card.after(dragging);
+    } else {
+      card.before(dragging);
+    }
+    renumerarFotos();
+  });
+}
+
+function renumerarFotos() {
+  const cards = Array.from(document.querySelectorAll(".foto-card"));
+
+  reconstruirMapaFotosPelaTela();
+
+  cards.forEach((card, i) => {
+    card.dataset.idx = String(i);
+    ativarDragFoto(card);
+
+    const titulo = card.querySelector(".foto-title");
+    if (titulo) titulo.innerHTML = `<i class="bi bi-image"></i> Foto ${i + 1}`;
+
+    const badge = card.querySelector(".foto-num-badge");
+    if (badge) badge.textContent = `Nº ${i + 1}`;
+
+    card.querySelectorAll("[data-foto]").forEach(el => {
+      el.dataset.foto = String(i);
+    });
+
+    const fileInput = card.querySelector('input[type="file"]');
+    if (fileInput) fileInput.setAttribute("onchange", `carregarFoto(this,${i})`);
+
+    const thumb = card.querySelector(".foto-thumb");
+    if (thumb) thumb.id = `thumbFoto${i}`;
+
+    const btnUp = card.querySelector('[data-foto-action="up"]');
+    if (btnUp) {
+      btnUp.setAttribute("onclick", `moverFoto(${i}, -1)`);
+      btnUp.disabled = i === 0;
+      btnUp.title = i === 0 ? "Esta foto já é a primeira" : "Mover foto para cima";
+    }
+
+    const btnDown = card.querySelector('[data-foto-action="down"]');
+    if (btnDown) {
+      btnDown.setAttribute("onclick", `moverFoto(${i}, 1)`);
+      btnDown.disabled = i === cards.length - 1;
+      btnDown.title = i === cards.length - 1 ? "Esta foto já é a última" : "Mover foto para baixo";
+    }
+
+    const btnDel = card.querySelector('[data-foto-action="delete"]');
+    if (btnDel) btnDel.setAttribute("onclick", `excluirFoto(${i})`);
+  });
+
+  nFotos = cards.length;
+  atualizarMensagemFotosVazia();
+}
+
+window.renumerarFotos = renumerarFotos;
+
+window.excluirFoto = function(idx) {
+  const cards = Array.from(document.querySelectorAll(".foto-card"));
+  const card = cards[idx];
+  if (!card) return;
+
+  const temImagem = !!(card.querySelector(".foto-thumb")?.src) && !card.querySelector(".foto-thumb")?.classList.contains("d-none");
+  const amb = card.querySelector('[data-field="amb"]')?.value?.trim() || "";
+  const desc = card.querySelector('[data-field="desc"]')?.value?.trim() || "";
+
+  const precisaConfirmar = temImagem || amb || desc;
+  if (precisaConfirmar && !confirm(`Excluir a Foto ${idx + 1}?\n\nA numeração das próximas fotos será reajustada automaticamente.`)) return;
+
+  card.remove();
+  renumerarFotos();
+};
+
+window.moverFoto = function(idx, direcao) {
+  const lista = document.getElementById("listaFotos");
+  if (!lista) return;
+
+  const cards = Array.from(lista.querySelectorAll(".foto-card"));
+  const card = cards[idx];
+  if (!card) return;
+
+  if (direcao < 0 && idx > 0) {
+    lista.insertBefore(card, cards[idx - 1]);
+  }
+
+  if (direcao > 0 && idx < cards.length - 1) {
+    lista.insertBefore(cards[idx + 1], card);
+  }
+
+  renumerarFotos();
+};
+
 window.addFoto = function(increment=true) {
   const idx = document.querySelectorAll(".foto-card").length;
   if (increment) nFotos++;
@@ -511,9 +660,26 @@ window.addFoto = function(increment=true) {
   div.className = "foto-card border rounded p-2 mb-2";
   div.dataset.idx = idx;
   div.innerHTML = `
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <strong class="small"><i class="bi bi-image"></i> Foto ${idx+1}</strong>
-      <span class="badge text-bg-secondary">Nº ${idx+1}</span>
+    <div class="foto-card-header d-flex justify-content-between align-items-center mb-2">
+      <div class="d-flex align-items-center gap-2">
+        <span class="foto-drag-handle" title="Arraste para reorganizar"><i class="bi bi-grip-vertical"></i></span>
+        <strong class="small foto-title"><i class="bi bi-image"></i> Foto ${idx+1}</strong>
+        <span class="badge text-bg-secondary foto-num-badge">Nº ${idx+1}</span>
+      </div>
+      <div class="foto-actions btn-group btn-group-sm" role="group" aria-label="Ações da foto">
+        <button type="button" class="btn btn-outline-light foto-action-btn" data-foto-action="up"
+                onclick="moverFoto(${idx}, -1)" title="Mover foto para cima">
+          <i class="bi bi-arrow-up"></i>
+        </button>
+        <button type="button" class="btn btn-outline-light foto-action-btn" data-foto-action="down"
+                onclick="moverFoto(${idx}, 1)" title="Mover foto para baixo">
+          <i class="bi bi-arrow-down"></i>
+        </button>
+        <button type="button" class="btn btn-outline-danger foto-action-btn" data-foto-action="delete"
+                onclick="excluirFoto(${idx})" title="Excluir esta foto">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
     </div>
     <div class="row g-2 align-items-start">
       <div class="col-md-2">
@@ -542,16 +708,13 @@ window.addFoto = function(increment=true) {
       </div>
     </div>`;
   listaFotos.appendChild(div);
+  renumerarFotos();
 };
 
 window.remFoto = function() {
   const cards = document.querySelectorAll(".foto-card");
   if (cards.length <= 0) return;
-  const last = cards.length - 1;
-  delete fotosImgs[last];
-  cards[last].remove();
-  nFotos = document.querySelectorAll(".foto-card").length;
-  atualizarMensagemFotosVazia();
+  excluirFoto(cards.length - 1);
 };
 
 window.carregarFoto = function(input, idx) {
@@ -561,6 +724,7 @@ window.carregarFoto = function(input, idx) {
     fotosImgs[idx] = e.target.result;
     const img = document.getElementById(`thumbFoto${idx}`);
     img.src = e.target.result; img.classList.remove("d-none");
+    renumerarFotos();
   };
   reader.readAsDataURL(input.files[0]);
 };
@@ -586,6 +750,7 @@ window.uploadEmLote = function() {
         fotosImgs[idx] = e.target.result;
         const thumb = document.getElementById(`thumbFoto${idx}`);
         if (thumb) { thumb.src = e.target.result; thumb.classList.remove("d-none"); }
+        renumerarFotos();
       };
       reader.readAsDataURL(file);
     });
@@ -724,7 +889,8 @@ function coletarDados() {
     const amb  = card.querySelector(`[data-field="amb"]`)?.value?.trim()  || "";
     const desc = card.querySelector(`[data-field="desc"]`)?.value?.trim() || "";
     const sis  = card.querySelector(`.foto-sis`)?.value || "AV";
-    const img  = fotosImgs[i] || null;
+    const thumb = card.querySelector(".foto-thumb");
+    const img  = fotosImgs[i] || (thumb && !thumb.classList.contains("d-none") ? thumb.src : null);
     if (amb || desc || img)
       fotos.push({ sis, amb, desc, img, num: fotos.length + 1 });
   });
