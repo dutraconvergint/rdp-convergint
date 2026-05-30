@@ -24,7 +24,7 @@
       <li><a href="#!" onclick="novoRelatorio();return false;" title="Novo relatório"><i class="material-icons">note_add</i></a></li>
       <li><a id="btnAdminUsuarios" class="hide" href="admin.html" title="Usuários"><i class="material-icons">group</i></a></li>
       <li>
-        <a href="#!" class="rdp-nav-user" onclick="abrirModalPerfil();return false;" title="Meu perfil">
+        <a href="#!" class="rdp-nav-user" onclick="abrirModalPerfil();return false;">
           <i class="material-icons">account_circle</i>
           <span id="nomeUsuario">Usuário</span>
         </a>
@@ -48,7 +48,7 @@
   <li><a href="#!" onclick="sair();return false;"><i class="material-icons">logout</i>Sair</a></li>
 </ul>
 
-<!-- APP SHELL -->
+<!-- APP -->
 <div class="rdp-app" id="appContent" style="display:none">
 
   <!-- SIDEBAR -->
@@ -67,10 +67,9 @@
 
   <div class="rdp-resizer" id="rdpSidebarResizer"></div>
 
-  <!-- MAIN -->
   <main class="rdp-main">
 
-    <!-- CABEÇALHO -->
+    <!-- ── CABEÇALHO ─────────────────────────────────────────────────── -->
     <div class="rdp-section">
       <div class="rdp-section-label">
         <span class="material-icons">folder_open</span>
@@ -79,66 +78,75 @@
       <div class="card rdp-card">
         <div class="card-content">
 
-          <!-- Logo row -->
-          <div class="row" style="margin-bottom:0">
-            <div class="col s12 m2" style="padding-bottom:8px">
-              <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);display:block;margin-bottom:6px">Logo do Cliente</label>
-              <input type="file" id="inputLogo" accept="image/*"
-                     class="form-control" onchange="previewLogo(this)"
-                     style="font-size:.82rem;padding:6px 8px;height:38px">
+          <!-- Linha 1: Logo + campos principais -->
+          <div class="row" style="margin-bottom:0;align-items:flex-end">
+
+            <!-- Logo -->
+            <div class="col s12 m2" style="padding-bottom:4px">
+              <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:6px">Logo</div>
+              <input type="file" id="inputLogo" accept="image/*" onchange="previewLogo(this)"
+                     style="width:100%;background:var(--input);border:1px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--text);font-size:.8rem;height:40px;cursor:pointer;outline:none">
               <img id="logoPreview" src="" class="rdp-logo-preview d-none" alt="Logo">
             </div>
-            <div class="col s12 m10">
-              <div class="row" style="margin-bottom:0">
-                <div class="input-field col s12 m5">
-                  <input type="text" id="nomeCliente" placeholder=" ">
-                  <label for="nomeCliente">Cliente / Projeto</label>
-                </div>
-                <div class="input-field col s6 m2">
-                  <input type="text" id="codigo" placeholder=" ">
-                  <label for="codigo">Código</label>
-                </div>
-                <div class="input-field col s6 m2">
-                  <input type="text" id="data" placeholder="DD/MM/AAAA">
-                  <label for="data">Data</label>
-                </div>
-                <div class="input-field col s6 m2">
-                  <select id="sistema" onchange="atualizarSistemaFotos()">
-                    <option value="AV">AV</option>
-                    <option value="BMS">BMS</option>
-                    <option value="SDAI">SDAI</option>
-                    <option value="SECURITY">SECURITY</option>
-                  </select>
-                  <label>Sistema</label>
-                </div>
-                <div class="input-field col s6 m1">
-                  <input type="text" id="profArq" placeholder=" ">
-                  <label for="profArq">Seu nome</label>
-                </div>
-              </div>
-              <div class="row" style="margin-bottom:0">
-                <div class="input-field col s12 m4">
-                  <input type="text" id="contratante" placeholder=" ">
-                  <label for="contratante">Contratante</label>
-                </div>
-                <div class="input-field col s12 m3">
-                  <input type="text" id="obra" placeholder=" ">
-                  <label for="obra">Obra</label>
-                </div>
-                <div class="input-field col s12 m5">
-                  <input type="text" id="endereco" placeholder=" ">
-                  <label for="endereco">Endereço</label>
-                </div>
-              </div>
+
+            <!-- Cliente/Projeto -->
+            <div class="input-field col s12 m4" style="margin-top:0">
+              <input type="text" id="nomeCliente" placeholder=" ">
+              <label for="nomeCliente">Cliente / Projeto</label>
+            </div>
+
+            <!-- Código -->
+            <div class="input-field col s6 m2" style="margin-top:0">
+              <input type="text" id="codigo" placeholder=" ">
+              <label for="codigo">Código</label>
+            </div>
+
+            <!-- Data -->
+            <div class="input-field col s6 m2" style="margin-top:0">
+              <input type="text" id="data" placeholder="DD/MM/AAAA">
+              <label for="data">Data</label>
+            </div>
+
+            <!-- Sistema -->
+            <div class="input-field col s6 m1" style="margin-top:0">
+              <select id="sistema" onchange="atualizarSistemaFotos()">
+                <option value="AV">AV</option>
+                <option value="BMS">BMS</option>
+                <option value="SDAI">SDAI</option>
+                <option value="SECURITY">SECURITY</option>
+              </select>
+              <label>Sistema</label>
+            </div>
+
+            <!-- Nome do profissional (arquivo) -->
+            <div class="input-field col s6 m1" style="margin-top:0">
+              <input type="text" id="profArq" placeholder=" ">
+              <label for="profArq">Seu nome</label>
+            </div>
+          </div>
+
+          <!-- Linha 2: Contratante / Obra / Endereço -->
+          <div class="row" style="margin-bottom:0;align-items:flex-end">
+            <div class="input-field col s12 m3" style="margin-top:0">
+              <input type="text" id="contratante" placeholder=" ">
+              <label for="contratante">Contratante</label>
+            </div>
+            <div class="input-field col s12 m3" style="margin-top:0">
+              <input type="text" id="obra" placeholder=" ">
+              <label for="obra">Obra</label>
+            </div>
+            <div class="input-field col s12 m6" style="margin-top:0">
+              <input type="text" id="endereco" placeholder=" ">
+              <label for="endereco">Endereço</label>
             </div>
           </div>
 
           <!-- Toolbar -->
-          <div class="rdp-toolbar" style="margin-top:12px">
+          <div class="rdp-toolbar" style="margin-top:8px;padding-top:14px">
             <div class="rdp-filename">
               <span class="label">Nome do arquivo</span>
-              <span id="previewNome" style="display:block;font-size:.75rem;font-family:monospace;color:var(--muted);word-break:break-all">📄 Preencha os campos acima</span>
-              <span id="clienteCarregadoInfo" style="font-size:.75rem;color:var(--muted)"></span>
+              <span id="previewNome" style="display:block;font-size:.74rem;font-family:monospace;color:var(--muted);word-break:break-all">📄 Preencha os campos acima</span>
+              <span id="clienteCarregadoInfo" style="font-size:.74rem;color:var(--muted)"></span>
             </div>
             <div class="rdp-btn-group">
               <button id="btnCriarCliente" class="rdp-btn rdp-btn-success" onclick="criarNovoCliente()">
@@ -153,7 +161,7 @@
       </div>
     </div>
 
-    <!-- RESUMO DO DIA -->
+    <!-- ── RESUMO DO DIA ─────────────────────────────────────────────── -->
     <div class="rdp-section">
       <div class="rdp-section-label">
         <span class="material-icons">schedule</span>
@@ -161,24 +169,25 @@
       </div>
       <div class="card rdp-card">
         <div class="card-content">
+          <!-- Todos os 6 campos em uma linha -->
           <div class="row" style="margin-bottom:0">
-            <div class="input-field col s6 m2">
+            <div class="input-field col s6 m2" style="margin-top:.8rem">
               <input type="text" id="hIniPrev" value="08:00">
               <label for="hIniPrev" class="active">Início Prev.</label>
             </div>
-            <div class="input-field col s6 m2">
+            <div class="input-field col s6 m2" style="margin-top:.8rem">
               <input type="text" id="hIniReal" value="08:00">
               <label for="hIniReal" class="active">Início Real</label>
             </div>
-            <div class="input-field col s6 m2">
+            <div class="input-field col s6 m2" style="margin-top:.8rem">
               <input type="text" id="hFimPrev" value="17:00">
               <label for="hFimPrev" class="active">Término Prev.</label>
             </div>
-            <div class="input-field col s6 m2">
+            <div class="input-field col s6 m2" style="margin-top:.8rem">
               <input type="text" id="hFimReal" value="17:00">
               <label for="hFimReal" class="active">Término Real</label>
             </div>
-            <div class="input-field col s6 m2">
+            <div class="input-field col s6 m2" style="margin-top:.8rem">
               <select id="produtividade">
                 <option>Produtivo</option>
                 <option>Muito Produtivo</option>
@@ -186,7 +195,7 @@
               </select>
               <label>Produtividade</label>
             </div>
-            <div class="input-field col s6 m2">
+            <div class="input-field col s6 m2" style="margin-top:.8rem">
               <select id="clima">
                 <option>Bom</option>
                 <option>Chuva Leve</option>
@@ -200,14 +209,14 @@
       </div>
     </div>
 
-    <!-- PROFISSIONAIS -->
+    <!-- ── PROFISSIONAIS ─────────────────────────────────────────────── -->
     <div class="rdp-section">
       <div class="rdp-section-label">
         <span class="material-icons">groups</span>
         <span>Profissionais Envolvidos</span>
       </div>
       <div class="card rdp-card">
-        <div class="card-content" id="listaProfissionais"></div>
+        <div class="card-content" id="listaProfissionais" style="padding-bottom:0"></div>
         <div class="card-action rdp-action-row">
           <button class="rdp-btn rdp-btn-primary" onclick="addProf()">
             <span class="material-icons">add</span>Adicionar
@@ -219,14 +228,14 @@
       </div>
     </div>
 
-    <!-- ATIVIDADES -->
+    <!-- ── ATIVIDADES ────────────────────────────────────────────────── -->
     <div class="rdp-section">
       <div class="rdp-section-label">
         <span class="material-icons">fact_check</span>
         <span>Atividades Realizadas</span>
       </div>
       <div class="card rdp-card">
-        <div class="card-content" id="listaAtividades"></div>
+        <div class="card-content" id="listaAtividades" style="padding-bottom:0"></div>
         <div class="card-action rdp-action-row">
           <button class="rdp-btn rdp-btn-primary" onclick="addAtv()">
             <span class="material-icons">add</span>Atividade
@@ -238,14 +247,14 @@
       </div>
     </div>
 
-    <!-- FOTOS -->
+    <!-- ── FOTOS ─────────────────────────────────────────────────────── -->
     <div class="rdp-section">
       <div class="rdp-section-label">
         <span class="material-icons">photo_camera</span>
         <span>Relatório Fotográfico</span>
       </div>
       <div class="card rdp-card">
-        <div class="card-content" id="listaFotos"></div>
+        <div class="card-content" id="listaFotos" style="padding-bottom:0"></div>
         <div class="card-action rdp-action-row">
           <button class="rdp-btn rdp-btn-success" onclick="uploadEmLote()">
             <span class="material-icons">collections</span>Upload em lote
@@ -263,7 +272,7 @@
       </div>
     </div>
 
-    <!-- DETALHAMENTO -->
+    <!-- ── DETALHAMENTO ──────────────────────────────────────────────── -->
     <div class="rdp-section">
       <div class="rdp-section-label">
         <span class="material-icons">article</span>
@@ -271,15 +280,15 @@
       </div>
       <div class="card rdp-card">
         <div class="card-content">
-          <div class="rdp-info">
-            Editor com texto formatado, listas, tabelas e links. Cole do Word — formatação é preservada no DOCX.
+          <div class="rdp-info" style="margin-bottom:12px">
+            Editor com texto formatado, listas, tabelas e links. Cole do Word — formatação preservada no DOCX.
           </div>
           <textarea id="detalhamentoEditor" class="rdp-editor"></textarea>
         </div>
       </div>
     </div>
 
-    <!-- GERAR -->
+    <!-- ── GERAR ─────────────────────────────────────────────────────── -->
     <div class="rdp-actions">
       <button id="btnDocx" class="rdp-btn rdp-btn-docx" onclick="gerarDOCX()">
         <span class="material-icons">description</span>
@@ -293,19 +302,19 @@
 <!-- MODAL: Perfil -->
 <div id="modalPerfil" class="modal modal-fixed-footer app-modal">
   <div class="modal-content">
-    <h5 style="display:flex;align-items:center;gap:10px;margin:0 0 18px;color:var(--text-strong)">
+    <h5 style="display:flex;align-items:center;gap:10px;margin:0 0 16px;color:var(--text-strong)">
       <i class="material-icons" style="color:var(--blue)">manage_accounts</i>Meu Perfil
     </h5>
-    <p class="rdp-info" style="margin-bottom:20px">Para alterar e-mail ou senha, informe a senha atual.</p>
+    <p class="rdp-info" style="margin-bottom:18px">Para alterar e-mail ou senha, informe a senha atual.</p>
     <input type="hidden" id="perfilHiddenMarker">
     <div class="row">
-      <div class="input-field col s12">
+      <div class="input-field col s12 m6">
         <input type="text" id="perfilNome">
         <label for="perfilNome">Nome completo</label>
       </div>
-      <div class="input-field col s12">
-        <input type="text" id="perfilFuncao" placeholder=" ">
-        <label for="perfilFuncao">Função (ex.: Programador, Técnico)</label>
+      <div class="input-field col s12 m6">
+        <input type="text" id="perfilFuncao">
+        <label for="perfilFuncao">Função</label>
       </div>
       <div class="input-field col s12">
         <input type="email" id="perfilEmail">
@@ -317,7 +326,7 @@
       </div>
       <div class="input-field col s12 m6">
         <input type="password" id="perfilNovaSenha" autocomplete="new-password">
-        <label for="perfilNovaSenha">Nova senha (opcional — mín. 6 chars)</label>
+        <label for="perfilNovaSenha">Nova senha (mín. 6 chars)</label>
       </div>
     </div>
     <div id="msgPerfil" class="rdp-err" style="display:none"></div>
@@ -336,25 +345,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Init Materialize components
     M.AutoInit();
     document.querySelectorAll('.modal').forEach(el => {
-      if (!M.Modal.getInstance(el)) M.Modal.init(el, { dismissible: true, opacity: .55 });
+      if (!M.Modal.getInstance(el)) M.Modal.init(el, {dismissible:true, opacity:.55});
     });
     M.FormSelect.init(document.querySelectorAll('select:not(.browser-default)'));
-
-    // Theme icon
-    const t = document.documentElement.getAttribute('data-theme') || 'dark';
-    document.querySelectorAll('[data-theme-icon]').forEach(el => el.textContent = t === 'dark' ? 'light_mode' : 'dark_mode');
+    const t = document.documentElement.getAttribute('data-theme')||'dark';
+    document.querySelectorAll('[data-theme-icon]').forEach(el =>
+      el.textContent = t==='dark' ? 'light_mode' : 'dark_mode');
   });
-
   window.rdpToggleTheme = function() {
-    const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    const t = document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', t);
     localStorage.setItem('rdp-theme', t);
-    document.querySelectorAll('[data-theme-icon]').forEach(el => el.textContent = t === 'dark' ? 'light_mode' : 'dark_mode');
+    document.querySelectorAll('[data-theme-icon]').forEach(el =>
+      el.textContent = t==='dark' ? 'light_mode' : 'dark_mode');
   };
-
   window.abrirModalPerfil = function() {
     const m = document.getElementById('modalPerfil');
     if (m && window.M) M.Modal.getInstance(m)?.open();

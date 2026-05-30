@@ -364,21 +364,24 @@
 
         <div id="msgErro"></div>
 
-        <div class="input-field prefix-field" style="margin-top:2rem">
-          <i class="material-icons prefix">mail</i>
-          <input id="email" type="email" autocomplete="username">
+        <div class="rdp-field" style="margin-bottom:14px">
           <label for="email">E-mail</label>
+          <div class="rdp-input-wrap">
+            <i class="material-icons">mail</i>
+            <input id="email" class="rdp-input" type="email" autocomplete="username" placeholder="seu@email.com" autofocus>
+          </div>
         </div>
 
-        <div class="input-field prefix-field" style="margin-top:2rem">
-          <i class="material-icons prefix">key</i>
-          <input id="senha" type="password" autocomplete="current-password"
-                 onkeydown="if(event.key === 'Enter') entrar()">
+        <div class="rdp-field" style="margin-bottom:6px">
           <label for="senha">Senha</label>
+          <div class="rdp-input-wrap">
+            <i class="material-icons">key</i>
+            <input id="senha" class="rdp-input" type="password" autocomplete="current-password" placeholder="••••••••"
+                   onkeydown="if(event.key === 'Enter') entrar()">
+          </div>
         </div>
 
-        <button id="btnEntrar" class="rdp-btn rdp-btn-primary w-100" onclick="entrar()"
-                style="height:46px;font-size:.95rem;margin-top:24px;border-radius:10px">
+        <button id="btnEntrar" class="rdp-btn-login" onclick="entrar()">
           <i class="material-icons">login</i>
           Entrar
         </button>
