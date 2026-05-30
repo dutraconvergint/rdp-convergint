@@ -648,3 +648,114 @@ select.browser-default, select.form-select {
     max-height: 420px;
   }
 }
+
+
+/* ============================================================
+   FIX 2026-05-30
+   Ícones Material e espaçamento interno dos campos
+   ============================================================ */
+
+/* O text-transform uppercase do título estava alterando o nome do ícone
+   e o Material Icons passava a aparecer como texto: FOLDER OPEN, SCHEDULE etc. */
+.material-icons,
+.rdp-section-title .material-icons,
+.rdp-panel-title .material-icons,
+.rdp-btn .material-icons,
+.rdp-logo .material-icons,
+.rdp-modal-title .material-icons {
+  font-family: 'Material Icons' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  font-size: 21px;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  word-wrap: normal !important;
+  direction: ltr !important;
+  -webkit-font-feature-settings: 'liga' !important;
+  -webkit-font-smoothing: antialiased !important;
+  font-feature-settings: 'liga' !important;
+  vertical-align: middle !important;
+}
+
+/* Título continua em caixa alta, mas apenas no texto, não nos ícones */
+.rdp-section-title {
+  text-transform: none !important;
+}
+
+.rdp-section-title > span:not(.material-icons):not(:first-child) {
+  text-transform: uppercase !important;
+  letter-spacing: .35px !important;
+}
+
+/* Campos com respiro interno real. Materialize tem seletores fortes,
+   então usamos uma regra mais específica e importante. */
+.rdp-field input.form-control,
+.rdp-field select.form-select,
+.rdp-field select.browser-default,
+.rdp-field textarea.form-control,
+.rdp-panel input.form-control,
+.rdp-panel select.form-select,
+.rdp-panel select.browser-default,
+.rdp-panel textarea.form-control,
+input.form-control,
+select.form-select,
+select.browser-default,
+textarea.form-control {
+  padding-left: 18px !important;
+  padding-right: 18px !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+  min-height: 48px !important;
+  line-height: 1.35 !important;
+  text-indent: 0 !important;
+}
+
+/* O input file do navegador precisa de padding menor para não cortar o botão */
+input[type="file"].form-control {
+  padding: 9px 10px !important;
+}
+
+/* Labels e textos não colados na borda do card */
+.rdp-panel-body {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+.rdp-field label,
+.form-label {
+  padding-left: 2px !important;
+  margin-bottom: 8px !important;
+}
+
+/* Área dos cards dinâmicos também com respiro */
+.prof-row,
+.atv-row,
+.foto-card,
+.cliente-item {
+  padding: 18px !important;
+}
+
+/* Em telas pequenas, reduz um pouco para caber melhor */
+@media (max-width: 620px) {
+  .rdp-panel-body {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .rdp-field input.form-control,
+  .rdp-field select.form-select,
+  .rdp-field select.browser-default,
+  .rdp-field textarea.form-control,
+  input.form-control,
+  select.form-select,
+  select.browser-default,
+  textarea.form-control {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}
