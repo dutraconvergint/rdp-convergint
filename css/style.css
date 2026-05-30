@@ -189,13 +189,16 @@ textarea.materialize-textarea {
 .rdp-shell {
   max-width: 1700px;
   margin: 0 auto;
-  padding: 22px 18px 48px;
+  padding: 26px 22px 52px;
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 24px;
   align-items: start;
 }
 .rdp-sidebar { min-width: 0; }
+.rdp-sidebar .rdp-panel {
+  border-top: 3px solid var(--primary);  /* accent stripe on top */
+}
 .rdp-workspace { min-width: 0; }
 
 /* ── 6. Panel / Card ────────────────────────────────────────────────────────── */
@@ -222,11 +225,11 @@ textarea.materialize-textarea {
   letter-spacing: .2px;
 }
 .rdp-panel-title .material-icons { color: #64b5f6; font-size: 20px; }
-.rdp-panel-body { padding: 16px; }
+.rdp-panel-body { padding: 22px; }
 .rdp-panel-footer {
-  padding: 12px 16px;
+  padding: 14px 22px;
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
   background: var(--surface-2);
   border-top: 1px solid var(--border);
@@ -303,7 +306,7 @@ input[type="file"].form-control { padding: 7px !important; cursor: pointer; }
 }
 
 /* Grid for header form */
-.rdp-form-grid { display: grid; gap: 12px 13px; align-items: end; }
+.rdp-form-grid { display: grid; gap: 20px 18px; align-items: end; }
 .rdp-grid-header  { grid-template-columns: repeat(12, minmax(0, 1fr)); }
 .rdp-grid-resumo  { grid-template-columns: repeat(6, minmax(120px, 1fr)); }
 .rdp-grid-2       { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -316,13 +319,13 @@ input[type="file"].form-control { padding: 7px !important; cursor: pointer; }
 
 /* Toolbar row inside header panel */
 .rdp-toolbar {
-  margin-top: 16px;
-  padding-top: 14px;
+  margin-top: 20px;
+  padding-top: 18px;
   border-top: 1px solid var(--border-soft);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 14px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 .rdp-file-info { color: var(--muted); font-size: .82rem; line-height: 1.5; min-width: 0; }
@@ -358,8 +361,8 @@ input[type="file"].form-control { padding: 7px !important; cursor: pointer; }
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px !important;
-  margin-bottom: 10px !important;
+  padding: 16px !important;
+  margin-bottom: 14px !important;
   transition: border-color var(--ease);
 }
 .prof-row:hover, .atv-row:hover { border-color: rgba(66,165,245,.4); }
@@ -369,8 +372,8 @@ input[type="file"].form-control { padding: 7px !important; cursor: pointer; }
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius) !important;
-  padding: 12px !important;
-  margin-bottom: 10px !important;
+  padding: 16px !important;
+  margin-bottom: 14px !important;
   transition: border-color var(--ease), box-shadow var(--ease);
 }
 .foto-card:hover { border-color: rgba(66,165,245,.4); }
@@ -692,29 +695,32 @@ body.login-page {
 [data-theme="light"] .cliente-item { color: var(--text); }
 
 /* ── 20. Responsive ───────────────────────────────────────────────────────── */
-@media (max-width: 1200px) {
-  .rdp-shell, .rdp-admin-shell { grid-template-columns: 1fr; }
-  .rdp-panel-sticky { position: static; }
-  .rdp-client-list { max-height: 320px; }
-  .rdp-admin-shell .rdp-page-title { margin-bottom: 0; }
-}
+
+/* Tablet/medium: sidebar goes to top, full width */
 @media (max-width: 900px) {
-  .rdp-topbar-inner { flex-wrap: wrap; height: auto; padding: 10px 18px; }
+  .rdp-shell { grid-template-columns: 1fr; padding: 18px 16px 42px; }
+  .rdp-admin-shell { grid-template-columns: 1fr; }
+  .rdp-panel-sticky { position: static; }
+  .rdp-client-list { max-height: 280px; }
+  .rdp-topbar-inner { flex-wrap: wrap; height: auto; padding: 10px 16px; }
   .rdp-topbar { height: auto; }
   .rdp-grid-header, .rdp-grid-resumo { grid-template-columns: repeat(2, 1fr); }
   .rdp-field-logo, .rdp-span-2, .rdp-span-3, .rdp-span-4, .rdp-span-6 { grid-column: span 1; }
   .atv-row.row, .foto-card .row, .prof-row.row { grid-template-columns: 1fr; }
   .login-shell { grid-template-columns: 1fr; }
   .login-hero.hide-on-med-and-down { display: none; }
-  .login-shell { border-radius: var(--radius-lg); }
   .login-card { border-left: none; border-top: 1px solid var(--border); }
 }
+
+/* Mobile */
 @media (max-width: 600px) {
-  .rdp-shell, .rdp-admin-shell { padding: 14px 12px 36px; }
-  .rdp-topbar-actions { gap: 6px; }
-  .rdp-user-pill { max-width: 160px; }
+  .rdp-shell, .rdp-admin-shell { padding: 12px 10px 36px; gap: 16px; }
+  .rdp-topbar-actions { gap: 5px; }
+  .rdp-user-pill { max-width: 150px; }
   .rdp-grid-header, .rdp-grid-resumo { grid-template-columns: 1fr; }
+  .rdp-form-grid { gap: 14px 12px; }
+  .rdp-panel-body { padding: 14px; }
   .rdp-btn span:not(.material-icons) { display: none; }
   .rdp-btn { padding: 0 10px; }
-  .login-card { padding: 30px 22px; }
+  .login-card { padding: 28px 18px; }
 }
