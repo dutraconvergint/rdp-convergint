@@ -282,14 +282,16 @@ onAuthStateChanged(auth, async user => {
     usuarioAtual = user;
     perfilUsuario = snap.data() || {};
 
-    document.getElementById("nomeUsuario").textContent = perfilUsuario.nome || user.email;
+    const nomeUsuarioEl = document.getElementById("nomeUsuario");
+    if (nomeUsuarioEl) nomeUsuarioEl.textContent = perfilUsuario.nome || user.email || "Usuário";
 
     if ((perfilUsuario.role || "user") === "admin") {
-      document.getElementById("btnAdminUsuarios")?.classList.remove("d-none");
+      document.getElementById("btnAdminUsuarios")?.classList.remove("d-none", "hide");
+      document.getElementById("btnAdminUsuariosMobile")?.classList.remove("d-none", "hide");
     }
 
     mostrarAppContentCorretamente();
-  initSidebarResizer();
+    initSidebarResizer?.();
 
     if (!appInicializado) {
       initForm();
@@ -299,8 +301,19 @@ onAuthStateChanged(auth, async user => {
     carregarClientes();
   } catch (e) {
     console.error("Falha na validação do login:", e);
-    await signOut(auth);
-    location.replace("index.html");
+
+    // Se houve erro depois de autenticar (por exemplo, elemento visual não encontrado),
+    // não encerra a sessão automaticamente. Isso evita o efeito de logar e voltar para o login.
+    const appEl = document.getElementById("appContent");
+    const msg = document.createElement("div");
+    msg.className = "rdp-info-box text-danger";
+    msg.style.margin = "16px";
+    msg.innerHTML = `<strong>Erro ao carregar a tela:</strong><br>${e?.code || ""} ${e?.message || e}`;
+    document.body.prepend(msg);
+
+    if (!auth.currentUser) {
+      location.replace("index.html");
+    }
   }
 });
 
