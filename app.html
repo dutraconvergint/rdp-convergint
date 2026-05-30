@@ -75,6 +75,8 @@
     </div>
   </aside>
 
+  <div class="rdp-resizer" id="rdpSidebarResizer" title="Arraste para ajustar a largura da lista de clientes"></div>
+
   <!-- ── MAIN ───────────────────────────────────────────────────────────── -->
   <main class="rdp-main">
 
@@ -122,15 +124,15 @@
                      placeholder="Nome no arquivo">
             </div>
 
-            <div class="rdp-field c4">
+            <div class="rdp-field c3">
               <label>Contratante</label>
               <input type="text" id="contratante" class="form-control">
             </div>
-            <div class="rdp-field c4">
+            <div class="rdp-field c3">
               <label>Obra</label>
               <input type="text" id="obra" class="form-control">
             </div>
-            <div class="rdp-field c4">
+            <div class="rdp-field c6">
               <label>Endereço</label>
               <input type="text" id="endereco" class="form-control">
             </div>
@@ -209,13 +211,15 @@
       </div>
       <div class="rdp-card">
         <div class="rdp-card-body" id="listaProfissionais"></div>
-        <div class="rdp-card-footer">
-          <button class="rdp-btn rdp-btn-primary" onclick="addProf()">
-            <span class="material-icons">add</span>Adicionar
-          </button>
-          <button class="rdp-btn rdp-btn-muted" onclick="remProf()">
-            <span class="material-icons">remove</span>Remover
-          </button>
+        <div class="rdp-card-footer rdp-action-row">
+          <div class="rdp-btn-group">
+            <button class="rdp-btn rdp-btn-primary" onclick="addProf()">
+              <span class="material-icons">add</span>Adicionar
+            </button>
+            <button class="rdp-btn rdp-btn-muted" onclick="remProf()">
+              <span class="material-icons">remove</span>Remover
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -228,13 +232,15 @@
       </div>
       <div class="rdp-card">
         <div class="rdp-card-body" id="listaAtividades"></div>
-        <div class="rdp-card-footer">
-          <button class="rdp-btn rdp-btn-primary" onclick="addAtv()">
-            <span class="material-icons">add</span>Atividade
-          </button>
-          <button class="rdp-btn rdp-btn-muted" onclick="remAtv()">
-            <span class="material-icons">remove</span>Remover
-          </button>
+        <div class="rdp-card-footer rdp-action-row">
+          <div class="rdp-btn-group">
+            <button class="rdp-btn rdp-btn-primary" onclick="addAtv()">
+              <span class="material-icons">add</span>Atividade
+            </button>
+            <button class="rdp-btn rdp-btn-muted" onclick="remAtv()">
+              <span class="material-icons">remove</span>Remover
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -247,16 +253,21 @@
       </div>
       <div class="rdp-card">
         <div class="rdp-card-body" id="listaFotos"></div>
-        <div class="rdp-card-footer">
-          <button class="rdp-btn rdp-btn-success" onclick="uploadEmLote()">
-            <span class="material-icons">collections</span>Upload em Lote
-          </button>
-          <button class="rdp-btn rdp-btn-primary" onclick="addFoto()">
-            <span class="material-icons">add_a_photo</span>Foto
-          </button>
-          <button class="rdp-btn rdp-btn-muted" onclick="remFoto()">
-            <span class="material-icons">remove</span>Remover
-          </button>
+        <div class="rdp-card-footer rdp-action-row">
+          <div class="rdp-btn-group">
+            <button class="rdp-btn rdp-btn-success" onclick="uploadEmLote()">
+              <span class="material-icons">collections</span>Upload em lote
+            </button>
+            <button class="rdp-btn rdp-btn-primary" onclick="addFoto()">
+              <span class="material-icons">add_a_photo</span>Foto
+            </button>
+            <button class="rdp-btn rdp-btn-muted" onclick="remFoto()">
+              <span class="material-icons">remove</span>Remover última
+            </button>
+            <button class="rdp-btn rdp-btn-danger" onclick="removerTodasFotos()">
+              <span class="material-icons">delete_sweep</span>Remover todas
+            </button>
+          </div>
         </div>
       </div>
     </div>
