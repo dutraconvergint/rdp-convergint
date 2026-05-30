@@ -61,7 +61,7 @@ function garantirViewerZoomFoto() {
   viewer.innerHTML = `
     <div class="foto-zoom-topbar">
       <div>
-        <strong><i class="bi bi-search"></i> Visualizar foto</strong>
+        <strong><span class="material-icons">zoom_in</span> Visualizar foto</strong>
         <span id="fotoZoomInfo" class="foto-zoom-info"></span>
       </div>
       <div class="foto-zoom-actions">
@@ -655,7 +655,7 @@ function renumerarFotos() {
     ativarDragFoto(card);
 
     const titulo = card.querySelector(".foto-title");
-    if (titulo) titulo.innerHTML = `<i class="bi bi-image"></i> Foto ${i + 1}`;
+    if (titulo) titulo.innerHTML = `<span class="material-icons">image</span> Foto ${i + 1}`;
 
     const badge = card.querySelector(".foto-num-badge");
     if (badge) badge.textContent = `Nº ${i + 1}`;
@@ -741,22 +741,22 @@ window.addFoto = function(increment=true) {
   div.innerHTML = `
     <div class="foto-card-header d-flex justify-content-between align-items-center mb-2">
       <div class="d-flex align-items-center gap-2">
-        <span class="foto-drag-handle" title="Arraste para reorganizar"><i class="bi bi-grip-vertical"></i></span>
-        <strong class="small foto-title"><i class="bi bi-image"></i> Foto ${idx+1}</strong>
+        <span class="foto-drag-handle" title="Arraste para reorganizar"><span class="material-icons">drag_indicator</span></span>
+        <strong class="small foto-title"><span class="material-icons">image</span> Foto ${idx+1}</strong>
         <span class="badge text-bg-secondary foto-num-badge">Nº ${idx+1}</span>
       </div>
       <div class="foto-actions btn-group btn-group-sm" role="group" aria-label="Ações da foto">
         <button type="button" class="btn btn-outline-light foto-action-btn" data-foto-action="up"
                 onclick="moverFoto(${idx}, -1)" title="Mover foto para cima">
-          <i class="bi bi-arrow-up"></i>
+          <span class="material-icons">keyboard_arrow_up</span>
         </button>
         <button type="button" class="btn btn-outline-light foto-action-btn" data-foto-action="down"
                 onclick="moverFoto(${idx}, 1)" title="Mover foto para baixo">
-          <i class="bi bi-arrow-down"></i>
+          <span class="material-icons">keyboard_arrow_down</span>
         </button>
         <button type="button" class="btn btn-outline-danger foto-action-btn" data-foto-action="delete"
                 onclick="excluirFoto(${idx})" title="Excluir esta foto">
-          <i class="bi bi-trash"></i>
+          <span class="material-icons">delete</span>
         </button>
       </div>
     </div>
@@ -1020,7 +1020,7 @@ window.gerarDOCX = async function() {
   } catch(e) {
     alert("Erro ao gerar DOCX: " + e.message);
   } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-file-word"></i> Baixar DOCX'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-icons">description</span> Baixar DOCX'; }
   }
 };
 
@@ -1140,8 +1140,19 @@ async function carregarClientes() {
   renderClientes();
 }
 
+function escapeHtml(valor) {
+  return String(valor ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function renderClientes(filtro="") {
   const lista = document.getElementById("listaClientes");
+  if (!lista) return;
+
   const termo = filtro.toLowerCase();
   const filtrados = filtro
     ? clientes.filter(c => `${c.nomeCliente || ""} ${c.obra || ""} ${c.codigo || ""} ${c.sistema || ""}`.toLowerCase().includes(termo))
@@ -1152,25 +1163,39 @@ function renderClientes(filtro="") {
     return;
   }
 
-  lista.innerHTML = filtrados.map(c => `
-    <div class="border rounded p-2 mb-1 cliente-item ${c.id === clienteCarregadoId ? "cliente-carregado" : ""}">
-      ${c.logo ? `<img src="${c.logo}" height="24" class="mb-1 d-block rounded">` : ""}
-      <div class="fw-semibold" style="font-size:.84rem">${c.nomeCliente || "Sem nome"}</div>
-      <small class="text-muted d-block">
-        ${c.codigo || "Sem código"} · ${c.sistema || "Sem sistema"}${c.obra ? " · "+c.obra : ""}
-      </small>
-      <div class="d-flex gap-1 mt-1">
-        <button class="btn btn-xs btn-outline-primary" style="font-size:.75rem;padding:2px 6px"
-                onclick="carregarClienteForm('${c.id}')">
-          <i class="bi bi-arrow-down-circle"></i> Carregar
-        </button>
-        <button class="btn btn-xs btn-outline-danger" style="font-size:.75rem;padding:2px 6px"
-                onclick="excluirCliente('${c.id}')">
-          <i class="bi bi-trash"></i>
-        </button>
+  lista.innerHTML = filtrados.map(c => {
+    const nome = escapeHtml(c.nomeCliente || "Sem nome");
+    const codigo = escapeHtml(c.codigo || "Sem código");
+    const sistema = escapeHtml(c.sistema || "Sem sistema");
+    const obra = escapeHtml(c.obra || "");
+    const carregado = c.id === clienteCarregadoId ? "cliente-carregado" : "";
+
+    return `
+      <div class="cliente-item ${carregado}">
+        <div class="cliente-item-main">
+          ${c.logo ? `<img src="${c.logo}" class="cliente-logo" alt="Logo">` : ""}
+          <div class="cliente-info">
+            <div class="cliente-nome">${nome}</div>
+            <div class="cliente-meta">
+              <span class="cliente-codigo">${codigo}</span>
+              <span class="cliente-sistema">${sistema}</span>
+              ${obra ? `<span class="cliente-obra">${obra}</span>` : ""}
+            </div>
+          </div>
+        </div>
+
+        <div class="cliente-actions">
+          <button class="rdp-btn rdp-btn-success cliente-btn" onclick="carregarClienteForm('${c.id}')" title="Carregar cliente">
+            <span class="material-icons">download</span>
+            Carregar
+          </button>
+          <button class="rdp-btn rdp-btn-danger cliente-btn-icon" onclick="excluirCliente('${c.id}')" title="Excluir cliente">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 window.filtrarClientes = v => {
