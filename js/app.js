@@ -254,6 +254,17 @@ function initSidebarResizer() {
   });
 }
 
+
+function atualizarBotoesAdminNav() {
+  const isAdmin = perfilUsuario?.role === "admin";
+  ["btnAdminUsuarios", "btnAdminUsuariosMobile"].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle("hide", !isAdmin);
+    el.classList.toggle("d-none", !isAdmin);
+  });
+}
+
 // ── Auth guard ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
   try {
@@ -1324,6 +1335,9 @@ function rdpRefreshMaterialize() {
   try {
     if (!window.M) return;
     M.updateTextFields?.();
+    document.querySelectorAll('.sidenav').forEach(el => {
+      if (!M.Sidenav.getInstance(el)) M.Sidenav.init(el, { edge: 'right' });
+    });
     document.querySelectorAll('.modal').forEach(el => {
       if (!M.Modal.getInstance(el)) M.Modal.init(el, { dismissible: true, opacity: 0.55 });
     });
