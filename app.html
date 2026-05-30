@@ -171,51 +171,47 @@
       <div class="card rdp-card rdp-resumo-card">
         <div class="card-content rdp-resumo-content">
 
-          <div class="rdp-resumo-table-wrap">
-            <table class="rdp-resumo-table">
-              <thead>
-                <tr>
-                  <th>Início Prev.</th>
-                  <th>Início Real</th>
-                  <th>Término Prev.</th>
-                  <th>Término Real</th>
-                  <th>Produtividade</th>
-                  <th>Clima</th>
-                </tr>
-              </thead>
+          <div class="rdp-resumo-materialize-row">
 
-              <tbody>
-                <tr>
-                  <td>
-                    <input type="text" id="hIniPrev" class="rdp-resumo-input" value="08:00">
-                  </td>
-                  <td>
-                    <input type="text" id="hIniReal" class="rdp-resumo-input" value="08:00">
-                  </td>
-                  <td>
-                    <input type="text" id="hFimPrev" class="rdp-resumo-input" value="17:00">
-                  </td>
-                  <td>
-                    <input type="text" id="hFimReal" class="rdp-resumo-input" value="17:00">
-                  </td>
-                  <td>
-                    <select id="produtividade" class="browser-default rdp-resumo-select">
-                      <option>Produtivo</option>
-                      <option>Muito Produtivo</option>
-                      <option>Pouco Produtivo</option>
-                    </select>
-                  </td>
-                  <td>
-                    <select id="clima" class="browser-default rdp-resumo-select">
-                      <option>Bom</option>
-                      <option>Chuva Leve</option>
-                      <option>Chuva Forte</option>
-                      <option>Fora Turno</option>
-                    </select>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="input-field rdp-mi-field">
+              <input id="hIniPrev" type="text" class="validate" value="08:00">
+              <label for="hIniPrev" class="active">Início Prev.</label>
+            </div>
+
+            <div class="input-field rdp-mi-field">
+              <input id="hIniReal" type="text" class="validate" value="08:00">
+              <label for="hIniReal" class="active">Início Real</label>
+            </div>
+
+            <div class="input-field rdp-mi-field">
+              <input id="hFimPrev" type="text" class="validate" value="17:00">
+              <label for="hFimPrev" class="active">Término Prev.</label>
+            </div>
+
+            <div class="input-field rdp-mi-field">
+              <input id="hFimReal" type="text" class="validate" value="17:00">
+              <label for="hFimReal" class="active">Término Real</label>
+            </div>
+
+            <div class="input-field rdp-mi-field rdp-mi-select">
+              <select id="produtividade">
+                <option selected>Produtivo</option>
+                <option>Muito Produtivo</option>
+                <option>Pouco Produtivo</option>
+              </select>
+              <label for="produtividade">Produtividade</label>
+            </div>
+
+            <div class="input-field rdp-mi-field rdp-mi-select">
+              <select id="clima">
+                <option selected>Bom</option>
+                <option>Chuva Leve</option>
+                <option>Chuva Forte</option>
+                <option>Fora Turno</option>
+              </select>
+              <label for="clima">Clima</label>
+            </div>
+
           </div>
 
         </div>
