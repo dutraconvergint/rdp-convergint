@@ -336,3 +336,49 @@ html[data-bs-theme="dark"] body {
     height: calc(100vh - 210px);
   }
 }
+
+/* ── Ordenação e exclusão individual de fotos ─────────────────────────────── */
+.foto-card {
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease, opacity .15s ease;
+}
+
+.foto-card-header {
+  cursor: default;
+  user-select: none;
+}
+
+.foto-drag-handle {
+  color: #9ca3af;
+  cursor: grab;
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.foto-card:active .foto-drag-handle {
+  cursor: grabbing;
+}
+
+.foto-card.dragging {
+  opacity: .45;
+  transform: scale(.995);
+  border-style: dashed !important;
+}
+
+.foto-card.drag-over {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 .18rem rgba(96,165,250,.20);
+}
+
+.foto-actions .foto-action-btn {
+  min-width: 32px;
+}
+
+.foto-actions .foto-action-btn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.foto-num-badge {
+  min-width: 44px;
+}
