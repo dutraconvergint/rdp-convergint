@@ -26,8 +26,8 @@
         <i class="bi bi-people"></i> Usuários
       </a>
       <button class="btn btn-sm btn-outline-light"
-              data-bs-toggle="modal" data-bs-target="#modalSenha" title="Alterar senha">
-        <i class="bi bi-key"></i>
+              data-bs-toggle="modal" data-bs-target="#modalPerfil" title="Meu perfil">
+        <i class="bi bi-person-gear"></i>
       </button>
       <button class="btn btn-sm btn-outline-light" onclick="sair()">
         <i class="bi bi-box-arrow-right"></i> Sair
@@ -235,23 +235,49 @@
   </div>
 </div>
 
-<!-- Modal alterar senha -->
-<div class="modal fade" id="modalSenha" tabindex="-1">
-  <div class="modal-dialog modal-sm">
+<!-- Modal meu perfil -->
+<div class="modal fade" id="modalPerfil" tabindex="-1">
+  <div class="modal-dialog modal-md">
     <div class="modal-content">
       <div class="modal-header">
-        <h6 class="modal-title">Alterar Senha</h6>
+        <h6 class="modal-title"><i class="bi bi-person-gear"></i> Meu Perfil</h6>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <input type="password" id="senhaAtual" class="form-control mb-2"
-               placeholder="Senha atual">
-        <input type="password" id="novaSenha" class="form-control"
-               placeholder="Nova senha (mín. 6 chars)">
-        <div id="msgSenha" class="mt-2 small text-danger" style="display:none"></div>
+        <div class="alert alert-secondary py-2 small mb-3">
+          Altere seus dados pessoais. Para trocar e-mail ou senha, informe a senha atual.
+        </div>
+
+        <div class="row g-2">
+          <div class="col-md-12">
+            <label class="form-label">Nome completo</label>
+            <input type="text" id="perfilNome" class="form-control" placeholder="Seu nome completo">
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Função</label>
+            <input type="text" id="perfilFuncao" class="form-control" placeholder="Ex.: Programador, Técnico, Engenheiro">
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">E-mail</label>
+            <input type="email" id="perfilEmail" class="form-control" placeholder="seu@email.com">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Senha atual</label>
+            <input type="password" id="perfilSenhaAtual" class="form-control" autocomplete="current-password" placeholder="Obrigatória para e-mail/senha">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Nova senha</label>
+            <input type="password" id="perfilNovaSenha" class="form-control" autocomplete="new-password" placeholder="Opcional, mín. 6 caracteres">
+          </div>
+        </div>
+
+        <div id="msgPerfil" class="mt-3 small text-danger" style="display:none"></div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary btn-sm" onclick="alterarSenha()">Salvar</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+        <button id="btnSalvarPerfil" class="btn btn-primary btn-sm" onclick="salvarMeuPerfil()">
+          <i class="bi bi-check2-circle"></i> Salvar alterações
+        </button>
       </div>
     </div>
   </div>
