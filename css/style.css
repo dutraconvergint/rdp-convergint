@@ -2802,3 +2802,64 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
     min-height: 92px !important;
   }
 }
+
+/* ============================================================
+   CORREÇÃO FINAL - Busca de clientes do mesmo tamanho dos cards
+   Este bloco deve ficar no FINAL do style.css.
+   O problema era que o cabeçalho da sidebar usava padding lateral 14px
+   e a lista de clientes usa padding lateral 10px.
+   Assim a busca ficava mais estreita que os cards.
+   ============================================================ */
+
+/* Mantém o título e a busca alinhados com os cards da lista */
+.rdp-sidebar-head {
+  padding: 16px 10px 12px !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* A lista de clientes já usa 10px; reforça para manter o mesmo padrão */
+.rdp-client-list {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+/* Faz o campo de busca ocupar exatamente a mesma largura útil dos cards */
+.rdp-sidebar-search {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+
+  height: 37px !important;
+  min-height: 37px !important;
+
+  margin: 0 !important;
+  padding: 7px 11px !important;
+
+  color: var(--text-strong) !important;
+  background: var(--input) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 11px !important;
+
+  outline: none !important;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.04) !important;
+
+  font-size: .86rem !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  box-sizing: border-box !important;
+}
+
+/* Mesmo comportamento visual dos cards ao focar */
+.rdp-sidebar-search:focus {
+  background: var(--input-focus) !important;
+  border-color: #29b6f6 !important;
+  box-shadow:
+    inset 0 -1px 0 rgba(255,255,255,.06),
+    0 0 0 2px rgba(41,182,246,.16) !important;
+}
+
+/* Placeholder mais discreto */
+.rdp-sidebar-search::placeholder {
+  color: color-mix(in srgb, var(--muted) 82%, transparent) !important;
+}
+
