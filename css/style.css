@@ -3268,3 +3268,193 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
   }
 }
 
+/* ============================================================
+   AJUSTE FINAL - CABEÇALHO COM CÓDIGO/OBRA COLADOS
+   Objetivo:
+   - Código fica logo ao lado do Cliente / Projeto.
+   - Obra fica logo ao lado do Contratante.
+   - Apenas "Seu nome" e "Endereço" ficam mais compridos.
+   Coloque este bloco no FINAL do CSS para sobrescrever ajustes anteriores.
+   ============================================================ */
+
+/* Mantém o respiro interno do card e evita estouro horizontal */
+.rdp-cabecalho-card .rdp-cabecalho-content {
+  padding-right: 10px !important;
+  box-sizing: border-box !important;
+  overflow: visible !important;
+}
+
+/* Grade do cabeçalho:
+   Coluna 1 = Logo
+   Coluna 2 = Cliente / Contratante
+   Coluna 3 = Código / Obra bem próximos da coluna 2
+   Coluna 4 = Data / início do Endereço
+   Coluna 5 = Sistema / meio do Endereço
+   Coluna 6 = Seu nome / final do Endereço
+*/
+.rdp-cabecalho-card .rdp-cabecalho-grid {
+  display: grid !important;
+  width: 100% !important;
+  max-width: 100% !important;
+
+  grid-template-columns:
+    minmax(120px, 145px)
+    minmax(230px, 1.25fr)
+    minmax(82px, 92px)
+    minmax(100px, 110px)
+    minmax(112px, 122px)
+    minmax(260px, 1.85fr) !important;
+
+  column-gap: 6px !important;
+  row-gap: 10px !important;
+
+  align-items: end !important;
+  justify-content: stretch !important;
+  box-sizing: border-box !important;
+}
+
+/* Logo permanece na primeira coluna ocupando as duas linhas */
+.rdp-cabecalho-card .rdp-logo-input-field {
+  grid-column: 1 / 2 !important;
+  grid-row: 1 / span 2 !important;
+  width: 100% !important;
+  max-width: none !important;
+  align-self: start !important;
+}
+
+/* PRIMEIRA LINHA */
+.rdp-cabecalho-card .rdp-head-cliente {
+  grid-column: 2 / 3 !important;
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+}
+
+.rdp-cabecalho-card .rdp-head-codigo {
+  grid-column: 3 / 4 !important;
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+}
+
+.rdp-cabecalho-card .rdp-head-data {
+  grid-column: 4 / 5 !important;
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+}
+
+.rdp-cabecalho-card .rdp-head-sistema {
+  grid-column: 5 / 6 !important;
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+}
+
+/* "Seu nome" fica comprido até quase o final do card */
+.rdp-cabecalho-card .rdp-head-prof {
+  grid-column: 6 / 7 !important;
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+}
+
+/* SEGUNDA LINHA */
+.rdp-cabecalho-card .rdp-head-contratante {
+  grid-column: 2 / 3 !important;
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+}
+
+/* Obra fica colada no Contratante, com largura menor */
+.rdp-cabecalho-card .rdp-head-obra {
+  grid-column: 3 / 4 !important;
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+}
+
+/* Endereço fica comprido, ocupando o restante da linha */
+.rdp-cabecalho-card .rdp-head-endereco {
+  grid-column: 4 / 7 !important;
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+}
+
+/* Garante que os inputs preencham a largura definida pelo grid */
+.rdp-cabecalho-card .rdp-head-cliente input,
+.rdp-cabecalho-card .rdp-head-codigo input,
+.rdp-cabecalho-card .rdp-head-data input,
+.rdp-cabecalho-card .rdp-head-sistema input,
+.rdp-cabecalho-card .rdp-head-prof input,
+.rdp-cabecalho-card .rdp-head-contratante input,
+.rdp-cabecalho-card .rdp-head-obra input,
+.rdp-cabecalho-card .rdp-head-endereco input,
+.rdp-cabecalho-card .rdp-head-sistema .select-wrapper,
+.rdp-cabecalho-card .rdp-head-sistema .select-wrapper input.select-dropdown {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Responsivo sem alterar a lógica principal em desktop */
+@media (max-width: 1180px) {
+  .rdp-cabecalho-card .rdp-cabecalho-grid {
+    grid-template-columns:
+      minmax(120px, 145px)
+      minmax(220px, 1.25fr)
+      minmax(82px, 92px)
+      minmax(100px, 110px)
+      minmax(112px, 122px)
+      minmax(220px, 1.55fr) !important;
+    column-gap: 6px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .rdp-cabecalho-card .rdp-cabecalho-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    column-gap: 10px !important;
+    row-gap: 10px !important;
+  }
+
+  .rdp-cabecalho-card .rdp-logo-input-field,
+  .rdp-cabecalho-card .rdp-head-cliente,
+  .rdp-cabecalho-card .rdp-head-codigo,
+  .rdp-cabecalho-card .rdp-head-data,
+  .rdp-cabecalho-card .rdp-head-sistema,
+  .rdp-cabecalho-card .rdp-head-prof,
+  .rdp-cabecalho-card .rdp-head-contratante,
+  .rdp-cabecalho-card .rdp-head-obra,
+  .rdp-cabecalho-card .rdp-head-endereco {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    max-width: 100% !important;
+  }
+
+  .rdp-cabecalho-card .rdp-head-prof,
+  .rdp-cabecalho-card .rdp-head-endereco {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .rdp-cabecalho-card .rdp-cabecalho-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rdp-cabecalho-card .rdp-logo-input-field,
+  .rdp-cabecalho-card .rdp-head-cliente,
+  .rdp-cabecalho-card .rdp-head-codigo,
+  .rdp-cabecalho-card .rdp-head-data,
+  .rdp-cabecalho-card .rdp-head-sistema,
+  .rdp-cabecalho-card .rdp-head-prof,
+  .rdp-cabecalho-card .rdp-head-contratante,
+  .rdp-cabecalho-card .rdp-head-obra,
+  .rdp-cabecalho-card .rdp-head-endereco {
+    grid-column: 1 / -1 !important;
+  }
+}
+
