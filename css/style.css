@@ -2863,3 +2863,69 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
   color: color-mix(in srgb, var(--muted) 82%, transparent) !important;
 }
 
+/* ============================================================
+   CORREÇÃO FINAL - rdp-sidebar-body com a mesma largura da busca
+   NÃO altera o .rdp-sidebar-search.
+   A busca está dentro de .rdp-sidebar-head com 10px laterais.
+   Então o body recebe a mesma largura útil: 100% - 20px.
+   ============================================================ */
+
+.rdp-sidebar-body {
+  width: calc(100% - 20px) !important;
+  max-width: calc(100% - 20px) !important;
+  margin-left: 10px !important;
+  margin-right: 10px !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* O container interno não pode somar padding lateral,
+   senão fica diferente da largura da busca. */
+.rdp-sidebar-body #listaClientes,
+.rdp-sidebar-body .rdp-client-list {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* Mantém apenas espaçamento vertical da lista, sem alterar a altura dos cards. */
+.rdp-sidebar-body .rdp-client-list {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+
+/* Os cards passam a obedecer a largura do body. */
+.rdp-sidebar-body .cliente-item {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Impede textos, metadados e botões de empurrarem o card para fora. */
+.rdp-sidebar-body .cliente-item-main,
+.rdp-sidebar-body .cliente-info,
+.rdp-sidebar-body .cliente-meta,
+.rdp-sidebar-body .cliente-actions {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.rdp-sidebar-body .cliente-nome,
+.rdp-sidebar-body .cliente-obra,
+.rdp-sidebar-body .cliente-codigo,
+.rdp-sidebar-body .cliente-sistema {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
