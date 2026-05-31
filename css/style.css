@@ -2931,239 +2931,123 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
 }
 
 /* ============================================================
-   CORREÇÃO FINAL - Profissionais Envolvidos direto no card
-   Deixa a seção "Profissionais Envolvidos" com visual parecido
-   com o cabeçalho: sem card interno em cada linha e com inputs
-   diretamente dentro do card principal.
+   CORREÇÃO FINAL - Profissional e Endereço até 10px antes do
+   final do card do cabeçalho.
 
-   Este bloco sobrescreve apenas a seção #listaProfissionais.
-   Não altera Cabeçalho, Resumo, Atividades, Fotos ou Sidebar.
+   Objetivo:
+   - Não alterar o restante do layout.
+   - Campo "Seu nome" (.rdp-head-prof) termina a 10px da borda
+     direita interna do card.
+   - Campo "Endereço" (.rdp-head-endereco) também termina no mesmo
+     alinhamento, a 10px da borda direita interna do card.
+   - Remove limites anteriores de max-width que impediam o campo de
+     aproveitar toda a largura da última coluna.
    ============================================================ */
 
-/* Card principal dos profissionais com respiro parecido com o cabeçalho */
-#listaProfissionais.card-content,
-#listaProfissionais {
-  padding: 12px 14px 10px !important;
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  overflow: visible !important;
+/* Define o respiro direito exato do conteúdo do card */
+.rdp-cabecalho-card .rdp-cabecalho-content {
+  padding-right: 10px !important;
   box-sizing: border-box !important;
 }
 
-/* Remove o visual de "card dentro do card" apenas dos profissionais */
-#listaProfissionais .prof-row,
-#listaProfissionais .prof-row.row,
-#listaProfissionais .rdp-prof-material-row,
-#listaProfissionais .rdp-prof-material-row.rdp-material-row {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-
+/* Garante que a grade do cabeçalho ocupe toda a largura útil do card */
+.rdp-cabecalho-card .rdp-cabecalho-grid {
   width: 100% !important;
   max-width: 100% !important;
-  min-width: 0 !important;
-
-  margin: 0 0 10px 0 !important;
-  padding: 0 !important;
 
   display: grid !important;
-  grid-template-columns: minmax(260px, 2fr) minmax(190px, 1fr) minmax(190px, 1fr) !important;
+  grid-template-columns:
+    minmax(100px, var(--rdp-max-logo, 145px))
+    minmax(280px, 2.1fr)
+    minmax(100px, 120px)
+    minmax(100px, 120px)
+    minmax(110px, 130px)
+    minmax(170px, 1fr) !important;
+
   column-gap: 10px !important;
-  row-gap: 10px !important;
+  row-gap: var(--rdp-head-gap-y, 10px) !important;
+
+  justify-content: stretch !important;
   align-items: end !important;
   box-sizing: border-box !important;
 }
 
-/* Se existir mais de uma linha, mantém separação leve, sem parecer card */
-#listaProfissionais .prof-row + .prof-row,
-#listaProfissionais .rdp-prof-material-row + .rdp-prof-material-row {
-  padding-top: 10px !important;
-  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent) !important;
-}
-
-/* Remove margens/paddings herdados do Materialize/Bootstrap nas colunas internas */
-#listaProfissionais .row > .col,
-#listaProfissionais .row > [class*="col-"],
-#listaProfissionais .col,
-#listaProfissionais .col-auto,
-#listaProfissionais .col-md-2,
-#listaProfissionais .col-md-3,
-#listaProfissionais .col-md-4,
-#listaProfissionais .col-md-6,
-#listaProfissionais .col-md-10,
-#listaProfissionais .col-md-12,
-#listaProfissionais .col-lg-3,
-#listaProfissionais .col-lg-4,
-#listaProfissionais .col-lg-8,
-#listaProfissionais .col-lg-9 {
-  width: auto !important;
+/* Campo "Seu nome": ocupa a última coluna inteira e termina no limite da grade */
+.rdp-cabecalho-card .rdp-head-prof {
+  grid-column: 6 / 7 !important;
+  width: 100% !important;
   max-width: none !important;
   min-width: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  flex: none !important;
+  justify-self: stretch !important;
   box-sizing: border-box !important;
 }
 
-/* Campos no mesmo padrão visual compacto do cabeçalho */
-#listaProfissionais .input-field,
-#listaProfissionais .rdp-mi-field.input-field,
-#listaProfissionais .rdp-field {
-  margin: 0 !important;
+/* Campo "Endereço": ocupa as colunas finais e termina alinhado com "Seu nome" */
+.rdp-cabecalho-card .rdp-head-endereco {
+  grid-column: 5 / 7 !important;
+  width: 100% !important;
+  max-width: none !important;
   min-width: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  height: 46px !important;
-  position: relative !important;
-  padding: 0 !important;
-  overflow: visible !important;
+  justify-self: stretch !important;
   box-sizing: border-box !important;
 }
 
-/* Label igual ao cabeçalho */
-#listaProfissionais .input-field > label,
-#listaProfissionais .rdp-mi-field.input-field > label,
-#listaProfissionais .rdp-field label,
-#listaProfissionais label {
-  position: absolute !important;
-  top: -2px !important;
-  left: 0 !important;
-  transform: none !important;
-
-  margin: 0 !important;
-  padding: 0 !important;
-  height: auto !important;
-  line-height: 1 !important;
-
-  color: var(--muted) !important;
-  font-size: .72rem !important;
-  font-weight: 800 !important;
-  letter-spacing: .25px !important;
-  text-transform: uppercase !important;
-  pointer-events: none !important;
-}
-
-/* Inputs diretos no card, sem linha Materialize solta */
-#listaProfissionais input:not(.browser-default),
-#listaProfissionais input.validate,
-#listaProfissionais input[type="text"],
-#listaProfissionais input[type="email"],
-#listaProfissionais input[type="number"],
-#listaProfissionais .form-control {
+/* Inputs internos precisam preencher totalmente o campo */
+.rdp-cabecalho-card .rdp-head-prof input,
+.rdp-cabecalho-card .rdp-head-endereco input {
   width: 100% !important;
   max-width: 100% !important;
-
-  height: 31px !important;
-  min-height: 31px !important;
-
-  margin: 15px 0 0 0 !important;
-  padding: 0 8px !important;
-
-  color: var(--text-strong) !important;
-  background: var(--input) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 7px !important;
-
-  box-shadow: none !important;
-  outline: none !important;
-  box-sizing: border-box !important;
-
-  font-family: Inter, Roboto, "Segoe UI", Arial, sans-serif !important;
-  font-size: .82rem !important;
-  font-weight: 600 !important;
-  line-height: 31px !important;
-  text-align: left !important;
-}
-
-/* Foco igual aos campos do cabeçalho */
-#listaProfissionais input:not(.browser-default):focus,
-#listaProfissionais input.validate:focus,
-#listaProfissionais input[type="text"]:focus,
-#listaProfissionais input[type="email"]:focus,
-#listaProfissionais input[type="number"]:focus,
-#listaProfissionais .form-control:focus {
-  background: var(--input-focus) !important;
-  border-color: #29b6f6 !important;
-  box-shadow: 0 0 0 2px rgba(41,182,246,.14) !important;
-}
-
-/* Selects, caso algum profissional use select Materialize */
-#listaProfissionais .select-wrapper {
-  width: 100% !important;
-  max-width: 100% !important;
-  height: 31px !important;
-  margin-top: 15px !important;
+  min-width: 0 !important;
   box-sizing: border-box !important;
 }
 
-#listaProfissionais .select-wrapper input.select-dropdown {
+/* Compatibilidade com wrappers gerados pelo Materialize */
+.rdp-cabecalho-card .rdp-head-prof .select-wrapper,
+.rdp-cabecalho-card .rdp-head-endereco .select-wrapper,
+.rdp-cabecalho-card .rdp-head-prof .select-wrapper input.select-dropdown,
+.rdp-cabecalho-card .rdp-head-endereco .select-wrapper input.select-dropdown {
   width: 100% !important;
   max-width: 100% !important;
-  height: 31px !important;
-  min-height: 31px !important;
-  margin: 0 !important;
-  padding: 0 26px 0 8px !important;
-  color: var(--text-strong) !important;
-  background: var(--input) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 7px !important;
-  box-shadow: none !important;
+  min-width: 0 !important;
   box-sizing: border-box !important;
-  font-size: .82rem !important;
-  font-weight: 600 !important;
-  line-height: 31px !important;
 }
 
-#listaProfissionais .select-wrapper input.select-dropdown:focus {
-  background: var(--input-focus) !important;
-  border-color: #29b6f6 !important;
-  box-shadow: 0 0 0 2px rgba(41,182,246,.14) !important;
-}
+/* Responsivo: mantém o comportamento anterior em telas menores */
+@media (max-width: 1280px) {
+  .rdp-cabecalho-card .rdp-cabecalho-grid {
+    grid-template-columns: repeat(6, minmax(110px, 1fr)) !important;
+  }
 
-#listaProfissionais .select-wrapper .caret {
-  fill: var(--muted) !important;
-  right: 7px !important;
-  top: 4px !important;
-}
+  .rdp-cabecalho-card .rdp-head-prof {
+    grid-column: 5 / 7 !important;
+    max-width: none !important;
+  }
 
-/* Se houver botão de remover dentro da linha, ele fica alinhado ao input */
-#listaProfissionais .rdp-btn,
-#listaProfissionais .btn,
-#listaProfissionais button {
-  align-self: end !important;
-}
-
-/* Rodapé dos botões do card Profissionais alinhado ao estilo existente */
-.rdp-section .card #listaProfissionais + .card-action.rdp-action-row,
-#listaProfissionais ~ .card-action.rdp-action-row {
-  padding: 10px 14px !important;
-  background: var(--panel-2) !important;
-  border-top: 1px solid var(--border) !important;
-}
-
-/* Responsivo: profissionais em 2 colunas e depois 1 coluna */
-@media (max-width: 1050px) {
-  #listaProfissionais .prof-row,
-  #listaProfissionais .prof-row.row,
-  #listaProfissionais .rdp-prof-material-row,
-  #listaProfissionais .rdp-prof-material-row.rdp-material-row {
-    grid-template-columns: 1fr 1fr !important;
+  .rdp-cabecalho-card .rdp-head-endereco {
+    grid-column: 5 / 7 !important;
+    max-width: none !important;
   }
 }
 
-@media (max-width: 700px) {
-  #listaProfissionais .prof-row,
-  #listaProfissionais .prof-row.row,
-  #listaProfissionais .rdp-prof-material-row,
-  #listaProfissionais .rdp-prof-material-row.rdp-material-row {
+@media (max-width: 900px) {
+  .rdp-cabecalho-card .rdp-cabecalho-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .rdp-cabecalho-card .rdp-head-prof,
+  .rdp-cabecalho-card .rdp-head-endereco {
+    grid-column: 1 / -1 !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .rdp-cabecalho-card .rdp-cabecalho-grid {
     grid-template-columns: 1fr !important;
   }
 
-  #listaProfissionais.card-content,
-  #listaProfissionais {
-    padding: 12px 10px 10px !important;
+  .rdp-cabecalho-card .rdp-head-prof,
+  .rdp-cabecalho-card .rdp-head-endereco {
+    grid-column: 1 / -1 !important;
   }
 }
-
