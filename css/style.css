@@ -2930,3 +2930,124 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
   text-overflow: ellipsis !important;
 }
 
+/* ============================================================
+   CORREÇÃO FINAL - Profissional e Endereço até 10px antes do
+   final do card do cabeçalho.
+
+   Objetivo:
+   - Não alterar o restante do layout.
+   - Campo "Seu nome" (.rdp-head-prof) termina a 10px da borda
+     direita interna do card.
+   - Campo "Endereço" (.rdp-head-endereco) também termina no mesmo
+     alinhamento, a 10px da borda direita interna do card.
+   - Remove limites anteriores de max-width que impediam o campo de
+     aproveitar toda a largura da última coluna.
+   ============================================================ */
+
+/* Define o respiro direito exato do conteúdo do card */
+.rdp-cabecalho-card .rdp-cabecalho-content {
+  padding-right: 10px !important;
+  box-sizing: border-box !important;
+}
+
+/* Garante que a grade do cabeçalho ocupe toda a largura útil do card */
+.rdp-cabecalho-card .rdp-cabecalho-grid {
+  width: 100% !important;
+  max-width: 100% !important;
+
+  display: grid !important;
+  grid-template-columns:
+    minmax(100px, var(--rdp-max-logo, 145px))
+    minmax(280px, 2.1fr)
+    minmax(100px, 120px)
+    minmax(100px, 120px)
+    minmax(110px, 130px)
+    minmax(170px, 1fr) !important;
+
+  column-gap: 10px !important;
+  row-gap: var(--rdp-head-gap-y, 10px) !important;
+
+  justify-content: stretch !important;
+  align-items: end !important;
+  box-sizing: border-box !important;
+}
+
+/* Campo "Seu nome": ocupa a última coluna inteira e termina no limite da grade */
+.rdp-cabecalho-card .rdp-head-prof {
+  grid-column: 6 / 7 !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  justify-self: stretch !important;
+  box-sizing: border-box !important;
+}
+
+/* Campo "Endereço": ocupa as colunas finais e termina alinhado com "Seu nome" */
+.rdp-cabecalho-card .rdp-head-endereco {
+  grid-column: 5 / 7 !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  justify-self: stretch !important;
+  box-sizing: border-box !important;
+}
+
+/* Inputs internos precisam preencher totalmente o campo */
+.rdp-cabecalho-card .rdp-head-prof input,
+.rdp-cabecalho-card .rdp-head-endereco input {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Compatibilidade com wrappers gerados pelo Materialize */
+.rdp-cabecalho-card .rdp-head-prof .select-wrapper,
+.rdp-cabecalho-card .rdp-head-endereco .select-wrapper,
+.rdp-cabecalho-card .rdp-head-prof .select-wrapper input.select-dropdown,
+.rdp-cabecalho-card .rdp-head-endereco .select-wrapper input.select-dropdown {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Responsivo: mantém o comportamento anterior em telas menores */
+@media (max-width: 1280px) {
+  .rdp-cabecalho-card .rdp-cabecalho-grid {
+    grid-template-columns: repeat(6, minmax(110px, 1fr)) !important;
+  }
+
+  .rdp-cabecalho-card .rdp-head-prof {
+    grid-column: 5 / 7 !important;
+    max-width: none !important;
+  }
+
+  .rdp-cabecalho-card .rdp-head-endereco {
+    grid-column: 5 / 7 !important;
+    max-width: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .rdp-cabecalho-card .rdp-cabecalho-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .rdp-cabecalho-card .rdp-head-prof,
+  .rdp-cabecalho-card .rdp-head-endereco {
+    grid-column: 1 / -1 !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 620px) {
+  .rdp-cabecalho-card .rdp-cabecalho-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .rdp-cabecalho-card .rdp-head-prof,
+  .rdp-cabecalho-card .rdp-head-endereco {
+    grid-column: 1 / -1 !important;
+  }
+}
