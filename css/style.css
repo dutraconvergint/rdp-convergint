@@ -8,7 +8,7 @@
 
 :root {
   --topbar-h: 58px;
-  --sidebar-w: 250px;
+  --sidebar-w: 120px;
   --radius: 10px;
   --radius-lg: 14px;
   --speed: .16s ease;
