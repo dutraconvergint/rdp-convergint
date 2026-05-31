@@ -2873,7 +2873,6 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
 .rdp-sidebar-body {
   width: calc(100% - 20px) !important;
   max-width: calc(100% - 20px) !important;
-  padding-top: 10px !important;
   margin-left: 10px !important;
   margin-right: 10px !important;
   padding: 0 !important;
@@ -2889,6 +2888,7 @@ html[data-theme="light"] .dropdown-content li > span { color: #333 !important; }
   max-width: 100% !important;
   margin-left: 0 !important;
   margin-right: 0 !important;
+  padding-top: 5px;
   padding-left: 0 !important;
   padding-right: 0 !important;
   box-sizing: border-box !important;
